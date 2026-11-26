@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediCalc Pro</title>
+    <script>
+      (function () {
+        var base = '/medcalc-pro-next';
+        var path = window.location.pathname.slice(base.length) || '/';
+        var route = path + window.location.search + window.location.hash;
+        window.location.replace(base + '/?p=' + encodeURIComponent(route));
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
