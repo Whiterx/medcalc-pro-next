@@ -32,7 +32,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
     const calculatedInfusionUnitsPerHour = 18 * weight
     return {
       indication: 'vte',
-      indicationLabel: 'Лечение острого венозного тромбоэмболического события (ТГВ/ТЭЛА)',
+      indicationLabel: 'ВТЭО — стартовая схема ASHP (80 ЕД/кг + 18 ЕД/кг/ч; suggested caps)',
       weightKg: weight,
       calculatedBolusUnits,
       bolusUnits: Math.min(calculatedBolusUnits, 10000),
@@ -40,7 +40,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
       calculatedInfusionUnitsPerHour,
       infusionUnitsPerHour: Math.min(calculatedInfusionUnitsPerHour, 2000),
       infusionCapped: calculatedInfusionUnitsPerHour > 2000,
-      monitoring: 'Контроль анти-Xa (часто используемый целевой диапазон 0,30–0,70 МЕ/мл) либо АЧТВ по локальному лабораторному терапевтическому диапазону.',
+      monitoring: 'ISTH 2026: anti-Xa 0,30–0,70 ЕД/мл предлагается для большинства терапевтических показаний; anti-Xa предпочтителен, АЧТВ допустимо только с локально определённым терапевтическим диапазоном. Для данной схемы титрование не рассчитывается.',
     }
   }
 
@@ -48,7 +48,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
   const calculatedInfusionUnitsPerHour = 12 * weight
   return {
     indication: 'acs',
-    indicationLabel: 'Начальная терапия острого коронарного синдрома (ОКС)',
+    indicationLabel: 'ОКС — стартовая схема ACC/AHA 2025 (не схема ЧКВ)',
     weightKg: weight,
     calculatedBolusUnits,
     bolusUnits: Math.min(calculatedBolusUnits, 4000),
