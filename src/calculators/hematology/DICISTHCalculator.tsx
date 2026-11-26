@@ -131,7 +131,7 @@ export default function DICISTHCalculator() {
               </label>
             )}
           </div>
-          <p className="field-hint">Для версии 2025 используйте результат D-димера, выраженный как кратность ВГН именно этого лабораторного метода. Порог >3×ВГН — 2 балла; >7×ВГН — 3 балла. Не смешивайте FEU и DDU без корректного пересчёта.</p>
+          <p className="field-hint">Для версии 2025 используйте результат D-димера, выраженный как кратность ВГН именно этого лабораторного метода. Порог &gt;3×ВГН — 2 балла; &gt;7×ВГН — 3 балла. Не смешивайте FEU и DDU без корректного пересчёта.</p>
 
           <label className="check-field">
             <input type="checkbox" checked={values.assessmentConfirmed} onChange={(event) => updateField('assessmentConfirmed', event.target.checked)} />
