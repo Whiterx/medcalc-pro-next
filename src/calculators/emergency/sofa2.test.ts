@@ -65,7 +65,7 @@ describe('calculateSOFA2',()=>{
   it('returns 0 for normal parameters',()=>expect(calculateSOFA2(normal).total).toBe(0))
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
   it('sums six maximum components to 24',()=>{
-    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400}
+    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,receivingRRT:true}
     expect(calculateSOFA2(severe).total).toBe(24)
   })
 })
