@@ -62,7 +62,7 @@ export default function NEWS2Calculator() {
       systolicBP: Number(values.systolicBP),
       pulse: Number(values.pulse),
       temperature: Number(values.temperature),
-      consciousness: values.consciousness,
+      consciousness: values.consciousness as NEWS2Input['consciousness'],
     }
     setResult(calculateNEWS2(input))
     setError('')
