@@ -184,7 +184,7 @@ export default function PSICalculator() {
 
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className="risk-tag risk-{result.riskClass === 'I' || result.riskClass === 'II' ? 'low' : result.riskClass === 'III' ? 'moderate' : 'high'}">{result.classLabel}</span></div>
+          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag risk-${result.riskClass === 'I' || result.riskClass === 'II' ? 'low' : result.riskClass === 'III' ? 'moderate' : 'high'}`}>{result.classLabel}</span></div>
           <div className="score-display"><strong>{result.score === null ? 'I' : result.score}</strong><span>{result.score === null ? 'класс I, без расчёта баллов' : `баллов · класс ${result.riskClass}`}</span></div>
           <p className="mortality-estimate">{result.mortalityEstimate}</p>
           <p className="clinical-warning">{result.suggestedSetting} PSI не является индивидуальной вероятностью исхода и не определяет необходимость перевода в ОРИТ. Клиническое решение должно учитывать стабильность пациента, сопутствующие заболевания и социальные условия.</p>
