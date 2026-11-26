@@ -120,7 +120,7 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
 .result-panel { margin-top:18px; padding:25px; }
 .result-topline { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .risk-tag { padding:7px 10px; border-radius:7px; font-size:10px; font-weight:800; }
-.risk-low { color:#16815e; background:#e8f7f1; }.risk-intermediate { color:#9a690e; background:#fff5df; }.risk-high { color:#b53343; background:#fff0f1; }
+.risk-low { color:#16815e; background:#e8f7f1; }.risk-intermediate { color:#9a690e; background:#fff5df; }.risk-high { color:#b53343; background:#fff0f1; } .risk-moderate { color:#9a690e; background:#fff5df; }
 .score-display { display:flex; align-items:baseline; gap:10px; margin-top:14px; }
 .score-display strong { color:#172c49; font:800 58px/1 Manrope,sans-serif; letter-spacing:-3px; }
 .score-display span { color:#8793a6; font-size:12px; }
