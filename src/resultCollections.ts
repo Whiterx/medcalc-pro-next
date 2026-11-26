@@ -17,6 +17,8 @@ export interface SavedCalculationResult {
 
 export type NewCalculationResult = Omit<SavedCalculationResult, 'id' | 'createdAt'>
 
+let resultIdCounter = 0
+
 export interface ResultStorage {
   getItem(key: string): string | null
   setItem(key: string, value: string): void
@@ -65,18 +67,20 @@ function addToCollection(
 ): SavedCalculationResult[] {
   if (!storage || !validPaths.includes(entry.path)) return []
   const existing = readCollection(key, validPaths, storage, limit)
+  const now = Date.now()
   const nextEntry: SavedCalculationResult = {
     ...entry,
-    id: String(Date.now()),
-    createdAt: Date.now(),
+    id: `${now}-${++resultIdCounter}`,
+    createdAt: now,
   }
   const next = [nextEntry, ...existing].slice(0, limit)
   try {
     storage.setItem(key, JSON.stringify(next))
+    return readCollection(key, validPaths, storage, limit)
   } catch {
     // Persistence is optional; a storage failure must not break calculator use.
+    return existing
   }
-  return next
 }
 
 export function readCalculationHistory(validPaths: readonly string[], storage: ResultStorage | null) {
