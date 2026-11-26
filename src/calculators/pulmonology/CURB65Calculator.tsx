@@ -38,7 +38,11 @@ export default function CURB65Calculator() {
       setError('Проверьте введённые значения.')
       return
     }
-    if (parsed.age < 18 || parsed.age > 120 || parsed.urea < 0 || parsed.urea > 100 || parsed.respiratoryRate < 0 || parsed.respiratoryRate > 100 || parsed.systolicBP < 0 || parsed.systolicBP > 300 || parsed.diastolicBP < 0 || parsed.diastolicBP > 200) {
+    if (![parsed.age, parsed.respiratoryRate, parsed.systolicBP, parsed.diastolicBP].every(Number.isInteger)) {
+      setError('Возраст, частота дыхания и показатели артериального давления должны быть указаны целыми числами.');
+      return;
+    }
+    if (parsed.age < 18 || parsed.age > 120 || parsed.urea < 0 || parsed.urea > 100 || parsed.respiratoryRate < 1 || parsed.respiratoryRate > 100 || parsed.systolicBP < 1 || parsed.systolicBP > 300 || parsed.diastolicBP < 1 || parsed.diastolicBP > 200) {
       setError('Проверьте диапазоны значений. Эта версия шкалы предназначена для взрослых.')
       return
     }
@@ -72,7 +76,7 @@ export default function CURB65Calculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> КЛИНИЧЕСКАЯ ШКАЛА</div>
         <h1>CURB-65</h1>
-        <p>Оценка тяжести внебольничной пневмонии у взрослых и риска 30-дневной смертности.</p>
+        <p>Оценка тяжести внебольничной пневмонии у взрослых в стационаре и риска 30-дневной смертности. Для первичной медицинской помощи NICE рекомендует шкалу CRB-65.</p>
       </section>
 
       <div className="calculator-layout">
