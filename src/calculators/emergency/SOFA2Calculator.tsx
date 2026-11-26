@@ -63,7 +63,7 @@ export default function SOFA2Calculator() {
     if(values.urineRate!==''&&values.urineDuration===''){
       setError('Для диуреза обязательно укажите длительность периода олигурии/анурии.');setResult(null);return
     }
-    if(values.urineRate===''&&values.urineDuration!==''){
+    if(values.urineDuration==='anuria12'&&values.urineRate!==''&&Number(values.urineRate)!==0){\n      setError('Для категории «анурия ≥12 часов» скорость диуреза должна быть 0 мл/кг/ч.');setResult(null);return\n    }\n    if(values.urineRate===''&&values.urineDuration!==''){
       setError('Укажите скорость диуреза или очистите период диуреза.');setResult(null);return
     }
     const input:SOFA2Input={
