@@ -66,7 +66,7 @@ export default function UnfractionatedHeparinCalculator() {
             <span>Клинический сценарий</span>
             <select required value={values.indication} onChange={(event) => updateField('indication', event.target.value as '' | UFHIndication)}>
               <option value="">Выберите сценарий</option>
-              <option value="vte">ТГВ/ВТЭО — внутривенный НФГ по КР Минздрава РФ 960_1 (80 ЕД/кг + 18 ЕД/кг/ч)</option>
+              <option value="vte">ТГВ — внутривенный НФГ по КР Минздрава РФ 960_1 (80 ЕД/кг + 18 ЕД/кг/ч)</option>
               <option value="acs">ОКС без подъёма ST — КР Минздрава РФ 154_4 (60–70 ЕД/кг + 12–15 ЕД/кг/ч)</option>
             </select>
           </label>
@@ -85,7 +85,7 @@ export default function UnfractionatedHeparinCalculator() {
       </div>
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">НАЧАЛЬНЫЙ РЕЖИМ</span><span className="risk-tag risk-moderate">UFH · {result.indication === 'vte' ? 'ТГВ/ВТЭО' : 'ОКСбпST'}</span></div>
+          <div className="result-topline"><span className="panel-kicker">НАЧАЛЬНЫЙ РЕЖИМ</span><span className="risk-tag risk-moderate">UFH · {result.indication === 'vte' ? 'ТГВ' : 'ОКСбпST'}</span></div>
           <div className="result-summary"><b>{result.indicationLabel}</b></div>
           <div className="score-display"><strong>{formatDoseRange(result.bolusMinUnits, result.bolusMaxUnits)}</strong><span>Ед. болюс</span></div>
           <div className="result-summary"><b>Начальная инфузия: {formatDoseRange(result.infusionMinUnitsPerHour, result.infusionMaxUnitsPerHour)} Ед/ч</b><p>Масса тела: {result.weightKg} кг.</p></div>
