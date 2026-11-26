@@ -1,3 +1,15 @@
+export function calculateGCSTotal(eye: string, verbal: string, motor: string): number | null {
+  const components = [eye, verbal, motor]
+  if (components.some((component) => component === '' || component === 'NT')) return null
+
+  const [eyeScore, verbalScore, motorScore] = components.map(Number)
+  if (!Number.isInteger(eyeScore) || eyeScore < 1 || eyeScore > 4
+    || !Number.isInteger(verbalScore) || verbalScore < 1 || verbalScore > 5
+    || !Number.isInteger(motorScore) || motorScore < 1 || motorScore > 6) return null
+
+  return eyeScore + verbalScore + motorScore
+}
+
 export interface QSOFAInput {
   respiratoryRate: number
   systolicBP: number
