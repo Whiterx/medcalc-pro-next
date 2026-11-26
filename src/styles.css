@@ -533,3 +533,14 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
   .result-actions-dock { grid-template-columns:1fr 1fr; }
   .result-actions-dock > .result-print-button { grid-column:1/-1; }
 }
+
+
+/* Telegram Mini App viewport and safe-area adaptation */
+.telegram-mini-app .app-shell {
+  padding-left:max(19px,var(--tg-content-safe-area-inset-left,0px));
+  padding-right:max(19px,var(--tg-content-safe-area-inset-right,0px));
+  padding-bottom:calc(48px + var(--tg-content-safe-area-inset-bottom,0px));
+}
+.telegram-mini-app .result-actions-dock {
+  bottom:calc(10px + var(--tg-content-safe-area-inset-bottom,0px));
+}
