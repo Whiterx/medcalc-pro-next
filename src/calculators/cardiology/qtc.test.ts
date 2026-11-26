@@ -13,7 +13,7 @@ describe('calculateQTC', () => {
 
   it('uses the correct formula at a faster heart rate', () => {
     expect(calc({ qtMs: 360, rrMs: 500, formula: 'bazett' }).qtcMs).toBeCloseTo(509.1169, 3)
-    expect(calc({ qtMs: 360, rrMs: 500, formula: 'fridericia' }).qtcMs).toBeCloseTo(453.543, 2)
+    expect(calc({ qtMs: 360, rrMs: 500, formula: 'fridericia' }).qtcMs).toBeCloseTo(453.57158, 4)
     expect(calc({ qtMs: 360, rrMs: 500, formula: 'hodges' }).qtcMs).toBeCloseTo(465, 8)
     expect(calc({ qtMs: 360, rrMs: 500 }).heartRateBpm).toBe(120)
   })
