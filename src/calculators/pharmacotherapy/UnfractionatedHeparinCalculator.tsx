@@ -79,8 +79,8 @@ export default function UnfractionatedHeparinCalculator() {
         <section className="result-panel" aria-live="polite">
           <div className="result-topline"><span className="panel-kicker">НАЧАЛЬНЫЙ РЕЖИМ</span><span className="risk-tag risk-moderate">UFH · {result.indication === 'vte' ? 'ВТЭО' : 'ОКС'}</span></div>
           <div className="result-summary"><b>{result.indicationLabel}</b></div>
-          <div className="score-display"><strong>{Math.round(result.bolusUnits).toLocaleString('ru-RU')}</strong><span>Ед. болюс</span></div>
-          <div className="result-summary"><b>Начальная инфузия: {Math.round(result.infusionUnitsPerHour).toLocaleString('ru-RU')} Ед/ч</b><p>Масса тела: {result.weightKg} кг.</p></div>
+          <div className="score-display"><strong>{result.bolusUnits.toLocaleString('ru-RU', { maximumFractionDigits: 1 })}</strong><span>Ед. болюс</span></div>
+          <div className="result-summary"><b>Начальная инфузия: {result.infusionUnitsPerHour.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} Ед/ч</b><p>Масса тела: {result.weightKg} кг.</p></div>
           {(result.bolusCapped || result.infusionCapped) && <p className="field-hint">Применены протокольные максимумы: {result.bolusCapped ? 'болюс ограничен' : ''}{result.bolusCapped && result.infusionCapped ? '; ' : ''}{result.infusionCapped ? 'скорость инфузии ограничена' : ''}.</p>}
           <div className="threshold-panel"><h3>Контроль антикоагуляции</h3><p>{result.monitoring}</p></div>
           <p className="clinical-warning"><ShieldAlert size={14} /> Это только стартовый расчёт. Не заменяет оценку кровотечения, тромбоцитов и противопоказаний; не рассчитывает титрование. При подозрении на HIT не применять UFH — требуется альтернативный антикоагулянт. Перед введением сверьте режим с локальным протоколом.</p>
