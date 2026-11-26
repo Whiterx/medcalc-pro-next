@@ -19,6 +19,8 @@ export default function SOFA2Calculator() {
   const [values,setValues]=useState<Values>(initial)
   const [result,setResult]=useState<SOFA2Result|null>(null)
   const [error,setError]=useState('')
+  const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.otherVasoactive
+  const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport
   function update<K extends keyof Values>(key:K,value:Values[K]) {
     setValues(current=>({...current,[key]:value})); setResult(null); setError('')
   }
