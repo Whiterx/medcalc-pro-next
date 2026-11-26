@@ -400,3 +400,85 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
   .result-actions-dock > button { min-height:40px; }
 }
 @media print { .result-actions-dock { display:none !important; } }
+
+
+/* Laboratory unit converter */
+.converter-panel {
+  padding:22px;
+  background:#fff;
+  border:1px solid #e7edf5;
+  border-radius:15px;
+  box-shadow:0 8px 30px #1d355008;
+}
+.converter-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px;
+}
+.converter-header h2 { margin:6px 0 0; font-size:20px; }
+.converter-table { display:grid; gap:3px; }
+.converter-row {
+  display:grid;
+  grid-template-columns:minmax(155px,.85fr) minmax(0,1fr) 22px minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  padding:10px 9px;
+  border-radius:9px;
+}
+.converter-row:nth-child(even) { background:#f7f9fc; }
+.converter-name { display:grid; gap:4px; min-width:0; }
+.converter-name b { color:#34465f; font:700 12px Manrope,sans-serif; }
+.converter-name small { color:#8995a7; font-size:9px; line-height:1.45; }
+.converter-cell { display:flex; align-items:center; gap:9px; min-width:0; }
+.converter-cell input {
+  width:100%;
+  min-width:0;
+  min-height:42px;
+  padding:0 10px;
+  color:#172338;
+  background:#fbfcfe;
+  border:1px solid #dfe7f1;
+  border-radius:8px;
+  outline:none;
+  font:500 13px 'DM Sans',sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+.converter-cell input:focus { border-color:#8db7f0; box-shadow:0 0 0 3px #2876e817; }
+.converter-cell input::placeholder { color:#a6b0be; }
+.converter-cell span { flex:0 0 auto; color:#7d899b; font-size:10px; white-space:nowrap; }
+.converter-arrow { color:#8a98aa; text-align:center; font-size:17px; }
+.converter-error { grid-column:2/-1; margin:0; color:#b53343; font-size:10px; }
+.converter-footnote {
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin-top:16px;
+  padding:12px;
+  color:#53718f;
+  background:#f2f7fd;
+  border-radius:9px;
+  font-size:10px;
+  line-height:1.55;
+}
+.converter-footnote svg { flex:0 0 auto; margin-top:1px; color:#16815e; }
+.converter-note { margin-top:16px; padding:18px; }
+.converter-note h3 { margin:0 0 8px; }
+.converter-note p { color:#75839a; font-size:11px; line-height:1.7; }
+.converter-note p:last-child { margin-bottom:0; }
+@media(max-width:850px) {
+  .converter-row { grid-template-columns:minmax(125px,.8fr) minmax(0,1fr) 18px minmax(0,1fr); gap:8px; }
+  .converter-cell { flex-direction:column; align-items:stretch; gap:4px; }
+}
+@media(max-width:620px) {
+  .converter-panel { padding:15px; }
+  .converter-header { align-items:flex-start; flex-direction:column; }
+  .converter-row { grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr); gap:8px; padding:11px 5px; }
+  .converter-name { grid-column:1/-1; }
+  .converter-cell { flex-direction:column; align-items:stretch; gap:4px; }
+  .converter-cell input { min-height:43px; padding:0 8px; font-size:12px; }
+  .converter-cell span { font-size:9px; }
+  .converter-arrow { align-self:center; }
+  .converter-error { grid-column:1/-1; }
+}
