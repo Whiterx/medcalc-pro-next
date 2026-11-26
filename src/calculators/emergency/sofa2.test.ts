@@ -15,7 +15,7 @@ describe('SOFA-2 respiratory thresholds',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:98,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBeNull()
   })
   it('scores respiratory ECMO as 4 regardless of ratio',()=>{
-    expect(scoreSOFA2Respiratory({pao2:90,fio2:40,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true}).points).toBe(4)
+    expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true}).points).toBe(4)
   })
 })
 describe('SOFA-2 hemostasis and liver',()=>{
