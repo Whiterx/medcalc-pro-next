@@ -4,12 +4,38 @@ import { Link } from 'react-router-dom'
 import { calculateQSOFA, type QSOFAInput, type QSOFAResult } from './qsofa'
 import { QSOFA_REFERENCE } from './qsofa.reference'
 
-const initialValues = { respiratoryRate: '', systolicBP: '', gcs: '15' }
+const initialValues = { respiratoryRate: '', systolicBP: '', eye: '4', verbal: '5', motor: '6' }
+
+const gcsOptions = {
+  eye: [
+    { value: '4', label: '4 — спонтанно' },
+    { value: '3', label: '3 — на обращение' },
+    { value: '2', label: '2 — на давление' },
+    { value: '1', label: '1 — отсутствует' },
+  ],
+  verbal: [
+    { value: '5', label: '5 — ориентирован' },
+    { value: '4', label: '4 — спутанная речь' },
+    { value: '3', label: '3 — отдельные слова' },
+    { value: '2', label: '2 — нечленораздельные звуки' },
+    { value: '1', label: '1 — отсутствует' },
+  ],
+  motor: [
+    { value: '6', label: '6 — выполняет команды' },
+    { value: '5', label: '5 — локализует давление' },
+    { value: '4', label: '4 — отдёргивает конечность' },
+    { value: '3', label: '3 — патологическое сгибание' },
+    { value: '2', label: '2 — разгибание' },
+    { value: '1', label: '1 — отсутствует' },
+  ],
+}
 
 export default function QSOFACalculator() {
   const [values, setValues] = useState(initialValues)
   const [result, setResult] = useState<QSOFAResult | null>(null)
   const [error, setError] = useState('')
+
+  const gcs = Number(values.eye) + Number(values.verbal) + Number(values.motor)
 
   function updateField(field: keyof typeof initialValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }))
@@ -28,13 +54,13 @@ export default function QSOFACalculator() {
     const input: QSOFAInput = {
       respiratoryRate: Number(values.respiratoryRate),
       systolicBP: Number(values.systolicBP),
-      gcs: Number(values.gcs),
+      gcs,
     }
-    if (!Number.isFinite(input.respiratoryRate) || !Number.isFinite(input.systolicBP) || !Number.isFinite(input.gcs)
+    if (!Number.isFinite(input.respiratoryRate) || !Number.isFinite(input.systolicBP)
       || input.respiratoryRate < 0 || input.respiratoryRate > 100
       || input.systolicBP < 0 || input.systolicBP > 300
       || input.gcs < 3 || input.gcs > 15) {
-      setError('Проверьте значения. ШКГ должна быть от 3 до 15 баллов.')
+      setError('Проверьте введённые значения.')
       setResult(null)
       return
     }
@@ -78,12 +104,41 @@ export default function QSOFACalculator() {
               <span>Систолическое АД <small>мм рт. ст.</small></span>
               <input type="number" min="0" max="300" step="1" inputMode="numeric" placeholder="Например, 95" value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} />
             </label>
-            <label className="calc-field">
-              <span>Шкала комы Глазго (GCS) <small>3–15 баллов</small></span>
-              <select value={values.gcs} onChange={(event) => updateField('gcs', event.target.value)}>
-                {Array.from({ length: 13 }, (_, index) => 15 - index).map((score) => <option value={score} key={score}>{score} {score === 15 ? '— сознание не нарушено' : score < 15 ? '— изменение сознания' : ''}</option>)}
-              </select>
-            </label>
+          </div>
+
+          <div className="gcs-entry">
+            <div className="panel-heading">
+              <div><span className="panel-kicker">ОЦЕНКА СОЗНАНИЯ</span><h2>Шкала комы Глазго (GCS)</h2></div>
+              <span className="points-label">E + V + M</span>
+            </div>
+            <p className="field-hint">Выберите наиболее выраженную реакцию пациента в каждом из трёх компонентов.</p>
+            <div className="field-grid">
+              <label className="calc-field">
+                <span>Открывание глаз <small>E · 1–4</small></span>
+                <select value={values.eye} onChange={(event) => updateField('eye', event.target.value)}>
+                  {gcsOptions.eye.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <label className="calc-field">
+                <span>Речевая реакция <small>V · 1–5</small></span>
+                <select value={values.verbal} onChange={(event) => updateField('verbal', event.target.value)}>
+                  {gcsOptions.verbal.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <label className="calc-field">
+                <span>Двигательная реакция <small>M · 1–6</small></span>
+                <select value={values.motor} onChange={(event) => updateField('motor', event.target.value)}>
+                  {gcsOptions.motor.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className="gcs-total">
+              <span>Сумма GCS</span>
+              <strong>{gcs}<small> / 15</small></strong>
+              <span className={gcs === 15 ? 'gcs-status normal' : 'gcs-status altered'}>{gcs === 15 ? 'Максимальная оценка' : 'Есть снижение GCS'}</span>
+            </div>
+            <p className="field-hint">Для qSOFA: GCS 15 = 0 баллов; GCS менее 15 = 1 балл независимо от степени снижения.</p>
+            <p className="field-hint">Если компонент невозможно достоверно оценить (например, речевую реакцию у интубированного пациента), не подставляйте автоматически 1 балл: отметьте компонент как неоцениваемый и интерпретируйте результат с учётом ограничений.</p>
           </div>
 
           {error && <p className="form-error" role="alert">{error}</p>}
