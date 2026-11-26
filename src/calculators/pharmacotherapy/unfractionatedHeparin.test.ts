@@ -21,6 +21,13 @@ describe('calculateUFHInitialDosing — Russian clinical recommendations', () =>
     expect(result.infusionCapApplied).toBe(false)
   })
 
+  it('documents both Russian CPG 960_1 aPTT reference formulations without hard-coded seconds', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 70, indication: 'vte' })
+    expect(result.monitoring).toContain('контрольной величины')
+    expect(result.monitoring).toContain('верхней границы нормы')
+    expect(result.monitoring).toContain('через 6 ч')
+  })
+
   it('calculates the full recommended dose ranges for NSTE-ACS under Russian CPG 154_4', () => {
     const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 70, indication: 'acs' })
     expect(result.bolusMinUnits).toBe(4200)
