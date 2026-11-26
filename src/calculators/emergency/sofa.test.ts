@@ -5,22 +5,29 @@ import {
 } from './sofa'
 
 describe('SOFA respiratory thresholds', () => {
-  it.each([
+  const cases: [number, boolean, number][] = [
     [400, false, 0], [399, false, 1], [300, false, 1], [299, false, 2],
     [199, false, 2], [199, true, 3], [100, true, 3], [99, true, 4], [99, false, 2],
-  ])('ratio %i, support %s => %i', (ratio, support, expected) => {
-    expect(scoreRespiratory(ratio, support)).toBe(expected)
+  ]
+  cases.forEach(([ratio, support, expected]) => {
+    it(`ratio ${ratio}, support ${support} => ${expected}`, () => {
+      expect(scoreRespiratory(ratio, support)).toBe(expected)
+    })
   })
 })
 
 describe('SOFA coagulation thresholds', () => {
-  it.each([[150,0],[149,1],[100,1],[99,2],[50,2],[49,3],[20,3],[19,4]])(
-    'platelets %i => %i', (value, expected) => expect(scoreCoagulation(value)).toBe(expected))
+  const cases: [number, number][] = [[150,0],[149,1],[100,1],[99,2],[50,2],[49,3],[20,3],[19,4]]
+  cases.forEach(([value, expected]) => {
+    it(`platelets ${value} => ${expected}`, () => expect(scoreCoagulation(value)).toBe(expected))
+  })
 })
 
 describe('SOFA liver thresholds', () => {
-  it.each([[19,0],[20,1],[32,1],[33,2],[101,2],[102,3],[204,3],[205,4]])(
-    'bilirubin %i => %i', (value, expected) => expect(scoreLiver(value)).toBe(expected))
+  const cases: [number, number][] = [[19,0],[20,1],[32,1],[33,2],[101,2],[102,3],[204,3],[205,4]]
+  cases.forEach(([value, expected]) => {
+    it(`bilirubin ${value} => ${expected}`, () => expect(scoreLiver(value)).toBe(expected))
+  })
 })
 
 describe('SOFA cardiovascular thresholds', () => {
@@ -29,28 +36,40 @@ describe('SOFA cardiovascular thresholds', () => {
     expect(scoreCardiovascular({ ...base, map: 69, vasoactiveStatus: 'none' })).toBe(1)
     expect(scoreCardiovascular({ ...base, map: 70, vasoactiveStatus: 'none' })).toBe(0)
   })
-  it.each([[5,2],[5.1,3],[15,3],[15.1,4]])(
-    'dopamine %s mcg/kg/min => %i', (dose, expected) =>
-      expect(scoreCardiovascular({ ...base, dopamineDose: dose })).toBe(expected))
+  const dopamineCases: [number, number][] = [[5,2],[5.1,3],[15,3],[15.1,4]]
+  dopamineCases.forEach(([dose, expected]) => {
+    it(`dopamine ${dose} mcg/kg/min => ${expected}`, () => {
+      expect(scoreCardiovascular({ ...base, dopamineDose: dose })).toBe(expected)
+    })
+  })
   it('scores dobutamine at any dose as 2', () => {
     expect(scoreCardiovascular({ ...base, dobutamine: true })).toBe(2)
   })
-  it.each([[0.1,3],[0.11,4]])('epinephrine %s => %i', (dose, expected) => {
-    expect(scoreCardiovascular({ ...base, epinephrineDose: dose })).toBe(expected)
-    expect(scoreCardiovascular({ ...base, norepinephrineDose: dose })).toBe(expected)
+  const adrenergicCases: [number, number][] = [[0.1,3],[0.11,4]]
+  adrenergicCases.forEach(([dose, expected]) => {
+    it(`epinephrine and norepinephrine ${dose} => ${expected}`, () => {
+      expect(scoreCardiovascular({ ...base, epinephrineDose: dose })).toBe(expected)
+      expect(scoreCardiovascular({ ...base, norepinephrineDose: dose })).toBe(expected)
+    })
   })
 })
 
 describe('SOFA neurologic thresholds', () => {
-  it.each([[15,0],[14,1],[13,1],[12,2],[10,2],[9,3],[6,3],[5,4],[3,4]])(
-    'GCS %i => %i', (value, expected) => expect(scoreNeurologic(value)).toBe(expected))
+  const cases: [number, number][] = [[15,0],[14,1],[13,1],[12,2],[10,2],[9,3],[6,3],[5,4],[3,4]]
+  cases.forEach(([value, expected]) => {
+    it(`GCS ${value} => ${expected}`, () => expect(scoreNeurologic(value)).toBe(expected))
+  })
 })
 
 describe('SOFA renal thresholds', () => {
-  it.each([[109,0],[110,1],[170,1],[171,2],[299,2],[300,3],[440,3],[441,4]])(
-    'creatinine %i => %i', (value, expected) => expect(scoreRenal(value, null)).toBe(expected))
-  it.each([[500,0],[499,3],[200,3],[199,4],[0,4]])(
-    'urine output %i => %i', (value, expected) => expect(scoreRenal(null, value)).toBe(expected))
+  const creatinineCases: [number, number][] = [[109,0],[110,1],[170,1],[171,2],[299,2],[300,3],[440,3],[441,4]]
+  creatinineCases.forEach(([value, expected]) => {
+    it(`creatinine ${value} => ${expected}`, () => expect(scoreRenal(value, null)).toBe(expected))
+  })
+  const urineCases: [number, number][] = [[500,0],[499,3],[200,3],[199,4],[0,4]]
+  urineCases.forEach(([value, expected]) => {
+    it(`urine output ${value} => ${expected}`, () => expect(scoreRenal(null, value)).toBe(expected))
+  })
   it('uses the highest score from creatinine and urine output', () => {
     expect(scoreRenal(110, 100)).toBe(4)
   })
