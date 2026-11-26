@@ -3,7 +3,7 @@ export type PSIClass = 'I' | 'II' | 'III' | 'IV' | 'V'
 
 export interface PSIInput {
   age: number
-  sex: PSISex
+  sex?: PSISex
   respiratoryRate: number
   systolicBP: number
   heartRate: number
@@ -15,11 +15,11 @@ export interface PSIInput {
   cerebrovascularDisease: boolean
   renalDisease: boolean
   alteredMentalStatus: boolean
-  bunUreaMmol: number
-  sodiumMmol: number
-  glucoseMmol: number
-  hematocritPercent: number
-  arterialPH: number
+  bunUreaMmol?: number
+  sodiumMmol?: number
+  glucoseMmol?: number
+  hematocritPercent?: number
+  arterialPH?: number
   hypoxemia: boolean
   pleuralEffusion: boolean
 }
@@ -41,22 +41,25 @@ export interface PSIResult {
   components: PSIComponent[]
 }
 
-function validate(input: PSIInput): void {
+function validateStepOne(input: PSIInput): void {
   if (!Number.isInteger(input.age) || input.age < 18 || input.age > 120) throw new Error('Возраст должен быть целым числом от 18 до 120 лет. PSI предназначен для взрослых.')
-  if (input.sex !== 'male' && input.sex !== 'female') throw new Error('Выберите пол для расчёта балла PSI.')
   if (!Number.isInteger(input.respiratoryRate) || input.respiratoryRate < 1 || input.respiratoryRate > 100) throw new Error('ЧДД должна быть целым числом от 1 до 100 в минуту.')
   if (!Number.isInteger(input.systolicBP) || input.systolicBP < 1 || input.systolicBP > 300) throw new Error('Систолическое АД должно быть целым числом от 1 до 300 мм рт. ст.')
   if (!Number.isInteger(input.heartRate) || input.heartRate < 1 || input.heartRate > 300) throw new Error('ЧСС должна быть целым числом от 1 до 300 в минуту.')
   if (!Number.isFinite(input.temperatureC) || input.temperatureC < 25 || input.temperatureC > 45) throw new Error('Температура должна быть в диапазоне 25–45 °C.')
-  if (!Number.isFinite(input.bunUreaMmol) || input.bunUreaMmol < 0 || input.bunUreaMmol > 100) throw new Error('Мочевина должна быть в диапазоне 0–100 ммоль/л.')
-  if (!Number.isFinite(input.sodiumMmol) || input.sodiumMmol < 80 || input.sodiumMmol > 200) throw new Error('Натрий должен быть в диапазоне 80–200 ммоль/л.')
-  if (!Number.isFinite(input.glucoseMmol) || input.glucoseMmol < 0 || input.glucoseMmol > 100) throw new Error('Глюкоза должна быть в диапазоне 0–100 ммоль/л.')
-  if (!Number.isFinite(input.hematocritPercent) || input.hematocritPercent < 0 || input.hematocritPercent > 80) throw new Error('Гематокрит должен быть в диапазоне 0–80%.')
-  if (!Number.isFinite(input.arterialPH) || input.arterialPH < 6.8 || input.arterialPH > 7.8) throw new Error('Артериальный pH должен быть в диапазоне 6,80–7,80.')
+}
+
+function validateStepTwo(input: PSIInput): asserts input is PSIInput & { sex: PSISex; bunUreaMmol: number; sodiumMmol: number; glucoseMmol: number; hematocritPercent: number; arterialPH: number } {
+  if (input.sex !== 'male' && input.sex !== 'female') throw new Error('Выберите пол для расчёта балла PSI.')
+  if (!Number.isFinite(input.bunUreaMmol) || input.bunUreaMmol! < 0 || input.bunUreaMmol! > 100) throw new Error('Мочевина должна быть в диапазоне 0–100 ммоль/л.')
+  if (!Number.isFinite(input.sodiumMmol) || input.sodiumMmol! < 80 || input.sodiumMmol! > 200) throw new Error('Натрий должен быть в диапазоне 80–200 ммоль/л.')
+  if (!Number.isFinite(input.glucoseMmol) || input.glucoseMmol! < 0 || input.glucoseMmol! > 100) throw new Error('Глюкоза должна быть в диапазоне 0–100 ммоль/л.')
+  if (!Number.isFinite(input.hematocritPercent) || input.hematocritPercent! < 0 || input.hematocritPercent! > 80) throw new Error('Гематокрит должен быть в диапазоне 0–80%.')
+  if (!Number.isFinite(input.arterialPH) || input.arterialPH! < 6.8 || input.arterialPH! > 7.8) throw new Error('Артериальный pH должен быть в диапазоне 6,80–7,80.')
 }
 
 export function calculatePSI(input: PSIInput): PSIResult {
-  validate(input)
+  validateStepOne(input)
 
   const triggers: string[] = []
   if (input.age > 50) triggers.push('Возраст >50 лет')
@@ -82,6 +85,8 @@ export function calculatePSI(input: PSIInput): PSIResult {
       components: [],
     }
   }
+
+  validateStepTwo(input)
 
   const components: PSIComponent[] = []
   const add = (key: string, label: string, points: number, detail: string) => {
