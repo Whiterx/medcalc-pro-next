@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { calculateEGFR2021 } from './egfr'
+import { calculateEGFR2021, classifyEGFRCategory } from './egfr'
 
 describe('calculateEGFR2021', () => {
   it('uses the 2021 CKD-EPI creatinine equation for a male adult', () => {
     const result = calculateEGFR2021({ ageYears: 40, sex: 'male', creatinineUmolL: 88.4 })
     expect(result.creatinineMgDl).toBeCloseTo(1, 10)
-    expect(result.value).toBeCloseTo(99.0, 0)
+    expect(result.value).toBeCloseTo(97.5751, 3)
     expect(result.category).toBe('G1')
   })
 
@@ -16,27 +16,22 @@ describe('calculateEGFR2021', () => {
     expect(result.value).toBeLessThan(80)
   })
 
-  it('uses the correct category boundaries', () => {
-    const ageYears = 40
-    const sex = 'male' as const
-    const creatinineForEgfr = (target: number) => {
-      let low = 10
-      let high = 2000
-      for (let i = 0; i < 100; i += 1) {
-        const mid = (low + high) / 2
-        const value = calculateEGFR2021({ ageYears, sex, creatinineUmolL: mid }).value
-        if (value > target) low = mid
-        else high = mid
-      }
-      return (low + high) / 2
-    }
+  it('classifies all G categories at exact KDIGO eGFR boundaries', () => {
+    expect(classifyEGFRCategory(90).category).toBe('G1')
+    expect(classifyEGFRCategory(89.99).category).toBe('G2')
+    expect(classifyEGFRCategory(60).category).toBe('G2')
+    expect(classifyEGFRCategory(59.99).category).toBe('G3a')
+    expect(classifyEGFRCategory(45).category).toBe('G3a')
+    expect(classifyEGFRCategory(44.99).category).toBe('G3b')
+    expect(classifyEGFRCategory(30).category).toBe('G3b')
+    expect(classifyEGFRCategory(29.99).category).toBe('G4')
+    expect(classifyEGFRCategory(15).category).toBe('G4')
+    expect(classifyEGFRCategory(14.99).category).toBe('G5')
+  })
 
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: creatinineForEgfr(90) }).category).toBe('G1')
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: creatinineForEgfr(60) }).category).toBe('G2')
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: creatinineForEgfr(45) }).category).toBe('G3a')
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: creatinineForEgfr(30) }).category).toBe('G3b')
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: creatinineForEgfr(15) }).category).toBe('G4')
-    expect(calculateEGFR2021({ ageYears, sex, creatinineUmolL: 2000 }).category).toBe('G5')
+  it('rejects invalid values for category classification', () => {
+    expect(() => classifyEGFRCategory(Number.NaN)).toThrow()
+    expect(() => classifyEGFRCategory(-1)).toThrow()
   })
 
   it('rejects invalid ages', () => {
