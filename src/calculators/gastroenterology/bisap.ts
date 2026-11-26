@@ -35,40 +35,48 @@ export function calculateBISAP(input: BISAPInput): BISAPResult {
     throw new Error('Подтвердите, что оценка основана на данных первых 24 часов госпитализации.')
   }
 
+  const flags = {
+    bunAbove25: flags.bunAbove25 as boolean,
+    impairedMentalStatus: flags.impairedMentalStatus as boolean,
+    sirs: flags.sirs as boolean,
+    ageAbove60: flags.ageAbove60 as boolean,
+    pleuralEffusion: flags.pleuralEffusion as boolean,
+  }
+
   const criteria: BISAPCriterion[] = [
     {
       key: 'bunAbove25',
       label: 'Азот мочевины крови (BUN) >25 мг/дл',
-      present: input.bunAbove25,
-      points: input.bunAbove25 ? 1 : 0,
+      present: flags.bunAbove25,
+      points: flags.bunAbove25 ? 1 : 0,
       explanation: 'Эквивалентно мочевине сыворотки примерно >8,9 ммоль/л; не путать BUN с общей мочевиной в мг/дл.',
     },
     {
       key: 'impairedMentalStatus',
       label: 'Нарушение психического статуса',
-      present: input.impairedMentalStatus,
-      points: input.impairedMentalStatus ? 1 : 0,
+      present: flags.impairedMentalStatus,
+      points: flags.impairedMentalStatus ? 1 : 0,
       explanation: 'В исходном определении — нарушение сознания, обычно операционализированное как GCS <15.',
     },
     {
       key: 'sirs',
       label: 'Системный воспалительный ответ (СИРС)',
-      present: input.sirs,
-      points: input.sirs ? 1 : 0,
+      present: flags.sirs,
+      points: flags.sirs ? 1 : 0,
       explanation: 'СИРС: не менее 2 критериев — температура <36 или >38 °C; ЧСС >90/мин; ЧДД >20/мин или PaCO₂ <32 мм рт. ст.; лейкоциты <4 или >12 ×10⁹/л либо палочкоядерные формы >10%.',
     },
     {
       key: 'ageAbove60',
       label: 'Возраст >60 лет',
-      present: input.ageAbove60,
-      points: input.ageAbove60 ? 1 : 0,
+      present: flags.ageAbove60,
+      points: flags.ageAbove60 ? 1 : 0,
       explanation: 'Строгий порог исходной шкалы — старше 60 лет.',
     },
     {
       key: 'pleuralEffusion',
       label: 'Плевральный выпот',
-      present: input.pleuralEffusion,
-      points: input.pleuralEffusion ? 1 : 0,
+      present: flags.pleuralEffusion,
+      points: flags.pleuralEffusion ? 1 : 0,
       explanation: 'Выявлен при визуализации грудной клетки.',
     },
   ]
