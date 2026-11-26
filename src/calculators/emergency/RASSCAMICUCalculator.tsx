@@ -10,7 +10,6 @@ const initialValues = {
   inattentionErrors: '',
   disorganizedThinkingErrors: '',
 }
-
 const rassOptions = [4, 3, 2, 1, 0, -1, -2, -3, -4, -5] as const
 
 export default function RASSCAMICUCalculator() {
@@ -23,13 +22,11 @@ export default function RASSCAMICUCalculator() {
     setResult(null)
     setError('')
   }
-
   function reset() {
     setValues(initialValues)
     setResult(null)
     setError('')
   }
-
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (values.rass === '') {
@@ -82,29 +79,31 @@ export default function RASSCAMICUCalculator() {
           </label>
           <div className="news2-section">
             <div className="panel-heading panel-subheading"><div><span className="panel-kicker">ШАГ 2</span><h2>CAM-ICU — четыре признака</h2></div></div>
-            {#if camCanBeAssessed}
-              <p className="field-hint">Заполните поля по результатам стандартизированного CAM-ICU flowsheet. В этом интерфейсе не воспроизводятся тестовые стимулы и формулировки вопросов.</p>
-              <label className="calc-field field-full">
-                <span>Feature 1 — острое изменение психического статуса или флуктуация за последние 24 часа</span>
-                <select required value={values.acuteChangeOrFluctuation} onChange={(event) => updateField('acuteChangeOrFluctuation', event.target.value as '' | 'yes' | 'no')}>
-                  <option value="">Выберите</option><option value="yes">Присутствует</option><option value="no">Отсутствует</option>
-                </select>
-              </label>
-              <label className="calc-field field-full">
-                <span>Feature 2 — количество ошибок в стандартизированном тесте внимания (0–10)</span>
-                <input type="number" min="0" max="10" step="1" required value={values.inattentionErrors} onChange={(event) => updateField('inattentionErrors', event.target.value)} placeholder="Количество ошибок" />
-                <small className="field-hint">Feature 2 положителен при более чем 2 ошибках.</small>
-              </label>
-              <label className="calc-field field-full">
-                <span>Feature 4 — суммарное количество ошибок в стандартизированных вопросах и команде (0–5)</span>
-                <input type="number" min="0" max="5" step="1" required value={values.disorganizedThinkingErrors} onChange={(event) => updateField('disorganizedThinkingErrors', event.target.value)} placeholder="Количество ошибок" />
-                <small className="field-hint">Feature 4 положителен при более чем 1 ошибке. Feature 3 определяется автоматически по RASS.</small>
-              </label>
-            {:else if values.rass !== ''}
+            {camCanBeAssessed ? (
+              <>
+                <p className="field-hint">Заполните поля по результатам стандартизированного CAM-ICU flowsheet. В этом интерфейсе не воспроизводятся тестовые стимулы и формулировки вопросов.</p>
+                <label className="calc-field field-full">
+                  <span>Feature 1 — острое изменение психического статуса или флуктуация за последние 24 часа</span>
+                  <select required value={values.acuteChangeOrFluctuation} onChange={(event) => updateField('acuteChangeOrFluctuation', event.target.value as '' | 'yes' | 'no')}>
+                    <option value="">Выберите</option><option value="yes">Присутствует</option><option value="no">Отсутствует</option>
+                  </select>
+                </label>
+                <label className="calc-field field-full">
+                  <span>Feature 2 — количество ошибок в стандартизированном тесте внимания (0–10)</span>
+                  <input type="number" min="0" max="10" step="1" required value={values.inattentionErrors} onChange={(event) => updateField('inattentionErrors', event.target.value)} placeholder="Количество ошибок" />
+                  <small className="field-hint">Feature 2 положителен при более чем 2 ошибках.</small>
+                </label>
+                <label className="calc-field field-full">
+                  <span>Feature 4 — суммарное количество ошибок в стандартизированных вопросах и команде (0–5)</span>
+                  <input type="number" min="0" max="5" step="1" required value={values.disorganizedThinkingErrors} onChange={(event) => updateField('disorganizedThinkingErrors', event.target.value)} placeholder="Количество ошибок" />
+                  <small className="field-hint">Feature 4 положителен при более чем 1 ошибке. Feature 3 определяется автоматически по RASS.</small>
+                </label>
+              </>
+            ) : values.rass !== '' ? (
               <p className="clinical-warning"><ShieldAlert size={14} /> При RASS −4 или −5 CAM-ICU не проводится: пациент не пробуждается для выполнения тестов. Это «не подлежит оценке», а не отрицательный результат.</p>
-            {:else}
+            ) : (
               <p className="field-hint">Сначала выберите RASS. При RASS −4 или −5 CAM-ICU не подлежит оценке.</p>
-            {/if}
+            )}
           </div>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="calculator-actions">
@@ -123,15 +122,17 @@ export default function RASSCAMICUCalculator() {
           <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ ОЦЕНКИ</span><span className="risk-tag risk-moderate">RASS / CAM-ICU</span></div>
           <div className="score-display"><strong>{result.rass > 0 ? '+' : ''}{result.rass}</strong><span>RASS · {result.rassLabel}</span></div>
           <div className="result-summary"><b>{result.camICULabel}</b></div>
-          {#if result.camICUStatus !== 'unable-to-assess'}
-            <h3>Разбор CAM-ICU</h3>
-            <div className="criteria-list">
-              <div className="criterion-row"><span className="criterion-point">{result.feature1 ? 'Да' : 'Нет'}</span><span><b>Feature 1 — острое изменение/флуктуация</b><small>Изменение от исходного состояния или флуктуация за последние 24 часа.</small></span></div>
-              <div className="criterion-row"><span className="criterion-point">{result.feature2 ? 'Да' : 'Нет'}</span><span><b>Feature 2 — невнимательность</b><small>{result.inattentionErrors} ошибок; положителен при >2.</small></span></div>
-              <div className="criterion-row"><span className="criterion-point">{result.feature3 ? 'Да' : 'Нет'}</span><span><b>Feature 3 — изменённый уровень сознания</b><small>RASS {result.rass > 0 ? '+' : ''}{result.rass}; положителен при любом значении, кроме 0.</small></span></div>
-              <div className="criterion-row"><span className="criterion-point">{result.feature4 ? 'Да' : 'Нет'}</span><span><b>Feature 4 — дезорганизованное мышление</b><small>{result.disorganizedThinkingErrors} ошибок; положителен при >1.</small></span></div>
-            </div>
-          {/if}
+          {result.camICUStatus !== 'unable-to-assess' && (
+            <>
+              <h3>Разбор CAM-ICU</h3>
+              <div className="criteria-list">
+                <div className="criterion-row"><span className="criterion-point">{result.feature1 ? 'Да' : 'Нет'}</span><span><b>Feature 1 — острое изменение/флуктуация</b><small>Изменение от исходного состояния или флуктуация за последние 24 часа.</small></span></div>
+                <div className="criterion-row"><span className="criterion-point">{result.feature2 ? 'Да' : 'Нет'}</span><span><b>Feature 2 — невнимательность</b><small>{result.inattentionErrors} ошибок; положителен при более чем 2.</small></span></div>
+                <div className="criterion-row"><span className="criterion-point">{result.feature3 ? 'Да' : 'Нет'}</span><span><b>Feature 3 — изменённый уровень сознания</b><small>RASS {result.rass > 0 ? '+' : ''}{result.rass}; положителен при любом значении, кроме 0.</small></span></div>
+                <div className="criterion-row"><span className="criterion-point">{result.feature4 ? 'Да' : 'Нет'}</span><span><b>Feature 4 — дезорганизованное мышление</b><small>{result.disorganizedThinkingErrors} ошибок; положителен при более чем 1.</small></span></div>
+              </div>
+            </>
+          )}
           <p className="clinical-warning"><ShieldAlert size={14} /> CAM-ICU — скрининговый инструмент, а не самостоятельная диагностика причины делирия. Следуйте официальному обучению и локальному протоколу; положительный результат требует клинической оценки.</p>
         </section>
       )}
