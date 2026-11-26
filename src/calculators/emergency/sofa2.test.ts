@@ -41,7 +41,7 @@ describe('SOFA-2 cardiovascular',()=>{
 describe('SOFA-2 brain',()=>{
   const cases:[number,number][]=[[15,0],[14,1],[13,1],[12,2],[9,2],[8,3],[6,3],[5,4],[3,4]]
   cases.forEach(([gcs,s])=>it(`GCS ${gcs} => ${s}`,()=>expect(scoreSOFA2Brain({gcs,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false})).toBe(s)))
-  it('scores delirium treatment as at least 1 even with GCS 15',()=>expect(scoreSOFA2Brain({gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:true})).toBe(1))
+  it('scores delirium treatment as at least 1 even with GCS 15 or unknown pre-sedation GCS',()=>{\n    expect(scoreSOFA2Brain({gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:true})).toBe(1)\n    expect(scoreSOFA2Brain({gcs:null,motorScore:null,preSedationGcsUnknown:true,deliriumMedication:true})).toBe(1)\n  })
   it('uses motor response if full GCS unavailable and 0 if pre-sedation GCS unknown',()=>{
     expect(scoreSOFA2Brain({gcs:null,motorScore:5,preSedationGcsUnknown:false,deliriumMedication:false})).toBe(1)
     expect(scoreSOFA2Brain({gcs:null,motorScore:null,preSedationGcsUnknown:true,deliriumMedication:false})).toBe(0)
