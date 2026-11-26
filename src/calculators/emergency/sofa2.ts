@@ -76,7 +76,9 @@ export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'norepineph
 export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSedationGcsUnknown'|'deliriumMedication'>):number|null {
   const observed=input.gcs ?? input.motorScore;
   if (observed === null) return input.preSedationGcsUnknown ? 0 : null;
-  const score=observed >= 15 ? 0 : observed >= 13 ? 1 : observed >= 9 ? 2 : observed >= 6 ? 3 : 4;
+  const score=input.gcs !== null
+    ? (observed >= 15 ? 0 : observed >= 13 ? 1 : observed >= 9 ? 2 : observed >= 6 ? 3 : 4)
+    : (observed === 6 ? 0 : observed === 5 ? 1 : observed === 4 ? 2 : observed === 3 ? 3 : 4);
   return input.deliriumMedication ? Math.max(score,1) : score;
 }
 export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'receivingRRT'>):number {
