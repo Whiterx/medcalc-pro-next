@@ -54,7 +54,13 @@ export default function SOFA2Calculator() {
       (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20))){
       setError('Проверьте диапазоны и точность введённых значений. Дозы норэпинефрина/эпинефрина должны быть больше 0 мкг/кг/мин.');setResult(null);return
     }
-    if(values.gcs!==''&&values.motorScore!==''){\n      setError('Укажите GCS или лучшую двигательную реакцию, но не оба значения одновременно.');setResult(null);return\n    }\n    if(values.preSedationUnknown&&(values.gcs!==''||values.motorScore!=='')){\n      setError('Если GCS до седации неизвестна, не вводите GCS или двигательную реакцию.');setResult(null);return\n    }\n    if(values.pao2!==''&&values.spo2!==''){
+    if(values.gcs!==''&&values.motorScore!==''){
+      setError('Укажите GCS или лучшую двигательную реакцию, но не оба значения одновременно.');setResult(null);return
+    }
+    if(values.preSedationUnknown&&(values.gcs!==''||values.motorScore!=='')){
+      setError('Если GCS до седации неизвестна, не вводите GCS или двигательную реакцию.');setResult(null);return
+    }
+    if(values.pao2!==''&&values.spo2!==''){
       setError('Укажите только один показатель оксигенации: PaO₂/FiO₂ предпочтителен; SpO₂/FiO₂ применяется только если PaO₂ недоступно.');setResult(null);return
     }
     if(values.pao2===''&&Number(values.spo2)>=98){
@@ -63,7 +69,10 @@ export default function SOFA2Calculator() {
     if(values.urineRate!==''&&values.urineDuration===''){
       setError('Для диуреза обязательно укажите длительность периода олигурии/анурии.');setResult(null);return
     }
-    if(values.urineDuration==='anuria12'&&values.urineRate!==''&&Number(values.urineRate)!==0){\n      setError('Для категории «анурия ≥12 часов» скорость диуреза должна быть 0 мл/кг/ч.');setResult(null);return\n    }\n    if(values.urineRate===''&&values.urineDuration!==''){
+    if(values.urineDuration==='anuria12'&&values.urineRate!==''&&Number(values.urineRate)!==0){
+      setError('Для категории «анурия ≥12 часов» скорость диуреза должна быть 0 мл/кг/ч.');setResult(null);return
+    }
+    if(values.urineRate===''&&values.urineDuration!==''){
       setError('Укажите скорость диуреза или очистите период диуреза.');setResult(null);return
     }
     const input:SOFA2Input={
