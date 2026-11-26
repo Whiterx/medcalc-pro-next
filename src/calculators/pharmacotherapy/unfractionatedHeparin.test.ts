@@ -70,6 +70,17 @@ describe('calculateUFHInitialDosing', () => {
     expect(above.bolusUnits).toBe(4000)
   })
 
+  it('respects the ACS infusion cap at the 0.1 kg UI input boundary', () => {
+    const below = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 83.3, indication: 'acs' })
+    const above = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 83.4, indication: 'acs' })
+    expect(below.calculatedInfusionUnitsPerHour).toBeCloseTo(999.6)
+    expect(below.infusionUnitsPerHour).toBeCloseTo(999.6)
+    expect(below.infusionCapped).toBe(false)
+    expect(above.calculatedInfusionUnitsPerHour).toBeCloseTo(1000.8)
+    expect(above.infusionUnitsPerHour).toBe(1000)
+    expect(above.infusionCapped).toBe(true)
+  })
+
   it('requires confirmation that the patient is an adult', () => {
     expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 70, indication: 'vte', adultConfirmed: false })).toThrow('взрослый')
   })
