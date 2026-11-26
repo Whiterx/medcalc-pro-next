@@ -57,7 +57,7 @@ function HomePage() {
           {categories.map((item, index) => (
             <article className={`category-card ${item.active ? 'category-card-active' : ''}`} key={item.title}>
               <div className="category-index">0{index + 1}</div><h3>{item.title}</h3><p>{item.description}</p>
-              {item.active ? <Link className="category-link" to={item.title === 'Пульмонология' ? '/calculators/curb-65' : '/calculators/qsofa'}>{item.title === 'Пульмонология' ? 'Открыть CURB-65' : 'Открыть qSOFA'} <ArrowRight size={14} /></Link> : <span className="coming-soon">{item.count}</span>}
+              {item.title === 'Пульмонология' ? <Link className="category-link" to="/calculators/curb-65">Открыть CURB-65 <ArrowRight size={14} /></Link> : item.title === 'Неотложная медицина' ? <div className="category-links"><Link className="category-link" to="/calculators/qsofa">Открыть qSOFA <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/news2">Открыть NEWS2 <ArrowRight size={14} /></Link></div> : <span className="coming-soon">{item.count}</span>}
             </article>
           ))}
         </div>
