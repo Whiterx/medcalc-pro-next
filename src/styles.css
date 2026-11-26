@@ -80,6 +80,10 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
 .calculator-panel,.info-panel,.threshold-panel,.result-panel,.reference-panel { background:#fff; border:1px solid #e7edf5; border-radius:15px; box-shadow:0 8px 30px #1d355008; }
 .calculator-panel { padding:25px; }
 .panel-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:24px; }
+.panel-subheading { margin-top:30px; }
+.check-field { display:flex; align-items:center; gap:11px; margin-top:18px; padding:14px; border:1px solid #e7edf5; border-radius:10px; color:#34465f; font-size:11px; line-height:1.6; cursor:pointer; }
+.check-field input { width:18px; height:18px; flex:0 0 auto; accent-color:#2876e8; }
+.result-summary { margin:16px 0 0; color:#596a82; font-size:12px; line-height:1.7; }
 .panel-kicker { color:#7390b5; font-size:9px; font-weight:800; letter-spacing:1.4px; }
 .panel-heading h2,.reference-panel h2 { margin:7px 0 0; font-size:21px; }
 .points-label { padding:7px 10px; border-radius:7px; color:#5276a8; background:#edf4fd; font-size:10px; font-weight:700; }
