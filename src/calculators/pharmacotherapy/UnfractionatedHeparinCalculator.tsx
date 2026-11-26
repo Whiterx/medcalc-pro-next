@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { calculateUFHInitialDosing, type UFHIndication, type UFHResult } from './unfractionatedHeparin'
 import { UFH_REFERENCE } from './unfractionatedHeparin.reference'
 
-const initialValues = { weight: '', indication: '' as '' | UFHIndication }
+const initialValues = { weight: '', indication: '' as '' | UFHIndication, adultConfirmed: false }
 
 export default function UnfractionatedHeparinCalculator() {
   const [values, setValues] = useState(initialValues)
@@ -23,13 +23,13 @@ export default function UnfractionatedHeparinCalculator() {
   }
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (values.weight === '' || values.indication === '') {
-      setError('Введите массу тела и выберите клиническое показание.')
+    if (values.weight === '' || values.indication === '' || !values.adultConfirmed) {
+      setError('Введите массу тела, подтвердите взрослый возраст пациента и выберите клинический протокол.')
       setResult(null)
       return
     }
     try {
-      setResult(calculateUFHInitialDosing({ actualBodyWeightKg: Number(values.weight), indication: values.indication }))
+      setResult(calculateUFHInitialDosing({ actualBodyWeightKg: Number(values.weight), indication: values.indication, adultConfirmed: values.adultConfirmed }))
       setError('')
     } catch (caught) {
       setResult(null)
@@ -52,7 +52,8 @@ export default function UnfractionatedHeparinCalculator() {
         <form className="calculator-panel" onSubmit={handleCalculate}>
           <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и протокол</h2></div><span className="points-label">Ед.</span></div>
           <p className="clinical-warning"><ShieldAlert size={14} /> Важно: доступны конкретные справочные схемы, а не универсальные назначения. Российские КР различают сценарии: ОКСбпST (154_4) — 60–70 ЕД/кг и 12–15 ЕД/кг/ч; ИМпST (157, версия 5, 2024) — при ТЛТ 60/12 с максимумами 4 000/1 000 ЕД; для иных показаний к лечебной антикоагуляции в справочной таблице 60–70/12–15 с максимумами 5 000/1 000 ЕД; при ЧКВ отдельный болюс 70–100 ЕД/кг под контролем АВС. Догоспитальный алгоритм без реперфузии не предусматривает антикоагулянты. Для ТГВ КР 960_1 указывает 80/18 без максимумов 10 000/2 000 в таблице 9. Текущие варианты приложения не реализуют все эти сценарии; не переносите дозы и ограничения между ними.</p>
-          <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /></label>
+          <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /><small>20–300 кг — технический диапазон ввода, а не подтверждённый диапазон клинической валидации.</small></label>
+          <label className="calc-field field-full"><span><input type="checkbox" required checked={values.adultConfirmed} onChange={(event) => updateField('adultConfirmed', event.target.checked)} /> Пациент взрослый: возраст 18 лет или старше</span></label>
           <label className="calc-field field-full">
             <span>Показание / протокол</span>
             <select required value={values.indication} onChange={(event) => updateField('indication', event.target.value as '' | UFHIndication)}>
