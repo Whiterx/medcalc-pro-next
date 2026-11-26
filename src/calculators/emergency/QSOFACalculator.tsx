@@ -12,6 +12,7 @@ const gcsOptions = {
     { value: '3', label: '3 — на обращение' },
     { value: '2', label: '2 — на давление' },
     { value: '1', label: '1 — отсутствует' },
+    { value: 'NT', label: 'NT — не оценивается' },
   ],
   verbal: [
     { value: '5', label: '5 — ориентирован' },
@@ -19,6 +20,7 @@ const gcsOptions = {
     { value: '3', label: '3 — отдельные слова' },
     { value: '2', label: '2 — нечленораздельные звуки' },
     { value: '1', label: '1 — отсутствует' },
+    { value: 'NT', label: 'NT — не оценивается' },
   ],
   motor: [
     { value: '6', label: '6 — выполняет команды' },
@@ -27,6 +29,7 @@ const gcsOptions = {
     { value: '3', label: '3 — патологическое сгибание' },
     { value: '2', label: '2 — разгибание' },
     { value: '1', label: '1 — отсутствует' },
+    { value: 'NT', label: 'NT — не оценивается' },
   ],
 }
 
@@ -35,7 +38,12 @@ export default function QSOFACalculator() {
   const [result, setResult] = useState<QSOFAResult | null>(null)
   const [error, setError] = useState('')
 
-  const gcs = values.eye && values.verbal && values.motor ? Number(values.eye) + Number(values.verbal) + Number(values.motor) : null
+  const gcsComponents = [values.eye, values.verbal, values.motor]
+  const allGcsComponentsSelected = gcsComponents.every((value) => value !== '')
+  const hasUntestableGcsComponent = gcsComponents.includes('NT')
+  const gcs = allGcsComponentsSelected && !hasUntestableGcsComponent
+    ? Number(values.eye) + Number(values.verbal) + Number(values.motor)
+    : null
 
   function updateField(field: keyof typeof initialValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }))
@@ -47,6 +55,12 @@ export default function QSOFACalculator() {
     event.preventDefault()
     if (values.respiratoryRate.trim() === '' || values.systolicBP.trim() === '') {
       setError('Заполните частоту дыхания и систолическое давление.')
+      setResult(null)
+      return
+    }
+
+    if (hasUntestableGcsComponent) {
+      setError('Хотя бы один компонент GCS отмечен NT. Не подставляйте вместо него 1 балл: общий GCS и критерий qSOFA по нему рассчитать нельзя.')
       setResult(null)
       return
     }
@@ -148,11 +162,11 @@ export default function QSOFACalculator() {
             </div>
             <div className="gcs-total">
               <span>Сумма GCS</span>
-              <strong>{gcs ?? '—'}<small> / 15</small></strong>
-              <span className={gcs === null ? 'gcs-status' : gcs === 15 ? 'gcs-status normal' : 'gcs-status altered'}>{gcs === null ? 'Оцените все компоненты' : gcs === 15 ? 'Максимальная оценка' : 'Есть снижение GCS'}</span>
+              <strong>{hasUntestableGcsComponent ? 'NT' : gcs ?? '—'}{!hasUntestableGcsComponent && <small> / 15</small>}</strong>
+              <span className={hasUntestableGcsComponent ? 'gcs-status altered' : gcs === null ? 'gcs-status' : gcs === 15 ? 'gcs-status normal' : 'gcs-status altered'}>{hasUntestableGcsComponent ? 'Общий балл не рассчитывается' : gcs === null ? 'Оцените все компоненты' : gcs === 15 ? 'Максимальная оценка' : 'Есть снижение GCS'}</span>
             </div>
             <p className="field-hint">Для qSOFA: GCS 15 = 0 баллов; GCS менее 15 = 1 балл независимо от степени снижения. Сумма рассчитывается после выбора всех компонентов.</p>
-            <p className="field-hint">Если компонент невозможно достоверно оценить (например, речевую реакцию у интубированного пациента), не подставляйте автоматически 1 балл: отметьте компонент как неоцениваемый и интерпретируйте результат с учётом ограничений.</p>
+            <p className="field-hint">Если компонент невозможно достоверно оценить (например, речевую реакцию у интубированного пациента), выберите NT. Не заменяйте NT на 1 балл: общий GCS и критерий qSOFA по общему GCS не рассчитываются.</p>
           </div>
 
           {error && <p className="form-error" role="alert">{error}</p>}
