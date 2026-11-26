@@ -482,3 +482,45 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
   .converter-arrow { align-self:center; }
   .converter-error { grid-column:1/-1; }
 }
+
+
+/* Print-ready calculator result: no input forms or patient identifiers */
+@media print {
+  @page { margin:14mm; }
+  html,body { background:#fff !important; color:#000 !important; }
+  .topbar,.hero,.features,.recent-section,.saved-results-section,.catalog,.footer,
+  .calculator-topline,.calculator-layout,.result-actions-dock,.calculator-disclaimer { display:none !important; }
+  .app-shell,.calculator-shell { max-width:none !important; margin:0 !important; padding:0 !important; }
+  .calculator-heading { padding:0 0 12px !important; }
+  .calculator-heading .eyebrow { color:#444 !important; }
+  .calculator-heading h1 { margin:0 0 7px !important; color:#000 !important; font-size:22pt !important; letter-spacing:0 !important; }
+  .calculator-heading > p { max-width:none !important; color:#333 !important; font-size:10pt !important; }
+  .result-panel {
+    display:block !important;
+    margin:0 !important;
+    padding:0 !important;
+    color:#000 !important;
+    background:#fff !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+  .result-panel .score-display strong { color:#000 !important; font-size:32pt !important; }
+  .result-panel .score-display span,.result-panel .result-summary,
+  .result-panel .criteria-list,.result-panel .care-context { color:#222 !important; }
+  .result-panel .clinical-warning { color:#222 !important; background:#fff !important; border:1px solid #aaa !important; }
+  .reference-panel {
+    display:block !important;
+    margin:14px 0 0 !important;
+    padding:12px 0 0 !important;
+    color:#000 !important;
+    background:#fff !important;
+    border:0 !important;
+    border-top:1px solid #aaa !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+  }
+  .reference-panel h2 { color:#000 !important; font-size:12pt !important; }
+  .reference-panel p,.reference-panel small { color:#333 !important; font-size:9pt !important; }
+  .reference-panel a { color:#000 !important; text-decoration:none !important; }
+  .result-panel,.reference-panel { break-inside:avoid; }
+}
