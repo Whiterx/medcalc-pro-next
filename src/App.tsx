@@ -2,6 +2,7 @@ import { Activity, ArrowRight, BookOpen, Calculator, Search, ShieldCheck, Smartp
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { clearRecentCalculatorPaths, readRecentCalculatorPaths, recordRecentCalculatorPath, type StorageLike } from './catalogHistory'
+import { addCalculationHistory, addRiskBasketItem, clearCalculationHistory, clearRiskBasket, readCalculationHistory, readRiskBasket, type NewCalculationResult, type SavedCalculationResult } from './resultCollections'
 import CURB65Calculator from './calculators/pulmonology/CURB65Calculator'
 import PFRatioCalculator from './calculators/pulmonology/PFRatioCalculator'
 import BODECalculator from './calculators/pulmonology/BODECalculator'
@@ -131,11 +132,26 @@ function normalizeSearchText(value: string) {
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [recentPaths, setRecentPaths] = useState<string[]>([])
+  const [savedHistory, setSavedHistory] = useState<SavedCalculationResult[]>([])
+  const [riskBasket, setRiskBasket] = useState<SavedCalculationResult[]>([])
   useEffect(() => { setRecentPaths(readRecentCalculatorPaths(calculatorPaths, getRecentStorage())) }, [])
+  useEffect(() => {
+    const storage = getRecentStorage()
+    setSavedHistory(readCalculationHistory(calculatorPaths, storage))
+    setRiskBasket(readRiskBasket(calculatorPaths, storage))
+  }, [])
   const recentCalculators = useMemo(() => recentPaths.map((path) => calculatorCatalog.find((item) => item.path === path)).filter((item): item is (typeof calculatorCatalog)[number] => Boolean(item)), [recentPaths])
   function clearRecent() {
     clearRecentCalculatorPaths(getRecentStorage())
     setRecentPaths([])
+  }
+  function clearSavedHistory() {
+    clearCalculationHistory(getRecentStorage())
+    setSavedHistory([])
+  }
+  function clearBasket() {
+    clearRiskBasket(getRecentStorage())
+    setRiskBasket([])
   }
   const normalizedQuery = normalizeSearchText(searchQuery)
   const searchTerms = normalizedQuery.split(/\s+/).filter(Boolean)
@@ -190,6 +206,28 @@ function HomePage() {
           </div>
         </section>
       )}
+      {savedHistory.length > 0 && (
+        <section className="saved-results-section" aria-label="История расчётов">
+          <div className="recent-heading">
+            <div><h2>История расчётов</h2><p>Сохраняются только название инструмента, итог и интерпретация — без исходных полей и идентификаторов.</p></div>
+            <button type="button" className="recent-clear" onClick={clearSavedHistory}>Очистить историю</button>
+          </div>
+          <div className="saved-results-list">
+            {savedHistory.slice(0, 5).map((item) => <Link className="saved-result-row" key={item.id} to={item.path}><span><b>{item.name}</b><small>{new Date(item.createdAt).toLocaleString('ru-RU')}</small></span><strong>{item.score}</strong><em>{item.interpretation}</em></Link>)}
+          </div>
+        </section>
+      )}
+      {riskBasket.length > 0 && (
+        <section className="saved-results-section risk-basket-section" aria-label="Корзина риска" id="risk-basket">
+          <div className="recent-heading">
+            <div><h2>Корзина риска</h2><p>Сводка сохранённых результатов разных шкал. Данные хранятся только в этом браузере.</p></div>
+            <button type="button" className="recent-clear" onClick={clearBasket}>Очистить корзину</button>
+          </div>
+          <div className="risk-basket-grid">
+            {riskBasket.map((item) => <Link className="risk-basket-card" key={item.id} to={item.path}><span>{item.name}</span><b>{item.score}</b><small>{item.interpretation}</small><time>{new Date(item.createdAt).toLocaleString('ru-RU')}</time></Link>)}
+          </div>
+        </section>
+      )}
       <section className="catalog" id="categories">
         <div className="section-heading">
           <div><div className="eyebrow">БИБЛИОТЕКА ИНСТРУМЕНТОВ</div><h2>Каталог калькуляторов</h2></div>
@@ -227,12 +265,89 @@ function HomePage() {
   )
 }
 
+function readVisibleResult(path: string): NewCalculationResult | null {
+  const calculator = calculatorCatalog.find((item) => item.path === path)
+  const panel = document.querySelector('.result-panel')
+  if (!calculator || !panel) return null
+  const scoreNode = panel.querySelector('.score-display strong')
+  const unitNode = panel.querySelector('.score-display span')
+  const fallbackNode = panel.querySelector('.result-summary b')
+  const rawScore = scoreNode?.textContent?.trim() || fallbackNode?.textContent?.trim()
+  if (!rawScore) return null
+  const score = scoreNode && unitNode?.textContent?.trim()
+    ? rawScore + ' ' + unitNode.textContent.trim()
+    : rawScore
+  const interpretationNode = panel.querySelector('.care-context b, .mortality-estimate b, .result-summary b')
+  const riskNode = panel.querySelector('.risk-tag')
+  const interpretation = interpretationNode?.textContent?.trim() || riskNode?.textContent?.trim() || 'Результат рассчитан'
+  const riskClass = riskNode?.className || ''
+  const riskLevel = riskClass.includes('risk-high') ? 'high'
+    : riskClass.includes('risk-low') ? 'low' : 'moderate'
+  return { path, name: calculator.title, score, interpretation, riskLevel }
+}
+
+function ResultActions() {
+  const location = useLocation()
+  const [hasResult, setHasResult] = useState(false)
+  const [message, setMessage] = useState('')
+  const [historyCount, setHistoryCount] = useState(0)
+  const [basketCount, setBasketCount] = useState(0)
+
+  useEffect(() => {
+    setMessage('')
+    const update = () => setHasResult(Boolean(readVisibleResult(location.pathname)))
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+    return () => observer.disconnect()
+  }, [location.pathname])
+
+  useEffect(() => {
+    const storage = getRecentStorage()
+    setHistoryCount(readCalculationHistory(calculatorPaths, storage).length)
+    setBasketCount(readRiskBasket(calculatorPaths, storage).length)
+  }, [location.pathname])
+
+  if (!location.pathname.startsWith('/calculators/') || !hasResult) return null
+
+  function saveResult(target: 'history' | 'basket') {
+    const entry = readVisibleResult(location.pathname)
+    const storage = getRecentStorage()
+    if (!entry) {
+      setMessage('Сначала выполните расчёт и убедитесь, что результат отображается.')
+      return
+    }
+    if (!storage) {
+      setMessage('Локальное хранилище недоступно. Результат не сохранён.')
+      return
+    }
+    if (target === 'history') {
+      const next = addCalculationHistory(entry, calculatorPaths, storage)
+      setHistoryCount(next.length)
+      setMessage('Результат сохранён в историю.')
+    } else {
+      const next = addRiskBasketItem(entry, calculatorPaths, storage)
+      setBasketCount(next.length)
+      setMessage('Результат добавлен в корзину риска.')
+    }
+  }
+
+  return (
+    <aside className="result-actions-dock" aria-label="Сохранение результата">
+      <div><b>Сохранить результат?</b><span>Только итог и интерпретация, без введённых данных и персональных идентификаторов.</span></div>
+      <button type="button" onClick={() => saveResult('history')}>В историю ({historyCount})</button>
+      <button type="button" onClick={() => saveResult('basket')}>В корзину ({basketCount})</button>
+      {message && <small role="status">{message}</small>}
+    </aside>
+  )
+}
+
 function App() {
   const location = useLocation()
   useEffect(() => {
     recordRecentCalculatorPath(location.pathname, calculatorPaths, getRecentStorage())
   }, [location.pathname])
-  return <Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/psi" element={<PSICalculator />} /><Route path="/calculators/gold-abe" element={<GOLDABECalculator />} /><Route path="/calculators/spesi" element={<SPESICalculator />} /><Route path="/calculators/h2fpef" element={<H2FPEFCalculator />} /><Route path="/calculators/grace" element={<GRACECalculator />} /><Route path="/calculators/timi" element={<TIMICalculator />} /><Route path="/calculators/qtc" element={<QTCCalculator />} /><Route path="/calculators/heart" element={<HEARTCalculator />} /><Route path="/calculators/cha2ds2vasc-hasbled" element={<CHA2DS2VAScHASBLEDCalculator />} /><Route path="/calculators/wells-pe" element={<WellsPECalculator />} /><Route path="/calculators/wells-dvt" element={<WellsDVTCalculator />} /><Route path="/calculators/padua" element={<PaduaCalculator />} /><Route path="/calculators/4ts" element={<FourTsCalculator />} /><Route path="/calculators/dic-isth" element={<DICISTHCalculator />} /><Route path="/calculators/homa-ir" element={<HOMAIRCalculator />} /><Route path="/calculators/bmi" element={<BMICalculator />} /><Route path="/calculators/egfr" element={<EGFRCalculator />} /><Route path="/calculators/kdigo-aki" element={<KDIGOAKICalculator />} /><Route path="/calculators/cockcroft-gault" element={<CockcroftGaultCalculator />} /><Route path="/calculators/fib-4" element={<FIB4Calculator />} /><Route path="/calculators/child-pugh" element={<ChildPughCalculator />} /><Route path="/calculators/meld-na" element={<MELDNaCalculator />} /><Route path="/calculators/nihss" element={<NIHSSCalculator />} /><Route path="/calculators/mrs" element={<MRSCalculator />} /><Route path="/calculators/abcd2" element={<ABCD2Calculator />} /><Route path="/calculators/hunt-hess-wfns" element={<HuntHessWFNSCalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/bisap" element={<BISAPCalculator />} /><Route path="/calculators/alvarado" element={<AlvaradoCalculator />} /><Route path="/calculators/glasgow-blatchford" element={<GlasgowBlatchfordCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="/calculators/rass-cam-icu" element={<RASSCAMICUCalculator />} /><Route path="/calculators/rts" element={<RTSCalculator />} /><Route path="/calculators/iss" element={<ISSCalculator />} /><Route path="/calculators/performance-status" element={<PerformanceStatusCalculator />} /><Route path="/calculators/vancomycin" element={<VancomycinCalculator />} /><Route path="/calculators/vasopressors" element={<VasopressorsCalculator />} /><Route path="/calculators/unfractionated-heparin" element={<UnfractionatedHeparinCalculator />} /><Route path="*" element={<HomePage />} /></Routes>
+  return <><Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/psi" element={<PSICalculator />} /><Route path="/calculators/gold-abe" element={<GOLDABECalculator />} /><Route path="/calculators/spesi" element={<SPESICalculator />} /><Route path="/calculators/h2fpef" element={<H2FPEFCalculator />} /><Route path="/calculators/grace" element={<GRACECalculator />} /><Route path="/calculators/timi" element={<TIMICalculator />} /><Route path="/calculators/qtc" element={<QTCCalculator />} /><Route path="/calculators/heart" element={<HEARTCalculator />} /><Route path="/calculators/cha2ds2vasc-hasbled" element={<CHA2DS2VAScHASBLEDCalculator />} /><Route path="/calculators/wells-pe" element={<WellsPECalculator />} /><Route path="/calculators/wells-dvt" element={<WellsDVTCalculator />} /><Route path="/calculators/padua" element={<PaduaCalculator />} /><Route path="/calculators/4ts" element={<FourTsCalculator />} /><Route path="/calculators/dic-isth" element={<DICISTHCalculator />} /><Route path="/calculators/homa-ir" element={<HOMAIRCalculator />} /><Route path="/calculators/bmi" element={<BMICalculator />} /><Route path="/calculators/egfr" element={<EGFRCalculator />} /><Route path="/calculators/kdigo-aki" element={<KDIGOAKICalculator />} /><Route path="/calculators/cockcroft-gault" element={<CockcroftGaultCalculator />} /><Route path="/calculators/fib-4" element={<FIB4Calculator />} /><Route path="/calculators/child-pugh" element={<ChildPughCalculator />} /><Route path="/calculators/meld-na" element={<MELDNaCalculator />} /><Route path="/calculators/nihss" element={<NIHSSCalculator />} /><Route path="/calculators/mrs" element={<MRSCalculator />} /><Route path="/calculators/abcd2" element={<ABCD2Calculator />} /><Route path="/calculators/hunt-hess-wfns" element={<HuntHessWFNSCalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/bisap" element={<BISAPCalculator />} /><Route path="/calculators/alvarado" element={<AlvaradoCalculator />} /><Route path="/calculators/glasgow-blatchford" element={<GlasgowBlatchfordCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="/calculators/rass-cam-icu" element={<RASSCAMICUCalculator />} /><Route path="/calculators/rts" element={<RTSCalculator />} /><Route path="/calculators/iss" element={<ISSCalculator />} /><Route path="/calculators/performance-status" element={<PerformanceStatusCalculator />} /><Route path="/calculators/vancomycin" element={<VancomycinCalculator />} /><Route path="/calculators/vasopressors" element={<VasopressorsCalculator />} /><Route path="/calculators/unfractionated-heparin" element={<UnfractionatedHeparinCalculator />} /><Route path="*" element={<HomePage />} /></Routes><ResultActions /></>
 }
 
 export default App
