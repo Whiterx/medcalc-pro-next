@@ -56,6 +56,12 @@ describe('calculateH2FPEF', () => {
     expect(calc({ atrialFibrillation: 'paroxysmal', bmi: 30.1, antihypertensiveCount: 2 }).score).toBe(6)
   })
 
+  it('can reach the maximum score of 9 when all six criteria are present', () => {
+    const result = calc({ ageYears: 61, bmi: 30.1, antihypertensiveCount: 2, atrialFibrillation: 'persistent', paspMmHg: 35.1, eOverEPrime: 9.1 })
+    expect(result.score).toBe(9)
+    expect(result.category).toBe('high')
+  })
+
   it('requires documented LVEF of at least 50%', () => {
     expect(() => calc({ lvefAtLeast50: false })).toThrow()
   })
