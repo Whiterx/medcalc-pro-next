@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { calculateVasoactiveRate, type VasoactiveDrug, type VasoactiveResult } from './vasopressors'
 import { VASOPRESSORS_REFERENCE } from './vasopressors.reference'
 
-const initialValues = { drug: '' as '' | VasoactiveDrug, dose: '', weightKg: '', drugAmount: '', finalVolumeMl: '' }
+const initialValues = { drug: '' as '' | VasoactiveDrug, dose: '', weightKg: '', concentration: '' }
 
 const drugOptions: { value: VasoactiveDrug; label: string }[] = [
   { value: 'norepinephrine', label: 'Норадреналин' },
@@ -31,13 +31,14 @@ export default function VasopressorsCalculator() {
   }
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (values.drug === '' || values.dose === '' || values.drugAmount === '' || values.finalVolumeMl === '') {
-      setError('Выберите препарат и заполните дозу, количество препарата и конечный объём раствора.')
+    if (values.drug === '' || values.dose === '' || values.concentration === '') {
+      setError('Выберите препарат и заполните назначенную дозу и концентрацию готового раствора.')
       setResult(null)
       return
     }
     const isVasopressin = values.drug === 'vasopressin'
-    if (!isVasopressin && values.weightKg === '') {
+    const isEpinephrine = values.drug === 'epinephrine'
+    if (!isVasopressin && !isEpinephrine && values.weightKg === '') {
       setError('Для выбранного препарата введите массу тела.')
       setResult(null)
       return
@@ -46,9 +47,8 @@ export default function VasopressorsCalculator() {
       setResult(calculateVasoactiveRate({
         drug: values.drug,
         dose: Number(values.dose),
-        weightKg: isVasopressin ? null : Number(values.weightKg),
-        drugAmount: Number(values.drugAmount),
-        finalVolumeMl: Number(values.finalVolumeMl),
+        weightKg: isVasopressin || isEpinephrine ? null : Number(values.weightKg),
+        concentration: Number(values.concentration),
       }))
       setError('')
     } catch (caught) {
@@ -58,6 +58,7 @@ export default function VasopressorsCalculator() {
   }
 
   const isVasopressin = values.drug === 'vasopressin'
+  const isEpinephrine = values.drug === 'epinephrine'
 
   return (
     <main className="app-shell calculator-shell">
@@ -82,18 +83,15 @@ export default function VasopressorsCalculator() {
           </label>
           {values.drug !== '' && (
             <>
-              {!isVasopressin && (
+              {!isVasopressin && !isEpinephrine && (
                 <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="0.1" max="500" step="any" required value={values.weightKg} onChange={(event) => updateField('weightKg', event.target.value)} placeholder="Введите массу тела" /></label>
               )}
               <label className="calc-field field-full">
-                <span>Назначенная доза, {isVasopressin ? 'Ед/мин' : 'мкг/кг/мин'}</span>
-                <input type="number" min="0.0001" max="1000" step="any" required value={values.dose} onChange={(event) => updateField('dose', event.target.value)} placeholder={isVasopressin ? 'Например, 0,03' : 'Введите назначенную дозу'} />
+                <span>Назначенная доза, {isVasopressin ? 'Ед/мин' : isEpinephrine ? 'мкг/мин' : 'мкг/кг/мин'}</span>
+                <input type="number" min="0.0001" max="1000" step="any" required value={values.dose} onChange={(event) => updateField('dose', event.target.value)} placeholder={isVasopressin ? 'Например, 0,03' : isEpinephrine ? 'Например, 1' : 'Введите назначенную дозу'} />
               </label>
-              <div className="form-row">
-                <label className="calc-field"><span>Количество препарата, {isVasopressin ? 'Ед' : 'мг'}</span><input type="number" min="0.001" max="100000" step="any" required value={values.drugAmount} onChange={(event) => updateField('drugAmount', event.target.value)} placeholder={isVasopressin ? 'Единицы' : 'мг'} /></label>
-                <label className="calc-field"><span>Конечный объём раствора, мл</span><input type="number" min="0.1" max="1000" step="any" required value={values.finalVolumeMl} onChange={(event) => updateField('finalVolumeMl', event.target.value)} placeholder="мл" /></label>
-              </div>
-              <p className="field-hint">Введите именно конечный объём раствора и количество действующего вещества, указанные на этикетке готового шприца/пакета. Не используйте предполагаемую стандартную концентрацию.</p>
+              <label className="calc-field field-full"><span>Концентрация готового раствора, {isVasopressin ? 'Ед/мл' : 'мкг/мл'}</span><input type="number" min="0.0001" max="100000" step="any" required value={values.concentration} onChange={(event) => updateField('concentration', event.target.value)} placeholder={isVasopressin ? 'Ед/мл' : 'мкг/мл'} /></label>
+              <p className="field-hint">Введите концентрацию готового раствора по маркировке шприца/пакета. Для катехоламинов она должна быть выражена в том же эквиваленте действующего вещества, к которому относится назначенная доза. Соль и активное основание не взаимозаменяемы: не выполняйте пересчёт самостоятельно. Если эквивалент неясен, уточните его у аптеки/фармацевта и не используйте расчёт.</p>
             </>
           )}
           {error && <p className="form-error" role="alert">{error}</p>}
@@ -105,7 +103,7 @@ export default function VasopressorsCalculator() {
         </form>
         <aside className="calculator-aside">
           <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Только пересчёт единиц</h3><p>Калькулятор не подбирает дозу и не титрует препарат. Вводите уже назначенную дозу и проверенную концентрацию раствора.</p></div>
-          <div className="threshold-panel"><h3>Формулы</h3><p>Для катехоламинов: [мкг/кг/мин × кг × 60] ÷ [мкг/мл].</p><p>Для вазопрессина: [Ед/мин × 60] ÷ [Ед/мл].</p></div>
+          <div className="threshold-panel"><h3>Формулы</h3><p>Для норадреналина, допамина и добутамина: [мкг/кг/мин × кг × 60] ÷ [мкг/мл].</p><p>Для адреналина: [мкг/мин × 60] ÷ [мкг/мл].</p><p>Для вазопрессина: [Ед/мин × 60] ÷ [Ед/мл].</p></div>
         </aside>
       </div>
       {result && (
@@ -113,7 +111,6 @@ export default function VasopressorsCalculator() {
           <div className="result-topline"><span className="panel-kicker">РАСЧЁТНАЯ СКОРОСТЬ</span><span className="risk-tag risk-moderate">Проверьте независимо</span></div>
           <div className="score-display"><strong>{result.infusionRateMlH.toFixed(2)}</strong><span>мл/ч</span></div>
           <div className="result-summary"><b>{result.drugLabel}</b><p>Назначенная доза: {result.dose} {result.doseUnit}{result.weightKg !== null ? ` × ${result.weightKg} кг` : ''}.</p><p>Концентрация: {result.concentration.toFixed(3)} {result.concentrationUnit}.</p><p>Скорость: {result.infusionRateMlMin.toFixed(3)} мл/мин.</p></div>
-          {result.highInfusionRateWarning && <p className="clinical-warning"><ShieldAlert size={14} /> Скорость выше 99 мл/ч. Перепроверьте назначенную дозу, единицы, количество препарата и конечный объём раствора.</p>}
           <p className="clinical-warning"><ShieldAlert size={14} /> До подключения независимо проверьте расчёт, концентрацию и настройки инфузионного насоса по локальному протоколу. Это не рекомендация по выбору препарата или дозы.</p>
         </section>
       )}
