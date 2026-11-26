@@ -170,6 +170,7 @@ export default function NEWS2Calculator() {
         <div className={`care-context ${result.riskLevel === 'high' || result.hasSingleRedScore ? 'qsofa-positive' : ''}`}>
           <b>{result.hasSingleRedScore ? 'Есть критическое отклонение по одному параметру (3 балла)' : result.riskLabel}</b>
           <p>{result.interpretation}</p>
+          <p><b>Частота мониторинга (ориентир RCP):</b> {result.monitoringFrequency}</p>
           <p><b>Предлагаемое реагирование:</b> {result.suggestedResponse}</p>
         </div>
         <h3>Разбор начисленных баллов</h3>
@@ -180,7 +181,7 @@ export default function NEWS2Calculator() {
             <span className="criterion-status">{item.points} б.</span>
           </div>)}
         </div>
-        <p className="clinical-warning"><ShieldAlert size={14} /> NEWS2 — инструмент раннего выявления ухудшения, а не диагноз. Клиническое беспокойство должно иметь приоритет над числом баллов. Следуйте локальному протоколу эскалации; NEWS2 не заменяет клиническую оценку.</p>
+        <p className="clinical-warning"><ShieldAlert size={14} /> NEWS2 — инструмент раннего выявления ухудшения, а не диагноз. Частота мониторинга и реагирование приведены как ориентиры RCP для стационарного контекста; локальный протокол и клиническая оценка имеют приоритет. Для общественных/амбулаторных условий RCP не устанавливает универсальные пороги действий. Клиническое беспокойство должно иметь приоритет над числом баллов.</p>
       </section>}
 
       <section className="reference-panel">
