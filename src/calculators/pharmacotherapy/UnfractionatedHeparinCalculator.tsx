@@ -51,7 +51,7 @@ export default function UnfractionatedHeparinCalculator() {
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
           <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и протокол</h2></div><span className="points-label">Ед.</span></div>
-          <p className="clinical-warning"><ShieldAlert size={14} /> Важно: доступны конкретные международные схемы, а не универсальные назначения. Российские КР содержат отличающиеся параметры: для ОКС без подъёма ST — диапазоны 60–70 ЕД/кг и 12–15 ЕД/кг/ч с максимумом болюса 5 000 ЕД; для ТГВ — 80 ЕД/кг и 18 ЕД/кг/ч без указанных в таблице 9 максимумов 10 000/2 000. Не переносите дозы и ограничения между протоколами.</p>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Важно: доступны конкретные международные схемы, а не универсальные назначения. Российские КР содержат отличающиеся параметры: для ОКС без подъёма ST КР 154_4 задают диапазоны 60–70 ЕД/кг и 12–15 ЕД/кг/ч (максимумы 5 000/1 000 ЕД); для ИМпST КР 157_2 содержит стартовую схему 60 ЕД/кг + 12 ЕД/кг/ч (максимумы 4 000/1 000 ЕД), но с отдельными условиями мониторинга и длительности; для ТГВ КР 960_1 указывает 80/18 без максимумов 10 000/2 000 в таблице 9. Не переносите дозы и ограничения между сценариями.</p>
           <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /></label>
           <label className="calc-field field-full">
             <span>Показание / протокол</span>
