@@ -46,17 +46,11 @@ export default function PSICalculator() {
 
     const stepOne = {
       age: Number(values.age),
-      sex: values.sex === 'female' ? 'female' as const : 'male' as const,
       respiratoryRate: Number(values.respiratoryRate),
       systolicBP: Number(values.systolicBP),
       heartRate: Number(values.heartRate),
       temperatureC: Number(values.temperatureC),
       ...checks,
-      bunUreaMmol: values.bunUreaMmol.trim() === '' ? 5 : Number(values.bunUreaMmol),
-      sodiumMmol: values.sodiumMmol.trim() === '' ? 140 : Number(values.sodiumMmol),
-      glucoseMmol: values.glucoseMmol.trim() === '' ? 5 : Number(values.glucoseMmol),
-      hematocritPercent: values.hematocritPercent.trim() === '' ? 40 : Number(values.hematocritPercent),
-      arterialPH: values.arterialPH.trim() === '' ? 7.4 : Number(values.arterialPH),
     }
 
     try {
