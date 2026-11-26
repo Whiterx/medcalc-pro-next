@@ -1,12 +1,13 @@
 import { Activity, ArrowRight, BookOpen, Calculator, Search, ShieldCheck, Smartphone } from 'lucide-react'
 import { Link, Route, Routes } from 'react-router-dom'
 import CURB65Calculator from './calculators/pulmonology/CURB65Calculator'
+import QSOFACalculator from './calculators/emergency/QSOFACalculator'
 
 const categories = [
   { title: 'Кардиология', description: 'Шкалы и расчёты для оценки сердечно-сосудистого риска', count: 'Скоро' },
   { title: 'Пульмонология', description: 'Респираторные шкалы и показатели', count: '1 калькулятор', active: true },
   { title: 'Нефрология', description: 'Функция почек и связанные расчёты', count: 'Скоро' },
-  { title: 'Неотложная медицина', description: 'Оценка тяжести состояния и клинические шкалы', count: 'Скоро' },
+  { title: 'Неотложная медицина', description: 'Оценка тяжести состояния и клинические шкалы', count: '1 калькулятор', active: true },
 ]
 
 function HomePage() {
@@ -55,7 +56,7 @@ function HomePage() {
           {categories.map((item, index) => (
             <article className={`category-card ${item.active ? 'category-card-active' : ''}`} key={item.title}>
               <div className="category-index">0{index + 1}</div><h3>{item.title}</h3><p>{item.description}</p>
-              {item.active ? <Link className="category-link" to="/calculators/curb-65">Открыть CURB-65 <ArrowRight size={14} /></Link> : <span className="coming-soon">{item.count}</span>}
+              {item.active ? <Link className="category-link" to={item.title === 'Пульмонология' ? '/calculators/curb-65' : '/calculators/qsofa'}>{item.title === 'Пульмонология' ? 'Открыть CURB-65' : 'Открыть qSOFA'} <ArrowRight size={14} /></Link> : <span className="coming-soon">{item.count}</span>}
             </article>
           ))}
         </div>
@@ -66,7 +67,7 @@ function HomePage() {
 }
 
 function App() {
-  return <Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="*" element={<HomePage />} /></Routes>
+  return <Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="*" element={<HomePage />} /></Routes>
 }
 
 export default App
