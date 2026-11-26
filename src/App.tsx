@@ -175,9 +175,9 @@ function HomePage() {
       </header>
       <section className="hero" id="home">
         <div className="hero-copy">
-          <div className="eyebrow"><span className="pulse-dot" /> МЕДИЦИНСКАЯ ОБРАЗОВАТЕЛЬНАЯ ПЛАТФОРМА</div>
-          <h1>Клинические решения<br /><em>начинаются с понимания.</em></h1>
-          <p className="hero-description">Медицинские калькуляторы, клинические шкалы и понятные объяснения — в одном удобном пространстве для обучения.</p>
+          <div className="eyebrow"><span className="pulse-dot" /> ПРОФЕССИОНАЛЬНЫЕ КЛИНИЧЕСКИЕ ИНСТРУМЕНТЫ</div>
+          <h1>Клинические расчёты<br /><em>для ежедневной практики.</em></h1>
+          <p className="hero-description">Клинические калькуляторы, шкалы и практические инструменты с прозрачной методикой, интерпретацией результатов и ссылками на источники.</p>
           <div className="hero-actions">
             <a className="primary-button" href="#categories"><Calculator size={17} /> Открыть калькуляторы</a>
             <span className="local-note"><ShieldCheck size={16} /> Данные остаются на устройстве</span>
@@ -188,16 +188,16 @@ function HomePage() {
           <div className="visual-card">
             <div className="visual-card-top"><span>MEDICAL KNOWLEDGE</span><Activity size={17} /></div>
             <div className="visual-number">M<span>+</span></div>
-            <div className="visual-caption">CALCULATE · LEARN · UNDERSTAND</div>
+            <div className="visual-caption">ASSESS · CALCULATE · REVIEW</div>
             <div className="visual-bars"><i /><i /><i /><i /><i /><i /><i /></div>
           </div>
           <div className="floating-chip chip-top"><Activity size={15} /> Clinical scores</div>
-          <div className="floating-chip chip-bottom"><BookOpen size={15} /> Learn the logic</div>
+          <div className="floating-chip chip-bottom"><ShieldCheck size={15} /> Evidence-aware</div>
         </div>
       </section>
       <section className="features" aria-label="Возможности платформы">
         <div className="feature"><Calculator /><div><b>Калькуляторы</b><span>Проверяемые формулы</span></div></div>
-        <div className="feature"><BookOpen /><div><b>Обучение</b><span>Объяснение каждого шага</span></div></div>
+        <div className="feature"><ShieldCheck /><div><b>Клинический контекст</b><span>Интерпретация и ограничения</span></div></div>
         <div className="feature"><Smartphone /><div><b>Любое устройство</b><span>Телефон, планшет, компьютер</span></div></div>
       </section>
       {recentCalculators.length > 0 && (
@@ -265,7 +265,7 @@ function HomePage() {
           ))}
         </div>}
       </section>
-      <footer className="footer"><span>© 2026 MediCalc Pro</span><span>Образовательный инструмент. Не заменяет клиническое решение специалиста.</span></footer>
+      <footer className="footer"><span>© 2026 MediCalc Pro</span><span>Инструмент поддержки клинической работы. Не заменяет профессиональное суждение врача и локальные протоколы.</span></footer>
     </main>
   )
 }
