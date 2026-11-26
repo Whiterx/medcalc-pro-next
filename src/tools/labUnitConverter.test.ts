@@ -38,6 +38,6 @@ describe('laboratory unit conversion', () => {
   it('rejects invalid numeric values', () => {
     expect(() => convertLabValue(-1, 'glucose', 'si-to-conventional')).toThrow()
     expect(() => convertLabValue(Number.NaN, 'creatinine', 'si-to-conventional')).toThrow()
-    expect(() => convertLabValue(1, 'creatinine' as 'glucose', 'si-to-conventional')).not.toThrow()
+    expect(() => convertLabValue(1, 'unknown' as 'glucose', 'si-to-conventional')).toThrow()
   })
 })
