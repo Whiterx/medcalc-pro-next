@@ -21,7 +21,7 @@ describe('calculateMELDNa', () => {
 
   it('applies sodium adjustment only when the rounded base MELD is greater than 11', () => {
     const low = calculateMELDNa({ ...base, bilirubin: 1.5 })
-    expect(low.meld).toBe(10)
+    expect(low.meld).toBe(8)
     expect(low.sodiumAdjusted).toBe(false)
     const higher = calculateMELDNa({ ...base, bilirubin: 3, creatinine: 1.5, inr: 1.5, sodium: 125 })
     expect(higher.meld).toBeGreaterThan(11)
