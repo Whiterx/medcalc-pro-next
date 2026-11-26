@@ -186,7 +186,7 @@ function HomePage() {
         <div className="hero-visual" aria-hidden="true">
           <div className="orbit orbit-one" /><div className="orbit orbit-two" />
           <div className="visual-card">
-            <div className="visual-card-top"><span>MEDICAL KNOWLEDGE</span><Activity size={17} /></div>
+            <div className="visual-card-top"><span>CLINICAL TOOLS</span><Activity size={17} /></div>
             <div className="visual-number">M<span>+</span></div>
             <div className="visual-caption">ASSESS · CALCULATE · REVIEW</div>
             <div className="visual-bars"><i /><i /><i /><i /><i /><i /><i /></div>
