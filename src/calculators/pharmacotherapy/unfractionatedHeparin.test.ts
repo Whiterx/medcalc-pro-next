@@ -40,11 +40,19 @@ describe('calculateUFHInitialDosing', () => {
     expect(result.indicationLabel).toContain('ACC/AHA 2025')
   })
 
-  it('does not flag the VTE caps at the exact threshold', () => {
+  it('does not flag the VTE bolus cap at its exact threshold', () => {
     const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 125, indication: 'vte' })
     expect(result.bolusUnits).toBe(10000)
     expect(result.bolusCapped).toBe(false)
     expect(result.infusionCapped).toBe(true)
+  })
+
+  it('does not flag the VTE infusion cap at its exact threshold', () => {
+    const thresholdWeight = 2000 / 18
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: thresholdWeight, indication: 'vte' })
+    expect(result.calculatedInfusionUnitsPerHour).toBeCloseTo(2000)
+    expect(result.infusionUnitsPerHour).toBeCloseTo(2000)
+    expect(result.infusionCapped).toBe(false)
   })
 
   it('flags the VTE infusion cap immediately above its threshold', () => {
