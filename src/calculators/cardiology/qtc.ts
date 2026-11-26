@@ -50,13 +50,13 @@ export function calculateQTC(input: QTCInput): QTCResult {
   const isProlonged = input.sex === 'male' ? qtcMs > 450 : qtcMs >= 460
   const upper99thPercentile = input.sex === 'male' ? 470 : 480
   const above99thPercentile = qtcMs >= upper99thPercentile
-  const category: QTCCategory = qtcMs >= 500 ? 'markedly-prolonged' : isProlonged ? 'prolonged' : 'normal'
+  const category: QTCCategory = qtcMs > 500 ? 'markedly-prolonged' : isProlonged ? 'prolonged' : 'normal'
   const categoryLabel = category === 'markedly-prolonged' ? 'Выраженное удлинение QTc (≥500 мс)'
     : category === 'prolonged' ? 'Удлинение QTc'
       : 'Ниже порога удлинения QTc'
 
   const explanation = category === 'markedly-prolonged'
-    ? 'QTc ≥500 мс считается выраженным удлинением и связано с повышенным риском torsades de pointes. Требуется срочная клиническая оценка с учётом симптомов, лекарств, электролитов и ЭКГ.'
+    ? 'QTc >500 мс считается выраженным удлинением и связано с повышенным риском torsades de pointes. Требуется срочная клиническая оценка с учётом симптомов, лекарств, электролитов и ЭКГ.'
     : above99thPercentile
       ? 'QTc достигает или превышает ориентировочную верхнюю границу 99-го перцентиля для данного пола (470 мс у мужчин, 480 мс у женщин).'
       : isProlonged
