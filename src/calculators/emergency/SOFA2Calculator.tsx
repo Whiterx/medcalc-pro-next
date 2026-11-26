@@ -63,7 +63,7 @@ export default function SOFA2Calculator() {
     if(values.pao2!==''&&values.spo2!==''){
       setError('Укажите только один показатель оксигенации: PaO₂/FiO₂ предпочтителен; SpO₂/FiO₂ применяется только если PaO₂ недоступно.');setResult(null);return
     }
-    if(values.pao2===''&&Number(values.spo2)>=98){
+    if(values.ecmo!=='yes'&&values.pao2===''&&Number(values.spo2)>=98){
       setError('SpO₂/FiO₂ допускается только при SpO₂ ниже 98% и отсутствии PaO₂.');setResult(null);return
     }
     if(values.urineRate!==''&&values.urineDuration===''){
