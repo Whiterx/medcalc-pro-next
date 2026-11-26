@@ -38,6 +38,17 @@ describe('calculateCURB65', () => {
     expect(calculateCURB65({ ...baseline, diastolicBP: 60 }).score).toBe(1)
   })
 
+  it('does not award points just below the respiratory rate and age thresholds', () => {
+    expect(calculateCURB65({ ...baseline, respiratoryRate: 29 }).score).toBe(0)
+    expect(calculateCURB65({ ...baseline, age: 64 }).score).toBe(0)
+  })
+
+  it('uses the systolic OR diastolic blood pressure threshold', () => {
+    expect(calculateCURB65({ ...baseline, systolicBP: 89, diastolicBP: 80 }).score).toBe(1)
+    expect(calculateCURB65({ ...baseline, systolicBP: 90, diastolicBP: 60 }).score).toBe(1)
+    expect(calculateCURB65({ ...baseline, systolicBP: 90, diastolicBP: 61 }).score).toBe(0)
+  })
+
   it('awards a point for confusion', () => {
     expect(calculateCURB65({ ...baseline, confusion: true }).score).toBe(1)
   })
