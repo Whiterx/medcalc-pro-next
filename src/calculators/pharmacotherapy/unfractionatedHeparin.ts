@@ -36,7 +36,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
     const calculatedInfusionUnitsPerHour = 18 * weight
     return {
       indication: 'vte',
-      indicationLabel: 'ВТЭО — стартовая схема ASHP (80 ЕД/кг + 18 ЕД/кг/ч; suggested caps)',
+      indicationLabel: 'Подтверждённое ВТЭО — начальная схема ASHP (80 ЕД/кг + 18 ЕД/кг/ч; suggested caps)',
       weightKg: weight,
       calculatedBolusUnits,
       bolusUnits: Math.min(calculatedBolusUnits, 10000),
@@ -52,7 +52,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
   const calculatedInfusionUnitsPerHour = 12 * weight
   return {
     indication: 'acs',
-    indicationLabel: 'ОКС — стартовая схема ACC/AHA 2025 (не схема ЧКВ)',
+    indicationLabel: 'ОКС — начальная терапия ACC/AHA 2025 (не схема ТЛТ или ЧКВ)',
     weightKg: weight,
     calculatedBolusUnits,
     bolusUnits: Math.min(calculatedBolusUnits, 4000),
@@ -60,6 +60,6 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
     calculatedInfusionUnitsPerHour,
     infusionUnitsPerHour: Math.min(calculatedInfusionUnitsPerHour, 1000),
     infusionCapped: calculatedInfusionUnitsPerHour > 1000,
-    monitoring: 'Руководство ACC/AHA 2025 указывает начальную коррекцию по АЧТВ с целевым диапазоном 60–80 секунд; далее — по локальному протоколу.',
+    monitoring: 'Для начальной терапии ОКС ACC/AHA 2025 указывает целевой АЧТВ 60–80 секунд. При фибринолизе в том же руководстве указан отдельный диапазон 50–70 секунд; режим ТЛТ этим калькулятором не поддерживается. ЧКВ требует отдельного дозирования по АВС. Дальнейший контроль — по локальному протоколу.',
   }
 }
