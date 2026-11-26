@@ -50,7 +50,7 @@ describe('calculateNEWS2', () => {
   })
 
   it('uses the 5–6 and 7+ escalation bands', () => {
-    expect(calculateNEWS2({ ...normal, respiratoryRate: 22, supplementalOxygen: true }).riskLevel).toBe('medium')
+    expect(calculateNEWS2({ ...normal, respiratoryRate: 22, spo2: 93, supplementalOxygen: true }).riskLevel).toBe('medium')
     expect(calculateNEWS2({ ...normal, respiratoryRate: 25, supplementalOxygen: true, systolicBP: 90 }).riskLevel).toBe('high')
   })
 })
