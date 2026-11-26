@@ -1,11 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { calculateQSOFA, type QSOFAInput } from './qsofa'
+import { calculateGCSTotal, calculateQSOFA, type QSOFAInput } from './qsofa'
 
 const baseline: QSOFAInput = {
   respiratoryRate: 18,
   systolicBP: 120,
   gcs: 15,
 }
+
+describe('calculateGCSTotal', () => {
+  it('sums valid eye, verbal, and motor scores', () => {
+    expect(calculateGCSTotal('4', '5', '6')).toBe(15)
+    expect(calculateGCSTotal('1', '1', '1')).toBe(3)
+  })
+
+  it('returns null when a component is not testable or missing', () => {
+    expect(calculateGCSTotal('4', 'NT', '6')).toBeNull()
+    expect(calculateGCSTotal('', '5', '6')).toBeNull()
+  })
+
+  it('rejects component values outside their valid ranges', () => {
+    expect(calculateGCSTotal('5', '5', '6')).toBeNull()
+    expect(calculateGCSTotal('4', '5', '7')).toBeNull()
+  })
+})
 
 describe('calculateQSOFA', () => {
   it('returns zero for normal values', () => {
