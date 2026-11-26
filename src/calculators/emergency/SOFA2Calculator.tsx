@@ -25,7 +25,7 @@ export default function SOFA2Calculator() {
   function reset(){setValues(initial);setResult(null);setError('')}
   function handleCalculate(event:FormEvent<HTMLFormElement>){
     event.preventDefault()
-    if(values.fio2===''||values.respiratorySupport===''||values.ecmo===''||values.platelets===''||values.bilirubin===''||values.map===''||
+    if(values.fio2===''||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||values.map===''||
       (values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
       (values.creatinine===''&&values.urineRate===''&&!values.rrt)){
