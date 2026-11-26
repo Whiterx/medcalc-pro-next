@@ -147,3 +147,10 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
 .category-link { display:inline-flex; align-items:center; gap:7px; color:#2876e8; font-size:10px; font-weight:800; }
 @media(max-width:850px) { .calculator-layout { grid-template-columns:1fr; }.calculator-aside { grid-template-columns:1fr 1fr; } }
 @media(max-width:620px) { .calculator-topline { min-height:62px; }.calculator-topline .version-label { font-size:8px; }.calculator-heading { padding:36px 0 20px; }.calculator-heading h1 { margin:12px 0 8px; }.calculator-panel,.result-panel { padding:18px; }.field-grid { grid-template-columns:1fr; gap:14px; }.calculator-aside { grid-template-columns:1fr; }.panel-heading { align-items:flex-start; flex-direction:column; }.points-label { align-self:flex-start; }.calculator-actions { flex-direction:column; }.calculator-actions .primary-button,.reset-button { width:100%; }.criterion-row { grid-template-columns:30px minmax(0,1fr); }.criterion-status { grid-column:2; }.reference-panel { grid-template-columns:1fr; }.reference-panel > small { grid-column:1; } }
+
+/* Shared select field and qSOFA warning alignment */
+.calc-field select { width:100%; min-height:45px; padding:0 13px; border:1px solid #dfe7f1; border-radius:9px; outline:none; background:#fbfcfe; color:#172338; font:500 13px 'DM Sans',sans-serif; }
+.calc-field select:focus { border-color:#2876e8; box-shadow:0 0 0 3px #2876e817; }
+.qsofa-positive { background:#fff5f2; }
+.clinical-warning { display:flex; align-items:flex-start; gap:8px; }
+.clinical-warning svg { flex:0 0 auto; margin-top:1px; }
