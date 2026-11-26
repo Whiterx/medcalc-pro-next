@@ -83,7 +83,7 @@ export default function PaduaCalculator() {
         </form>
         <aside className="calculator-aside">
           <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Для госпитализированных терапевтических пациентов</h3><p>Исходная модель разработана для пациентов с острыми нехирургическими заболеваниями, находящихся в стационаре.</p></div>
-          <div className="threshold-panel"><h3>Порог риска ВТЭО</h3><p><b>≥4 баллов:</b> высокий риск.</p><p><b><escape><</escape>4 баллов:</b> низкий риск по исходной модели.</p><p>Оценка риска кровотечения проводится отдельно.</p></div>
+          <div className="threshold-panel"><h3>Порог риска ВТЭО</h3><p><b>≥4 баллов:</b> высокий риск.</p><p><b>&lt;4 баллов:</b> низкий риск по исходной модели.</p><p>Оценка риска кровотечения проводится отдельно.</p></div>
         </aside>
       </div>
       {result && (
