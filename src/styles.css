@@ -189,3 +189,90 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
 .sofa2-section { display:grid; gap:15px; margin-top:26px; padding-top:22px; border-top:1px solid #edf1f6; }
 .sofa2-section h3 { margin:0; color:#34465f; font-size:14px; }
 @media(max-width:620px) { .result-columns { grid-template-columns:1fr; } .sofa2-section .field-grid { grid-template-columns:1fr; } }
+
+
+/* Searchable calculator catalog */
+.catalog-search {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:58px;
+  margin:0 0 20px;
+  padding:0 17px;
+  color:#7d8ba0;
+  background:#fff;
+  border:1px solid #dfe7f1;
+  border-radius:12px;
+  box-shadow:0 8px 24px #1d355008;
+}
+.catalog-search:focus-within {
+  border-color:#8db7f0;
+  box-shadow:0 0 0 3px #2876e817;
+}
+.catalog-search input {
+  width:100%;
+  min-width:0;
+  min-height:54px;
+  border:0;
+  outline:0;
+  color:#172338;
+  background:transparent;
+  font:500 13px 'DM Sans',sans-serif;
+}
+.catalog-search input::placeholder { color:#9aa6b7; }
+.catalog-search input::-webkit-search-cancel-button { cursor:pointer; }
+.search-clear {
+  flex:0 0 auto;
+  padding:8px 10px;
+  border:0;
+  border-radius:7px;
+  color:#5276a8;
+  background:#edf4fd;
+  font:700 10px 'DM Sans',sans-serif;
+  cursor:pointer;
+}
+.search-results { margin-top:2px; }
+.search-count { margin:0 0 12px; color:#7d899b; font-size:11px; }
+.search-result-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.search-result-card {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px 12px;
+  min-height:78px;
+  padding:14px 15px;
+  color:#253650;
+  background:#fff;
+  border:1px solid #e7edf5;
+  border-radius:11px;
+  transition:border-color .18s,transform .18s,box-shadow .18s;
+}
+.search-result-card:hover {
+  transform:translateY(-2px);
+  border-color:#c9dcf5;
+  box-shadow:0 9px 22px #1d35500d;
+}
+.search-result-card span {
+  grid-column:1/-1;
+  color:#8290a4;
+  font-size:9px;
+}
+.search-result-card b { font:700 12px/1.45 Manrope,sans-serif; }
+.search-result-card svg { color:#2876e8; }
+.search-empty {
+  padding:25px;
+  color:#7d899b;
+  background:#fff;
+  border:1px dashed #dce5f0;
+  border-radius:11px;
+  text-align:center;
+  font-size:12px;
+  line-height:1.6;
+}
+@media(max-width:850px) { .search-result-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:620px) {
+  .catalog-search { min-height:54px; gap:9px; padding:0 12px; }
+  .catalog-search input { min-height:50px; font-size:12px; }
+  .search-result-grid { grid-template-columns:1fr; gap:8px; }
+  .search-result-card { min-height:68px; }
+}
