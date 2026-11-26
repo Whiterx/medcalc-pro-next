@@ -62,9 +62,14 @@ export default function QSOFACalculator() {
       systolicBP: Number(values.systolicBP),
       gcs,
     }
+    if (!Number.isInteger(input.respiratoryRate) || !Number.isInteger(input.systolicBP)) {
+      setError('Частота дыхания и систолическое давление должны быть указаны целыми числами.')
+      setResult(null)
+      return
+    }
     if (!Number.isFinite(input.respiratoryRate) || !Number.isFinite(input.systolicBP)
-      || input.respiratoryRate < 0 || input.respiratoryRate > 100
-      || input.systolicBP < 0 || input.systolicBP > 300
+      || input.respiratoryRate < 1 || input.respiratoryRate > 100
+      || input.systolicBP < 1 || input.systolicBP > 300
       || input.gcs < 3 || input.gcs > 15) {
       setError('Проверьте введённые значения.')
       setResult(null)
@@ -104,11 +109,11 @@ export default function QSOFACalculator() {
           <div className="field-grid">
             <label className="calc-field">
               <span>Частота дыхания <small>в минуту</small></span>
-              <input type="number" min="0" max="100" step="1" inputMode="numeric" placeholder="Например, 24" value={values.respiratoryRate} onChange={(event) => updateField('respiratoryRate', event.target.value)} />
+              <input type="number" min="1" max="100" step="1" inputMode="numeric" placeholder="Например, 24" value={values.respiratoryRate} onChange={(event) => updateField('respiratoryRate', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Систолическое АД <small>мм рт. ст.</small></span>
-              <input type="number" min="0" max="300" step="1" inputMode="numeric" placeholder="Например, 95" value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} />
+              <input type="number" min="1" max="300" step="1" inputMode="numeric" placeholder="Например, 95" value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} />
             </label>
           </div>
 
@@ -169,6 +174,7 @@ export default function QSOFACalculator() {
               <li><b>M</b> — изменение сознания, GCS &lt;15</li>
             </ul>
             <p>Каждый выполненный критерий добавляет 1 балл. Максимум — 3 балла.</p>
+            <p>Не используйте qSOFA как единственный инструмент скрининга сепсиса. SSC 2026 рекомендует NEWS/NEWS2, MEWS или SIRS для госпитализированных остро заболевших взрослых.</p>
           </div>
           <div className="threshold-panel">
             <h3>Как трактовать результат</h3>
