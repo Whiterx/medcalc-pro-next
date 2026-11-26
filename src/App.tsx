@@ -3,6 +3,7 @@ import { Link, Route, Routes } from 'react-router-dom'
 import CURB65Calculator from './calculators/pulmonology/CURB65Calculator'
 import PFRatioCalculator from './calculators/pulmonology/PFRatioCalculator'
 import BODECalculator from './calculators/pulmonology/BODECalculator'
+import PSICalculator from './calculators/pulmonology/PSICalculator'
 import QSOFACalculator from './calculators/emergency/QSOFACalculator'
 import NEWS2Calculator from './calculators/emergency/NEWS2Calculator'
 import GCSCalculator from './calculators/emergency/GCSCalculator'
@@ -14,7 +15,7 @@ import VentilationBasicsCalculator from './calculators/pulmonology/VentilationBa
 
 const categories = [
   { title: 'Кардиология', description: 'Шкалы и расчёты для оценки сердечно-сосудистого риска', count: 'Скоро' },
-  { title: 'Пульмонология', description: 'Респираторные шкалы и показатели', count: '3 калькулятора', active: true },
+  { title: 'Пульмонология', description: 'Респираторные шкалы и показатели', count: '5 калькуляторов', active: true },
   { title: 'Нефрология', description: 'Функция почек и связанные расчёты', count: 'Скоро' },
   { title: 'Неотложная медицина', description: 'Оценка тяжести состояния и клинические шкалы', count: '7 калькуляторов', active: true },
 ]
@@ -65,7 +66,7 @@ function HomePage() {
           {categories.map((item, index) => (
             <article className={`category-card ${item.active ? 'category-card-active' : ''}`} key={item.title}>
               <div className="category-index">0{index + 1}</div><h3>{item.title}</h3><p>{item.description}</p>
-              {item.title === 'Пульмонология' ? <div className="category-links"><Link className="category-link" to="/calculators/curb-65">Открыть CURB-65 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/pf-ratio">PaO₂/FiO₂ <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/bode">BODE Index <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/ventilation-basics">PBW и дыхательный объём <ArrowRight size={14} /></Link></div> : item.title === 'Неотложная медицина' ? <div className="category-links"><Link className="category-link" to="/calculators/qsofa">Открыть qSOFA <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/news2">Открыть NEWS2 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/gcs">Открыть GCS <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/sofa">Открыть SOFA <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/sofa-2">Открыть SOFA-2 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/apache-ii">Открыть APACHE II <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/saps-ii">Открыть SAPS II <ArrowRight size={14} /></Link></div> : <span className="coming-soon">{item.count}</span>}
+              {item.title === 'Пульмонология' ? <div className="category-links"><Link className="category-link" to="/calculators/curb-65">Открыть CURB-65 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/pf-ratio">PaO₂/FiO₂ <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/bode">BODE Index <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/psi">PSI / PORT <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/ventilation-basics">PBW и дыхательный объём <ArrowRight size={14} /></Link></div> : item.title === 'Неотложная медицина' ? <div className="category-links"><Link className="category-link" to="/calculators/qsofa">Открыть qSOFA <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/news2">Открыть NEWS2 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/gcs">Открыть GCS <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/sofa">Открыть SOFA <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/sofa-2">Открыть SOFA-2 <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/apache-ii">Открыть APACHE II <ArrowRight size={14} /></Link><Link className="category-link" to="/calculators/saps-ii">Открыть SAPS II <ArrowRight size={14} /></Link></div> : <span className="coming-soon">{item.count}</span>}
             </article>
           ))}
         </div>
@@ -76,7 +77,7 @@ function HomePage() {
 }
 
 function App() {
-  return <Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="*" element={<HomePage />} /></Routes>
+  return <Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/psi" element={<PSICalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="*" element={<HomePage />} /></Routes>
 }
 
 export default App
