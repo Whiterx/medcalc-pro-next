@@ -341,6 +341,7 @@ function ResultActions() {
       <div><b>Сохранить результат?</b><span>Только итог и интерпретация, без введённых данных и персональных идентификаторов.</span></div>
       <button type="button" onClick={() => saveResult('history')}>В историю ({historyCount})</button>
       <button type="button" onClick={() => saveResult('basket')}>В корзину ({basketCount})</button>
+      <button type="button" className="result-print-button" onClick={() => window.print()}>Печать</button>
       {message && <small role="status">{message}</small>}
     </aside>
   )
