@@ -26,6 +26,7 @@ export interface NEWS2Result {
   hasSingleRedScore: boolean
   riskLevel: 'routine' | 'low' | 'medium' | 'high'
   riskLabel: string
+  monitoringFrequency: string
   criteria: NEWS2Criterion[]
   interpretation: string
   suggestedResponse: string
@@ -104,33 +105,41 @@ export function calculateNEWS2(input: NEWS2Input): NEWS2Result {
   let riskLabel: string
   let interpretation: string
   let suggestedResponse: string
+  let monitoringFrequency: string
 
   if (score === 0) {
     riskLevel = 'routine'
     riskLabel = '0 баллов · без отклонений'
     interpretation = 'По введённым параметрам баллы NEWS2 не начислены. Это не отменяет клиническую оценку и повторное наблюдение.'
-    suggestedResponse = 'Продолжать рутинное наблюдение по локальному протоколу.'
+    monitoringFrequency = 'Не реже 1 раза в 12 часов (стационарный контекст; ориентир RCP).'
+    suggestedResponse = 'Продолжать рутинный мониторинг NEWS; зарегистрированная медсестра должна оценить пациента.'
   } else if (score <= 4) {
     riskLevel = 'low'
     riskLabel = 'Низкий риск по сумме'
     interpretation = 'Суммарный балл находится в диапазоне 1–4. Проверьте каждый параметр и динамику состояния.'
-    suggestedResponse = 'Оценка компетентным медицинским работником; частота мониторинга определяется клинической ситуацией и локальным протоколом.'
+    monitoringFrequency = 'Не реже 1 раза в 4–6 часов (стационарный контекст; ориентир RCP).'
+    suggestedResponse = 'Зарегистрированная медсестра оценивает пациента, решает, нужно ли увеличить частоту мониторинга или эскалировать помощь, и информирует медицинскую команду.'
   } else if (score <= 6) {
     riskLevel = 'medium'
     riskLabel = 'Средний риск'
     interpretation = 'Сумма 5–6 баллов достигает порога срочного клинического реагирования.'
-    suggestedResponse = 'Срочная оценка клиницистом, компетентным в ведении остро заболевших пациентов; усилить мониторинг согласно локальному протоколу.'
+    monitoringFrequency = 'Не реже 1 раза в час первоначально (стационарный контекст; ориентир RCP).'
+    suggestedResponse = 'Немедленно уведомить медицинскую команду и запросить срочную оценку клиницистом, компетентным в ведении остро заболевших пациентов; ориентир RCP — оценка в течение 60 минут. Рассмотреть наблюдение в условиях мониторинга.'
   } else {
     riskLevel = 'high'
     riskLabel = 'Высокий риск'
     interpretation = 'Сумма 7 баллов и более соответствует высокому уровню клинического риска.'
-    suggestedResponse = 'Экстренная оценка командой с компетенциями интенсивной терапии и непрерывный мониторинг согласно локальному протоколу.'
+    monitoringFrequency = 'Каждые 30 минут первоначально; необходим непрерывный мониторинг жизненных показателей (стационарный контекст; ориентир RCP).'
+    suggestedResponse = 'Немедленно уведомить медицинскую команду и запросить экстренную оценку клиницистом, компетентным в ведении остро заболевших пациентов; ориентир RCP — оценка в течение 30 минут. При отсутствии улучшения требуется старший клинический пересмотр в течение 60 минут; рассмотреть перевод в подразделение более высокого уровня наблюдения.'
   }
 
-  if (hasSingleRedScore && score < 5) {
-    interpretation += ' Несмотря на сумму менее 5, один из параметров получил 3 балла — это самостоятельный повод для срочной клинической оценки.'
-    suggestedResponse = 'Срочная оценка врачом/клиницистом, компетентным в ведении остро заболевших пациентов; пересмотреть частоту мониторинга.'
+  if (hasSingleRedScore) {
+    interpretation += ' Один из параметров получил 3 балла — самостоятельный триггер клинического реагирования независимо от суммы.'
+    if (score < 5) {
+      monitoringFrequency = 'Не реже 1 раза в час первоначально (самостоятельный триггер 3 балла за один параметр; ориентир RCP).'
+      suggestedResponse = 'Медсестра должна немедленно уведомить медицинскую команду; компетентный клиницист оценивает пациента и определяет необходимость дальнейшей эскалации.'
+    }
   }
 
-  return { score, highestSingleParameter, hasSingleRedScore, riskLevel, riskLabel, criteria, interpretation, suggestedResponse }
+  return { score, highestSingleParameter, hasSingleRedScore, riskLevel, riskLabel, monitoringFrequency, criteria, interpretation, suggestedResponse }
 }
