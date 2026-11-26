@@ -26,6 +26,17 @@ describe('calculateQSOFA', () => {
     expect(calculateQSOFA({ ...baseline, gcs: 14 }).score).toBe(1)
   })
 
+  it('does not classify a single criterion as qSOFA positive', () => {
+    const result = calculateQSOFA({ ...baseline, gcs: 14 })
+    expect(result.score).toBe(1)
+    expect(result.positive).toBe(false)
+  })
+
+  it('does not award points immediately below respiratory rate and blood pressure thresholds', () => {
+    expect(calculateQSOFA({ ...baseline, respiratoryRate: 21 }).score).toBe(0)
+    expect(calculateQSOFA({ ...baseline, systolicBP: 101 }).score).toBe(0)
+  })
+
   it('classifies two or more criteria as qSOFA positive', () => {
     expect(calculateQSOFA({ ...baseline, respiratoryRate: 22, systolicBP: 100 }).positive).toBe(true)
     expect(calculateQSOFA({ ...baseline, respiratoryRate: 22, systolicBP: 100, gcs: 14 }).score).toBe(3)
