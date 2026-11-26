@@ -43,6 +43,7 @@ describe('calculateHEART', () => {
     expect(calc({ coronaryRiskFactorCount: 1 }).components[3].points).toBe(1)
     expect(calc({ coronaryRiskFactorCount: 2 }).components[3].points).toBe(1)
     expect(calc({ coronaryRiskFactorCount: 3 }).components[3].points).toBe(2)
+    expect(calc({ coronaryRiskFactorCount: 6 }).components[3].points).toBe(2)
     expect(calc({ coronaryRiskFactorCount: 0, knownAtheroscleroticDisease: true }).components[3].points).toBe(2)
   })
 
