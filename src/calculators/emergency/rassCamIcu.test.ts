@@ -4,7 +4,7 @@ import { calculateRASSCAMICU, RASS_LABELS } from './rassCamIcu'
 describe('calculateRASSCAMICU', () => {
   it('contains all ten RASS levels from +4 to -5', () => {
     expect(Object.keys(RASS_LABELS)).toHaveLength(10)
-    expect(calculateRASSCAMICU({ rass: 4 }).rass).toBe(4)
+    expect(calculateRASSCAMICU({ rass: 4, acuteChangeOrFluctuation: false, inattentionErrors: 0, disorganizedThinkingErrors: 0 }).rass).toBe(4)
     expect(calculateRASSCAMICU({ rass: -5 }).rass).toBe(-5)
   })
 
