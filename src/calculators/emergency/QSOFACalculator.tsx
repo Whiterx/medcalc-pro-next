@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { calculateQSOFA, type QSOFAInput, type QSOFAResult } from './qsofa'
 import { QSOFA_REFERENCE } from './qsofa.reference'
 
-const initialValues = { respiratoryRate: '', systolicBP: '', eye: '4', verbal: '5', motor: '6' }
+const initialValues = { respiratoryRate: '', systolicBP: '', eye: '', verbal: '', motor: '' }
 
 const gcsOptions = {
   eye: [
@@ -35,7 +35,7 @@ export default function QSOFACalculator() {
   const [result, setResult] = useState<QSOFAResult | null>(null)
   const [error, setError] = useState('')
 
-  const gcs = Number(values.eye) + Number(values.verbal) + Number(values.motor)
+  const gcs = values.eye && values.verbal && values.motor ? Number(values.eye) + Number(values.verbal) + Number(values.motor) : null
 
   function updateField(field: keyof typeof initialValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }))
@@ -47,6 +47,12 @@ export default function QSOFACalculator() {
     event.preventDefault()
     if (values.respiratoryRate.trim() === '' || values.systolicBP.trim() === '') {
       setError('Заполните частоту дыхания и систолическое давление.')
+      setResult(null)
+      return
+    }
+
+    if (gcs === null) {
+      setError('Оцените все три компонента GCS: открывание глаз, речевую и двигательную реакцию.')
       setResult(null)
       return
     }
@@ -115,29 +121,32 @@ export default function QSOFACalculator() {
             <div className="field-grid">
               <label className="calc-field">
                 <span>Открывание глаз <small>E · 1–4</small></span>
-                <select value={values.eye} onChange={(event) => updateField('eye', event.target.value)}>
+                <select required value={values.eye} onChange={(event) => updateField('eye', event.target.value)}>
+                  <option value="">Выберите реакцию</option>
                   {gcsOptions.eye.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
                 </select>
               </label>
               <label className="calc-field">
                 <span>Речевая реакция <small>V · 1–5</small></span>
-                <select value={values.verbal} onChange={(event) => updateField('verbal', event.target.value)}>
+                <select required value={values.verbal} onChange={(event) => updateField('verbal', event.target.value)}>
+                  <option value="">Выберите реакцию</option>
                   {gcsOptions.verbal.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
                 </select>
               </label>
               <label className="calc-field">
                 <span>Двигательная реакция <small>M · 1–6</small></span>
-                <select value={values.motor} onChange={(event) => updateField('motor', event.target.value)}>
+                <select required value={values.motor} onChange={(event) => updateField('motor', event.target.value)}>
+                  <option value="">Выберите реакцию</option>
                   {gcsOptions.motor.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
                 </select>
               </label>
             </div>
             <div className="gcs-total">
               <span>Сумма GCS</span>
-              <strong>{gcs}<small> / 15</small></strong>
-              <span className={gcs === 15 ? 'gcs-status normal' : 'gcs-status altered'}>{gcs === 15 ? 'Максимальная оценка' : 'Есть снижение GCS'}</span>
+              <strong>{gcs ?? '—'}<small> / 15</small></strong>
+              <span className={gcs === null ? 'gcs-status' : gcs === 15 ? 'gcs-status normal' : 'gcs-status altered'}>{gcs === null ? 'Оцените все компоненты' : gcs === 15 ? 'Максимальная оценка' : 'Есть снижение GCS'}</span>
             </div>
-            <p className="field-hint">Для qSOFA: GCS 15 = 0 баллов; GCS менее 15 = 1 балл независимо от степени снижения.</p>
+            <p className="field-hint">Для qSOFA: GCS 15 = 0 баллов; GCS менее 15 = 1 балл независимо от степени снижения. Сумма рассчитывается после выбора всех компонентов.</p>
             <p className="field-hint">Если компонент невозможно достоверно оценить (например, речевую реакцию у интубированного пациента), не подставляйте автоматически 1 балл: отметьте компонент как неоцениваемый и интерпретируйте результат с учётом ограничений.</p>
           </div>
 
