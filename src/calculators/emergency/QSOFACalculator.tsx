@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowLeft, BookOpen, RotateCcw, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { calculateQSOFA, type QSOFAInput, type QSOFAResult } from './qsofa'
+import { calculateGCSTotal, calculateQSOFA, type QSOFAInput, type QSOFAResult } from './qsofa'
 import { QSOFA_REFERENCE } from './qsofa.reference'
 
 const initialValues = { respiratoryRate: '', systolicBP: '', eye: '', verbal: '', motor: '' }
@@ -41,9 +41,7 @@ export default function QSOFACalculator() {
   const gcsComponents = [values.eye, values.verbal, values.motor]
   const allGcsComponentsSelected = gcsComponents.every((value) => value !== '')
   const hasUntestableGcsComponent = gcsComponents.includes('NT')
-  const gcs = allGcsComponentsSelected && !hasUntestableGcsComponent
-    ? Number(values.eye) + Number(values.verbal) + Number(values.motor)
-    : null
+  const gcs = allGcsComponentsSelected ? calculateGCSTotal(values.eye, values.verbal, values.motor) : null
 
   function updateField(field: keyof typeof initialValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }))
