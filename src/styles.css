@@ -524,3 +524,12 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
   .reference-panel a { color:#000 !important; text-decoration:none !important; }
   .result-panel,.reference-panel { break-inside:avoid; }
 }
+
+.result-actions-dock { grid-template-columns:minmax(180px,1fr) auto auto auto; }
+.result-actions-dock > .result-print-button { color:#2876e8; background:#edf4fd; }
+.result-actions-dock > .result-print-button:hover { background:#dfeeff; }
+@media(max-width:850px) { .result-actions-dock { grid-template-columns:minmax(150px,1fr) auto auto auto; } }
+@media(max-width:620px) {
+  .result-actions-dock { grid-template-columns:1fr 1fr; }
+  .result-actions-dock > .result-print-button { grid-column:1/-1; }
+}
