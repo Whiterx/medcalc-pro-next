@@ -24,7 +24,7 @@ export function scoreSodium(v:number){return v>=180?4:v>=160?3:v>=155?2:v>=150?1
 export function scorePotassium(v:number){return v>=7?4:v>=6?3:v>=5.5?1:v>=3.5?0:v>=3?1:v>=2.5?2:4}
 export function scoreCreatinineUmol(v:number,acute:boolean){
   // Exact SI equivalents of the APACHE II mg/dL cutoffs (1 mg/dL = 88.4 µmol/L).
-  const points=v>=3.5*88.4?4:v>=2*88.4?3:v>=1.5*88.4?2:v>=0.6*88.4?0:2
+  const points=v>=309.4?4:v>=176.8?3:v>=132.6?2:v>=53.04?0:2
   return acute?points*2:points
 }
 export function scoreHematocrit(v:number){return v>=60?4:v>=50?2:v>=46?1:v>=30?0:v>=20?2:4}
