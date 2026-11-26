@@ -35,7 +35,7 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
   if (input.indication === 'vte') {
     return {
       indication: 'vte',
-      indicationLabel: 'ТГВ/ВТЭО — внутривенный НФГ по КР Минздрава РФ 960_1 (80 ЕД/кг + 18 ЕД/кг/ч)',
+      indicationLabel: 'ТГВ — внутривенный НФГ по КР Минздрава РФ 960_1 (80 ЕД/кг + 18 ЕД/кг/ч)',
       weightKg: weight,
       bolusMinUnits: 80 * weight,
       bolusMaxUnits: 80 * weight,
@@ -60,8 +60,8 @@ export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
     bolusMaxUnits: Math.min(rawBolusMax, 5000),
     infusionMinUnitsPerHour: Math.min(rawInfusionMin, 1000),
     infusionMaxUnitsPerHour: Math.min(rawInfusionMax, 1000),
-    bolusCapApplied: rawBolusMax > 5000,
-    infusionCapApplied: rawInfusionMax > 1000,
+    bolusCapApplied: rawBolusMax > 5000 + 1e-9,
+    infusionCapApplied: rawInfusionMax > 1000 + 1e-9,
     monitoring: 'КР Минздрава РФ 154_4: последующий подбор дозы — для достижения АЧТВ в 1,5–2,5 раза выше контрольной величины для конкретной лаборатории. Титрование этим калькулятором не рассчитывается. При ЧКВ используется отдельное процедурное дозирование НФГ с контролем АВС; этот расчёт не предназначен для ЧКВ.',
   }
 }
