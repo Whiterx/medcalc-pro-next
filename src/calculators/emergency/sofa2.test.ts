@@ -14,6 +14,15 @@ describe('SOFA-2 respiratory thresholds',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:97,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBe(3)
     expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:98,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBeNull()
   })
+  it('checks SpO2/FiO2 boundaries at 300, 250, 200 and 120',()=>{
+    const score=(spo2:number,fio2:number,support:'advanced'|'none'|'ceiling'='advanced')=>scoreSOFA2Respiratory({pao2:null,fio2,spo2,respiratorySupport:support,ecmoForRespiratoryFailure:false}).points
+    expect(score(90,30)).toBe(1) // 300
+    expect(score(75,30)).toBe(2) // 250
+    expect(score(60,30)).toBe(3) // 200
+    expect(score(72,60)).toBe(4) // 120
+    expect(score(60,30,'none')).toBe(2)
+    expect(score(60,30,'ceiling')).toBe(3)
+  })
   it('scores respiratory ECMO as 4 regardless of ratio',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true}).points).toBe(4)
   })
@@ -32,6 +41,12 @@ describe('SOFA-2 cardiovascular',()=>{
     expect(scoreSOFA2Cardiovascular({...base,otherVasoactiveOrInotrope:true})).toBe(2)
     expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.1,otherVasoactiveOrInotrope:true})).toBe(3)
     expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.3,otherVasoactiveOrInotrope:true})).toBe(4)
+  })
+  it('sums norepinephrine and epinephrine doses before assigning the category',()=>{
+    expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.1,epinephrineDose:0.1})).toBe(2)
+    expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.1,epinephrineDose:0.11})).toBe(3)
+    expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.1,epinephrineDose:0.1,otherVasoactiveOrInotrope:true})).toBe(3)
+    expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.15,epinephrineDose:0.1,otherVasoactiveOrInotrope:true})).toBe(4)
   })
   it('mechanical circulatory support scores 4',()=>expect(scoreSOFA2Cardiovascular({...base,mechanicalCirculatorySupport:true})).toBe(4))
   it('uses MAP only when no vasoactive support is used',()=>{
@@ -55,10 +70,12 @@ describe('SOFA-2 kidney',()=>{
   const base={creatinine:null,urineOutputMlKgH:null,urineOutputDuration:'none' as const,receivingRRT:false}
   const cr:[number,number][]=[[110,0],[111,1],[170,1],[171,2],[300,2],[301,3]]
   cr.forEach(([v,s])=>it(`creatinine ${v} => ${s}`,()=>expect(scoreSOFA2Kidney({...base,creatinine:v})).toBe(s)))
-  it('scores oliguria by duration and anuria separately',()=>{
+  it('scores oliguria by duration and anuria separately, including strict cutoffs',()=>{
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6-12'})).toBe(1)
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'6-12'})).toBe(0)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'12+'})).toBe(2)
-    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.2,urineOutputDuration:'24+'})).toBe(3)
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.49,urineOutputDuration:'24+'})).toBe(2)
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.29,urineOutputDuration:'24+'})).toBe(3)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0,urineOutputDuration:'anuria12'})).toBe(3)
     expect(scoreSOFA2Kidney({...base,receivingRRT:true})).toBe(4)
   })
