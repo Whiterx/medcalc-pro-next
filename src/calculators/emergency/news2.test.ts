@@ -77,7 +77,8 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.score).toBe(3)
     expect(result.hasSingleRedScore).toBe(true)
     expect(result.monitoringFrequency).toContain('1 раза в час')
-    expect(result.suggestedResponse).toMatch(/немедленно уведомить/i)
+    expect(result.riskLabel).toContain('Низкий–средний риск')
+    expect(result.suggestedResponse).toMatch(/информирует медицинскую команду/i)
   })
 
   it('uses the 5–6 urgent response band', () => {
