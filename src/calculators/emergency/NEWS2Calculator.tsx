@@ -44,13 +44,17 @@ export default function NEWS2Calculator() {
       return
     }
     const numeric = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse, values.temperature].map(Number)
+    const integerFields = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse].map(Number)
+    const temperature = Number(values.temperature)
     if (numeric.some((value) => !Number.isFinite(value)) ||
+      integerFields.some((value) => !Number.isInteger(value)) ||
+      !Number.isInteger(temperature * 10) ||
       Number(values.respiratoryRate) < 0 || Number(values.respiratoryRate) > 100 ||
       Number(values.spo2) < 0 || Number(values.spo2) > 100 ||
       Number(values.systolicBP) < 0 || Number(values.systolicBP) > 300 ||
       Number(values.pulse) < 0 || Number(values.pulse) > 300 ||
-      Number(values.temperature) < 25 || Number(values.temperature) > 45) {
-      setError('Проверьте значения. Температура должна быть в диапазоне 25–45 °C, SpO₂ — 0–100%.')
+      temperature < 25 || temperature > 45) {
+      setError('Проверьте значения: ЧДД, SpO₂, систолическое АД и пульс должны быть целыми числами; температура — с точностью до 0,1 °C в диапазоне 25–45 °C.')
       setResult(null)
       return
     }
