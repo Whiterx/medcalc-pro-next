@@ -20,7 +20,7 @@ export default defineConfig({
         id: appBase,
         name: 'MediCalc Pro',
         short_name: 'MediCalc',
-        description: 'Медицинские калькуляторы и клинические шкалы для обучения',
+        description: 'Клинические калькуляторы, шкалы и практические инструменты для врачей',
         theme_color: '#101827',
         background_color: '#f4f7fb',
         display: 'standalone',
@@ -29,7 +29,7 @@ export default defineConfig({
         start_url: appBase,
         scope: appBase,
         lang: 'ru',
-        categories: ['education', 'medical', 'utilities'],
+        categories: ['medical', 'productivity', 'utilities'],
         icons: [
           {
             src: appBase + 'icons/icon-192.svg',
