@@ -1,4 +1,4 @@
-import { Activity, ArrowRight, BookOpen, Calculator, Search, ShieldCheck, Smartphone } from 'lucide-react'
+import { Activity, ArrowRight, Calculator, Search, ShieldCheck, Smartphone } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { getTelegramWebApp, initializeTelegramWebApp } from './platform/telegram'
