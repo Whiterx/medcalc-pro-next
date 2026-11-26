@@ -7,7 +7,7 @@ import { SOFA2_REFERENCE } from './sofa2.reference'
 const initial = {
   pao2:'', spo2:'', fio2:'', respiratorySupport:'', ecmo:'', platelets:'', bilirubin:'', map:'',
   norepinephrineEnabled:false, norepinephrineDose:'', epinephrineEnabled:false, epinephrineDose:'',
-  otherVasoactive:false, mechanicalSupport:false,
+  otherVasoactive:false, mechanicalSupport:false, vasoactiveDurationConfirmed:false,
   gcs:'', motorScore:'', preSedationUnknown:false, deliriumMedication:false,
   creatinine:'', urineRate:'', urineDuration:'', rrt:false,
 }
@@ -23,16 +23,33 @@ export default function SOFA2Calculator() {
     setValues(current=>({...current,[key]:value})); setResult(null); setError('')
   }
   function reset(){setValues(initial);setResult(null);setError('')}
+  function updateVasoactiveFlag(key:'norepinephrineEnabled'|'epinephrineEnabled'|'otherVasoactive',checked:boolean){
+    setValues(current=>{
+      const next={...current,[key]:checked}
+      const hasMedication=next.norepinephrineEnabled||next.epinephrineEnabled||next.otherVasoactive
+      return {...next,
+        ...(key==='norepinephrineEnabled'&&!checked?{norepinephrineDose:''}:{}),
+        ...(key==='epinephrineEnabled'&&!checked?{epinephrineDose:''}:{}),
+        vasoactiveDurationConfirmed:hasMedication?current.vasoactiveDurationConfirmed:false,
+      }
+    })
+    setResult(null);setError('')
+  }
   function handleCalculate(event:FormEvent<HTMLFormElement>){
     event.preventDefault()
-    if((values.ecmo!=='yes'&&values.fio2==='')||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||values.map===''||
+    const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.otherVasoactive
+    const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport
+    if((values.ecmo!=='yes'&&values.fio2==='')||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
       (values.ecmo!=='yes'&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
       (values.creatinine===''&&values.urineRate===''&&!values.rrt)){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
       setResult(null);return
     }
-    const numeric=[...(values.fio2!==''?[values.fio2]:[]),values.platelets,values.bilirubin,values.map,
+    if(hasVasoactiveMedication&&!values.vasoactiveDurationConfirmed){
+      setError('Подтвердите, что вазоактивные препараты вводились не менее 1 часа, как предусмотрено методикой SOFA-2.');setResult(null);return
+    }
+    const numeric=[...(values.fio2!==''?[values.fio2]:[]),values.platelets,values.bilirubin,...(values.map!==''?[values.map]:[]),
       ...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[]),
       ...(values.norepinephrineEnabled?[values.norepinephrineDose]:[]),
       ...(values.epinephrineEnabled?[values.epinephrineDose]:[]),
@@ -40,14 +57,14 @@ export default function SOFA2Calculator() {
     if(numeric.some(v=>v.trim()===''||!Number.isFinite(Number(v)))){
       setError('Проверьте числовые поля и дозы выбранных препаратов.');setResult(null);return
     }
-    const integerValues=[values.fio2,values.platelets,values.map,...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[])]
+    const integerValues=[values.fio2,values.platelets,...(values.map!==''?[values.map]:[]),...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[])]
     if(integerValues.some(v=>!Number.isInteger(Number(v)))||
       (values.fio2!==''&&(Number(values.fio2)<21||Number(values.fio2)>100))||
       (values.pao2!==''&&(Number(values.pao2)<1||Number(values.pao2)>800))||
       (values.spo2!==''&&(Number(values.spo2)<1||Number(values.spo2)>100))||
       Number(values.platelets)<0||Number(values.platelets)>1000||
       Number(values.bilirubin)<0||Number(values.bilirubin)>2000||
-      Number(values.map)<1||Number(values.map)>250||
+      (values.map!==''&&(Number(values.map)<1||Number(values.map)>250))||
       (values.norepinephrineEnabled&&Number(values.norepinephrineDose)<=0)||
       (values.epinephrineEnabled&&Number(values.epinephrineDose)<=0)||
       (values.creatinine!==''&&(Number(values.creatinine)<1||Number(values.creatinine)>3000))||
@@ -80,7 +97,7 @@ export default function SOFA2Calculator() {
       spo2:values.spo2===''?null:Number(values.spo2),
       respiratorySupport:values.respiratorySupport as SOFA2Input['respiratorySupport'],
       ecmoForRespiratoryFailure:values.ecmo==='yes',platelets:Number(values.platelets),
-      bilirubin:Number(values.bilirubin),map:Number(values.map),
+      bilirubin:Number(values.bilirubin),map:values.map===''?0:Number(values.map),
       norepinephrineDose:values.norepinephrineEnabled?Number(values.norepinephrineDose):0,
       epinephrineDose:values.epinephrineEnabled?Number(values.epinephrineDose):0,
       otherVasoactiveOrInotrope:values.otherVasoactive,mechanicalCirculatorySupport:values.mechanicalSupport,
@@ -108,13 +125,14 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>2. Гемостаз</h3><NumberField label="Тромбоциты" unit="×10⁹/л" value={values.platelets} onChange={v=>update('platelets',v)} min={0} max={1000}/></section>
         <section className="sofa-section"><h3>3. Печень</h3><NumberField label="Общий билирубин" unit="мкмоль/л" value={values.bilirubin} onChange={v=>update('bilirubin',v)} min={0} max={2000} step="0.1"/></section>
         <section className="sofa-section"><h3>4. Сердечно-сосудистая система</h3>
-          <NumberField label="Среднее АД (MAP)" unit="мм рт. ст." value={values.map} onChange={v=>update('map',v)} min={1} max={250}/>
-          <div className="field-grid"><label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={e=>update('norepinephrineEnabled',e.target.checked)}/> Норэпинефрин</label><label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={e=>update('epinephrineEnabled',e.target.checked)}/> Эпинефрин</label></div>
+          <NumberField label="Среднее АД (MAP)" unit={hasCardiovascularSupport?'мм рт. ст. · не требуется при поддержке':'мм рт. ст. · обязательно без поддержки'} value={values.map} onChange={v=>update('map',v)} min={1} max={250}/>
+          <div className="field-grid"><label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={e=>updateVasoactiveFlag('norepinephrineEnabled',e.target.checked)}/> Норэпинефрин</label><label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={e=>updateVasoactiveFlag('epinephrineEnabled',e.target.checked)}/> Эпинефрин</label></div>
           {values.norepinephrineEnabled&&<NumberField label="Доза норэпинефрина" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={v=>update('norepinephrineDose',v)} min={0.01} step="0.01"/>}
           {values.epinephrineEnabled&&<NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={v=>update('epinephrineDose',v)} min={0.01} step="0.01"/>}
-          <label className="sofa-check"><input type="checkbox" checked={values.otherVasoactive} onChange={e=>update('otherVasoactive',e.target.checked)}/> Другой вазопрессор или инотроп (любая доза)</label>
-          <label className="sofa-check"><input type="checkbox" checked={values.mechanicalSupport} onChange={e=>update('mechanicalSupport',e.target.checked)}/> Механическая поддержка кровообращения</label>
-          <p className="field-hint">Укажите суммарную дозу норэпинефрина + эпинефрина. Вазоактивные препараты учитываются при введении не менее 1 часа. ECMO при дыхательной недостаточности не отмечайте как механическую поддержку кровообращения.</p>
+          <label className="sofa-check"><input type="checkbox" checked={values.otherVasoactive} onChange={e=>updateVasoactiveFlag('otherVasoactive',e.target.checked)}/> Другой вазопрессор или инотроп (любая доза)</label>
+          {hasVasoactiveMedication&&<label className="sofa-check"><input type="checkbox" checked={values.vasoactiveDurationConfirmed} onChange={e=>update('vasoactiveDurationConfirmed',e.target.checked)}/> Подтверждаю: вазоактивные препараты вводились не менее 1 часа</label>}
+          <label className="sofa-check"><input type="checkbox" checked={values.mechanicalSupport} onChange={e=>update('mechanicalSupport',e.target.checked)}/> Механическая поддержка кровообращения (VA-ECMO / ВАБК / VAD)</label>
+          <p className="field-hint">Укажите суммарную дозу норэпинефрина + эпинефрина. Для учёта препаратов требуется введение не менее 1 часа. Механическая поддержка кровообращения включает VA-ECMO и устройства поддержки кровообращения; VV-ECMO учитывается в дыхательном компоненте, а не здесь.</p>
         </section>
         <section className="sofa-section"><h3>5. Головной мозг</h3>
           <label className="calc-field"><span>GCS до седации / текущая GCS</span><select value={values.gcs} onChange={e=>update('gcs',e.target.value)}><option value="">Не выбрано</option>{Array.from({length:13},(_,i)=>15-i).map(v=><option key={v} value={String(v)}>{v}</option>)}</select></label>
