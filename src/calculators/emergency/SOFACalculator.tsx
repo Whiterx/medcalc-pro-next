@@ -101,8 +101,8 @@ export default function SOFACalculator() {
     const doses = [values.dopamineEnabled ? Number(values.dopamineDose) : null,
       values.epinephrineEnabled ? Number(values.epinephrineDose) : null,
       values.norepinephrineEnabled ? Number(values.norepinephrineDose) : null].filter((dose): dose is number => dose !== null)
-    if (doses.some((dose) => dose <= 0 || dose > 10)) {
-      setError('Дозы вазоактивных препаратов должны быть больше 0 и не превышать 10 мкг/кг/мин. Проверьте единицы измерения.')
+    if (doses.some((dose) => dose <= 0 || dose > 100)) {
+      setError('Дозы вазоактивных препаратов должны быть больше 0 и не превышать 100 мкг/кг/мин. Проверьте единицы измерения.')
       setResult(null)
       return
     }
@@ -168,10 +168,10 @@ export default function SOFACalculator() {
             {values.vasoactiveStatus === 'receiving' && <div className="sofa-drugs">
               <p className="field-hint">Отметьте все применяемые препараты; дозы — мкг/кг/мин. Для исходной SOFA учитывается введение не менее 1 часа.</p>
               <label className="sofa-check"><input type="checkbox" checked={values.dopamineEnabled} onChange={(e) => update('dopamineEnabled', e.target.checked)} /> Дофамин</label>
-              {values.dopamineEnabled && <NumberField label="Доза дофамина" unit="мкг/кг/мин" value={values.dopamineDose} onChange={(v) => update('dopamineDose', v)} min={0.1} max={10} step="0.1" />}
+              {values.dopamineEnabled && <NumberField label="Доза дофамина" unit="мкг/кг/мин" value={values.dopamineDose} onChange={(v) => update('dopamineDose', v)} min={0.1} max={100} step="0.1" />}
               <label className="sofa-check"><input type="checkbox" checked={values.dobutamine} onChange={(e) => update('dobutamine', e.target.checked)} /> Добутамин (любая доза)</label>
               <label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={(e) => update('epinephrineEnabled', e.target.checked)} /> Эпинефрин</label>
-              {values.epinephrineEnabled && <NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={(v) => update('epinephrineDose', v)} min={0.01} max={10} step="0.01" />}
+              {values.epinephrineEnabled && <NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={(v) => update('epinephrineDose', v)} min={0.01} max={100} step="0.01" />}
               <label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={(e) => update('norepinephrineEnabled', e.target.checked)} /> Норэпинефрин</label>
               {values.norepinephrineEnabled && <NumberField label="Доза норэпинефрина" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={(v) => update('norepinephrineDose', v)} min={0.01} max={10} step="0.01" />}
             </div>}
