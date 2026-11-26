@@ -1,0 +1,79 @@
+import { Activity, BookOpen, Calculator, Search, ShieldCheck, Smartphone } from 'lucide-react'
+
+const categories = [
+  { title: 'Кардиология', description: 'Шкалы и расчёты для оценки сердечно-сосудистого риска', count: 'Скоро' },
+  { title: 'Пульмонология', description: 'Респираторные шкалы и показатели', count: 'Скоро' },
+  { title: 'Нефрология', description: 'Функция почек и связанные расчёты', count: 'Скоро' },
+  { title: 'Неотложная медицина', description: 'Оценка тяжести состояния и клинические шкалы', count: 'Скоро' },
+]
+
+function App() {
+  return (
+    <main className="app-shell">
+      <header className="topbar">
+        <a className="brand" href="#home" aria-label="MediCalc Pro">
+          <span className="brand-mark"><Activity size={21} /></span>
+          <span>MediCalc <b>Pro</b></span>
+        </a>
+        <span className="version-label">NEXT · PREVIEW</span>
+      </header>
+
+      <section className="hero" id="home">
+        <div className="hero-copy">
+          <div className="eyebrow"><span className="pulse-dot" /> МЕДИЦИНСКАЯ ОБРАЗОВАТЕЛЬНАЯ ПЛАТФОРМА</div>
+          <h1>Клинические решения<br /><em>начинаются с понимания.</em></h1>
+          <p className="hero-description">
+            Медицинские калькуляторы, клинические шкалы и понятные объяснения —
+            в одном удобном пространстве для обучения.
+          </p>
+          <div className="hero-actions">
+            <a className="primary-button" href="#categories"><Calculator size={17} /> Открыть калькуляторы</a>
+            <span className="local-note"><ShieldCheck size={16} /> Данные остаются на устройстве</span>
+          </div>
+        </div>
+        <div className="hero-visual" aria-hidden="true">
+          <div className="orbit orbit-one" />
+          <div className="orbit orbit-two" />
+          <div className="visual-card">
+            <div className="visual-card-top"><span>MEDICAL KNOWLEDGE</span><Activity size={17} /></div>
+            <div className="visual-number">M<span>+</span></div>
+            <div className="visual-caption">CALCULATE · LEARN · UNDERSTAND</div>
+            <div className="visual-bars"><i /><i /><i /><i /><i /><i /><i /></div>
+          </div>
+          <div className="floating-chip chip-top"><Activity size={15} /> Clinical scores</div>
+          <div className="floating-chip chip-bottom"><BookOpen size={15} /> Learn the logic</div>
+        </div>
+      </section>
+
+      <section className="features" aria-label="Возможности платформы">
+        <div className="feature"><Calculator /><div><b>Калькуляторы</b><span>Проверяемые формулы</span></div></div>
+        <div className="feature"><BookOpen /><div><b>Обучение</b><span>Объяснение каждого шага</span></div></div>
+        <div className="feature"><Smartphone /><div><b>Любое устройство</b><span>Телефон, планшет, компьютер</span></div></div>
+      </section>
+
+      <section className="catalog" id="categories">
+        <div className="section-heading">
+          <div><div className="eyebrow">БИБЛИОТЕКА ИНСТРУМЕНТОВ</div><h2>Категории</h2></div>
+          <span className="catalog-hint"><Search size={15} /> Каталог будет пополняться</span>
+        </div>
+        <div className="category-grid">
+          {categories.map((item, index) => (
+            <article className="category-card" key={item.title}>
+              <div className="category-index">0{index + 1}</div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <span className="coming-soon">{item.count}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer className="footer">
+        <span>© 2026 MediCalc Pro</span>
+        <span>Образовательный инструмент. Не заменяет клиническое решение специалиста.</span>
+      </footer>
+    </main>
+  )
+}
+
+export default App
