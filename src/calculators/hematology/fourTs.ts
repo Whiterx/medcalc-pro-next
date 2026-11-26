@@ -79,7 +79,7 @@ export function calculateFourTs(input: FourTsInput): FourTsResult {
     },
   ]
 
-  const score = values.reduce((sum, value) => sum + value, 0)
+  const score = values.reduce<number>((sum, value) => sum + value, 0)
   const category: FourTsCategory = score <= 3 ? 'low' : score <= 5 ? 'intermediate' : 'high'
   const categoryLabel = category === 'low'
     ? 'Низкая вероятность ГИТ'
