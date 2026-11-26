@@ -41,8 +41,8 @@ export function calculateHEART(input: HEARTInput): HEARTResult {
   if (!Number.isInteger(input.ageYears) || input.ageYears < 18 || input.ageYears > 120) {
     throw new Error('Возраст должен быть целым числом от 18 до 120 лет.')
   }
-  if (!Number.isInteger(input.coronaryRiskFactorCount) || input.coronaryRiskFactorCount < 0 || input.coronaryRiskFactorCount > 5) {
-    throw new Error('Количество традиционных факторов риска ИБС должно быть целым числом от 0 до 5.')
+  if (!Number.isInteger(input.coronaryRiskFactorCount) || input.coronaryRiskFactorCount < 0 || input.coronaryRiskFactorCount > 6) {
+    throw new Error('Количество традиционных факторов риска ИБС должно быть целым числом от 0 до 6.')
   }
   if (!Number.isFinite(input.troponinMultipleOfULN) || input.troponinMultipleOfULN < 0 || input.troponinMultipleOfULN > 100) {
     throw new Error('Тропонин относительно верхней границы нормы должен быть в диапазоне 0–100.')
