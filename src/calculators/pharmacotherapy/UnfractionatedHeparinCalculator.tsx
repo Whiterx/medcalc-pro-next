@@ -6,6 +6,14 @@ import { UFH_REFERENCE } from './unfractionatedHeparin.reference'
 
 const initialValues = { weight: '', indication: '' as '' | UFHIndication, adultConfirmed: false }
 
+function formatDose(value: number) {
+  return value.toLocaleString('ru-RU', { maximumFractionDigits: 1 })
+}
+
+function formatDoseRange(min: number, max: number) {
+  return min === max ? formatDose(min) : `${formatDose(min)}–${formatDose(max)}`
+}
+
 export default function UnfractionatedHeparinCalculator() {
   const [values, setValues] = useState(initialValues)
   const [result, setResult] = useState<UFHResult | null>(null)
@@ -24,12 +32,12 @@ export default function UnfractionatedHeparinCalculator() {
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (values.weight === '' || values.indication === '' || !values.adultConfirmed) {
-      setError('Введите массу тела, подтвердите взрослый возраст пациента и выберите клинический протокол.')
+      setError('Введите массу тела, подтвердите взрослый возраст пациента и выберите клинический сценарий.')
       setResult(null)
       return
     }
     try {
-      setResult(calculateUFHInitialDosing({ actualBodyWeightKg: Number(values.weight), indication: values.indication, adultConfirmed: values.adultConfirmed }))
+      setResult(calculateUFHInitialDosing({ bodyWeightKg: Number(values.weight), indication: values.indication, adultConfirmed: values.adultConfirmed }))
       setError('')
     } catch (caught) {
       setResult(null)
@@ -46,23 +54,23 @@ export default function UnfractionatedHeparinCalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> НАЧАЛЬНЫЙ РАСЧЁТ ДОЗЫ</div>
         <h1>Нефракционированный гепарин</h1>
-        <p>Расчёт стартового болюса и скорости инфузии по выбранному протоколу и фактической массе тела.</p>
+        <p>Расчёт стартового болюса и скорости инфузии по действующим клиническим рекомендациям Минздрава РФ.</p>
       </section>
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
-          <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и протокол</h2></div><span className="points-label">Ед.</span></div>
-          <p className="clinical-warning"><ShieldAlert size={14} /> Важно: доступны конкретные справочные схемы, а не универсальные назначения. Российские КР различают сценарии: ОКСбпST (154_4) — 60–70 ЕД/кг и 12–15 ЕД/кг/ч; ИМпST (157, версия 5, 2024) — при ТЛТ 60/12 с максимумами 4 000/1 000 ЕД; для иных показаний к лечебной антикоагуляции в справочной таблице 60–70/12–15 с максимумами 5 000/1 000 ЕД; при ЧКВ отдельный болюс 70–100 ЕД/кг под контролем АВС. Догоспитальный алгоритм без реперфузии не предусматривает антикоагулянты. Для ТГВ КР 960_1 указывает 80/18 без максимумов 10 000/2 000 в таблице 9. Текущие варианты приложения не реализуют все эти сценарии; не переносите дозы и ограничения между ними.</p>
-          <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /><small>20–300 кг — технический диапазон ввода, а не подтверждённый диапазон клинической валидации.</small></label>
+          <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и клинический сценарий</h2></div><span className="points-label">Ед.</span></div>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Важно: внутривенный НФГ не является универсальной начальной терапией любого ВТЭО. По КР 960_1 он применяется в отдельных ситуациях, включая критическое состояние, ТЭЛА высокого риска с возможной реперфузией или необходимость срочного вмешательства. Для стабильных пациентов обычно предпочтительны другие антикоагулянты. Выберите сценарий только после клинического решения о применении именно внутривенного НФГ.</p>
+          <label className="calc-field field-full"><span>Масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /><small>20–300 кг — технический диапазон ввода, а не подтверждённый диапазон клинической валидации.</small></label>
           <label className="calc-field field-full"><span><input type="checkbox" required checked={values.adultConfirmed} onChange={(event) => updateField('adultConfirmed', event.target.checked)} /> Пациент взрослый: возраст 18 лет или старше</span></label>
           <label className="calc-field field-full">
-            <span>Показание / протокол</span>
+            <span>Клинический сценарий</span>
             <select required value={values.indication} onChange={(event) => updateField('indication', event.target.value as '' | UFHIndication)}>
-              <option value="">Выберите протокол</option>
-              <option value="vte">Подтверждённое ВТЭО · начальная схема ASHP (80 Ед/кг + 18 Ед/кг/ч; suggested caps)</option>
-              <option value="acs">ОКС · начальная терапия ACC/AHA 2025 (60 Ед/кг + 12 Ед/кг/ч; не для ТЛТ/ЧКВ)</option>
+              <option value="">Выберите сценарий</option>
+              <option value="vte">ТГВ/ВТЭО — внутривенный НФГ по КР Минздрава РФ 960_1 (80 ЕД/кг + 18 ЕД/кг/ч)</option>
+              <option value="acs">ОКС без подъёма ST — КР Минздрава РФ 154_4 (60–70 ЕД/кг + 12–15 ЕД/кг/ч)</option>
             </select>
           </label>
-          <p className="field-hint">Для ВТЭО максимумы 10 000 ЕД и 2 000 ЕД/ч — suggested caps из ASHP, а не максимумы российской КР. КР Минздрава 960_1 не рассматривает в/в НФГ как универсальную первую линию при любом ТГВ/ТЭЛА: выбор зависит от тяжести, гемодинамики и вероятности срочного вмешательства; для многих стабильных пациентов предпочтительны другие антикоагулянты. Приложение не определяет показания к в/в НФГ. Для ОКС схема ACC/AHA отличается от диапазонов российской КР и не должна автоматически переноситься на все сценарии ОКС, ТЛТ или ЧКВ. Это только стартовый расчёт; титрование и контроль выполняются по отдельной локальной номограмме. При переходе с другого антикоагулянта нужен отдельный алгоритм.</p>
+          <p className="field-hint">Для ТГВ/ВТЭО по КР 960_1 расчёт 80 ЕД/кг + 18 ЕД/кг/ч не ограничивается максимумами ASHP: в таблице 9 российской КР такие максимумы не указаны. Для ОКС без подъёма ST КР 154_4 задаёт диапазоны доз, поэтому результат выводится диапазоном с максимумами 5 000 ЕД для болюса и 1 000 ЕД/ч для инфузии. Расчёт не предназначен для ЧКВ, ТЛТ, детей, беременности или самостоятельного выбора показаний. Титрование и последующий лабораторный контроль выполняются по КР и локальному протоколу.</p>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="calculator-actions">
             <button className="primary-button" type="submit">Рассчитать начальную дозу</button>
@@ -71,27 +79,28 @@ export default function UnfractionatedHeparinCalculator() {
           <p className="privacy-note"><ShieldCheck size={14} /> Данные не отправляются на сервер и не сохраняются.</p>
         </form>
         <aside className="calculator-aside">
-          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Источники схем</h3><p>ВТЭО: ASHP Clinical Pharmacokinetics Workbook. ОКС: ACC/AHA 2025. Эти схемы не заменяют российские КР и локальные номограммы.</p></div>
-          <div className="threshold-panel"><h3>Мониторинг</h3><p>Для большинства терапевтических показаний ISTH 2026 предлагает anti-Xa 0,30–0,70 МЕ/мл. АЧТВ допустимо при локально определённом терапевтическом диапазоне.</p><p>Для выбранной схемы начальной терапии ОКС ACC/AHA 2025 целевой АЧТВ — 60–80 секунд. При фибринолизе в том же руководстве указан отдельный диапазон 50–70 секунд; режим ТЛТ этим калькулятором не поддерживается. ЧКВ требует отдельного дозирования по АВС.</p></div>
+          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Российские клинические рекомендации</h3><p>ТГВ: КР Минздрава РФ 960_1 (2025). ОКС без подъёма ST: КР Минздрава РФ 154_4 (2024).</p></div>
+          <div className="threshold-panel"><h3>Мониторинг</h3><p>ТГВ/ВТЭО: АЧТВ 1,5–2,3 от верхней границы нормы конкретной лаборатории; повторный контроль через 6 ч после коррекции дозы. Тромбоциты — до начала лечения и далее по графику КР 960_1.</p><p>ОКС без подъёма ST: подбор дозы по АЧТВ 1,5–2,5 от контрольной величины конкретной лаборатории. Автоматическое титрование в калькуляторе отсутствует.</p></div>
         </aside>
       </div>
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">НАЧАЛЬНЫЙ РЕЖИМ</span><span className="risk-tag risk-moderate">UFH · {result.indication === 'vte' ? 'ВТЭО' : 'ОКС'}</span></div>
+          <div className="result-topline"><span className="panel-kicker">НАЧАЛЬНЫЙ РЕЖИМ</span><span className="risk-tag risk-moderate">UFH · {result.indication === 'vte' ? 'ТГВ/ВТЭО' : 'ОКСбпST'}</span></div>
           <div className="result-summary"><b>{result.indicationLabel}</b></div>
-          <div className="score-display"><strong>{result.bolusUnits.toLocaleString('ru-RU', { maximumFractionDigits: 1 })}</strong><span>Ед. болюс</span></div>
-          <div className="result-summary"><b>Начальная инфузия: {result.infusionUnitsPerHour.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} Ед/ч</b><p>Масса тела: {result.weightKg} кг.</p></div>
-          {(result.bolusCapped || result.infusionCapped) && <p className="field-hint">Применены протокольные максимумы: {result.bolusCapped ? 'болюс ограничен' : ''}{result.bolusCapped && result.infusionCapped ? '; ' : ''}{result.infusionCapped ? 'скорость инфузии ограничена' : ''}.</p>}
+          <div className="score-display"><strong>{formatDoseRange(result.bolusMinUnits, result.bolusMaxUnits)}</strong><span>Ед. болюс</span></div>
+          <div className="result-summary"><b>Начальная инфузия: {formatDoseRange(result.infusionMinUnitsPerHour, result.infusionMaxUnitsPerHour)} Ед/ч</b><p>Масса тела: {result.weightKg} кг.</p></div>
+          {(result.bolusCapApplied || result.infusionCapApplied) && <p className="field-hint">Применены максимумы российской КР: {result.bolusCapApplied ? 'болюс ограничен 5 000 ЕД' : ''}{result.bolusCapApplied && result.infusionCapApplied ? '; ' : ''}{result.infusionCapApplied ? 'скорость инфузии ограничена 1 000 ЕД/ч' : ''}.</p>}
           <div className="threshold-panel"><h3>Контроль антикоагуляции</h3><p>{result.monitoring}</p></div>
-          <p className="clinical-warning"><ShieldAlert size={14} /> Это только стартовый расчёт. Не заменяет оценку кровотечения, тромбоцитов и противопоказаний; не рассчитывает титрование. При подозрении на HIT не применять UFH — требуется альтернативный антикоагулянт. Перед введением сверьте режим с локальным протоколом.</p>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Это только стартовый расчёт. Не заменяет оценку риска кровотечения, тромбоцитов, противопоказаний и клинического контекста. Не рассчитывает титрование. При подозрении на ГИТ требуется исключить дальнейшее применение НФГ и выбрать альтернативную тактику. Перед введением сверьте расчёт с действующей КР и локальным протоколом.</p>
         </section>
       )}
       <section className="reference-panel">
-        <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{UFH_REFERENCE.title}</h2><p>{UFH_REFERENCE.acsGuideline}</p></div>
-        <a href={UFH_REFERENCE.acsGuidelineUrl} target="_blank" rel="noreferrer">Открыть руководство ACC/AHA 2025 ↗</a>
-        <small>{UFH_REFERENCE.monitoringGuideline} · <a href={UFH_REFERENCE.monitoringUrl} target="_blank" rel="noreferrer">Рекомендации ISTH ↗</a> Проверено: {UFH_REFERENCE.accessed}.</small>
+        <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{UFH_REFERENCE.title}</h2><p>{UFH_REFERENCE.vteGuideline}</p><p>{UFH_REFERENCE.acsGuideline}</p></div>
+        <a href={UFH_REFERENCE.vteGuidelineUrl} target="_blank" rel="noreferrer">Открыть КР по ТГВ ↗</a>
+        <a href={UFH_REFERENCE.acsGuidelineUrl} target="_blank" rel="noreferrer">Открыть КР по ОКСбпST ↗</a>
+        <small>{UFH_REFERENCE.monitoringNote} Проверено: {UFH_REFERENCE.accessed}.</small>
       </section>
-      <p className="calculator-disclaimer">Справочный инструмент расчёта стартового режима UFH для взрослых по выбранному источнику. Не заменяет локальный номограммный протокол и лабораторный мониторинг.</p>
+      <p className="calculator-disclaimer">Справочный инструмент расчёта стартового режима внутривенного НФГ у взрослых в ограниченных клинических сценариях. Не заменяет клиническое решение, лабораторный мониторинг и локальную номограмму.</p>
     </main>
   )
 }
