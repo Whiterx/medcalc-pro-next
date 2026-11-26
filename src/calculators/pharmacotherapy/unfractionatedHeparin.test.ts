@@ -30,6 +30,8 @@ describe('calculateUFHInitialDosing', () => {
     expect(result.infusionUnitsPerHour).toBe(840)
     expect(result.infusionCapped).toBe(false)
     expect(result.indicationLabel).toContain('ACC/AHA 2025')
+    expect(result.indicationLabel).toContain('не схема ТЛТ или ЧКВ')
+    expect(result.monitoring).toContain('50–70 секунд')
   })
 
   it('applies the ACS infusion maximum at high body weight', () => {
