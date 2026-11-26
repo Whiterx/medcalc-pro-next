@@ -38,7 +38,7 @@ describe('calculateKDIGOAKI', () => {
   it('uses the highest stage when multiple criteria are present', () => {
     const result = calculateKDIGOAKI({
       ...noData, creatinineBaseline: 100, creatinineCurrent: 150, creatinineIntervalHours: 24,
-      bodyWeightKg: 70, urineVolumeMl: 300, urineIntervalHours: 24,
+      bodyWeightKg: 70, urineVolumeMl: 600, urineIntervalHours: 24,
     })
     expect(result.creatinineStage).toBe(1)
     expect(result.urineOutputStage).toBe(2)
