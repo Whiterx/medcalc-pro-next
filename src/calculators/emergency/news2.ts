@@ -93,7 +93,7 @@ export function calculateNEWS2(input: NEWS2Input): NEWS2Result {
     { key: 'oxygen', label: 'Дополнительный кислород', value: input.supplementalOxygen ? 'Да' : 'Нет', points: input.supplementalOxygen ? 2 : 0, explanation: 'Дополнительные 2 балла при получении кислорода' },
     { key: 'systolicBP', label: 'Систолическое АД', value: `${input.systolicBP} мм рт. ст.`, points: scoreSystolicBP(input.systolicBP), explanation: 'Оценивается только систолическое давление' },
     { key: 'pulse', label: 'Частота пульса', value: `${input.pulse}/мин`, points: scorePulse(input.pulse), explanation: 'Пороговые значения частоты пульса NEWS2' },
-    { key: 'consciousness', label: 'Сознание (ACVPU)', value: input.consciousness === 'alert' ? 'Бодрствует / обычное состояние' : ({ 'new-confusion': 'Новое спутанное сознание', voice: 'Реакция на голос', pain: 'Реакция на боль', unresponsive: 'Нет реакции' }[input.consciousness]), points: input.consciousness === 'alert' ? 0 : 3, explanation: 'Новое спутанное сознание или любой уровень V, P, U — 3 балла' },
+    { key: 'consciousness', label: 'Сознание (ACVPU)', value: input.consciousness === 'alert' ? 'Бодрствует / обычное состояние' : ({ 'new-confusion': 'Новое спутанное сознание', voice: 'Реакция на голос', pain: 'Реакция на боль', unresponsive: 'Нет реакции' }[input.consciousness]), points: input.consciousness === 'alert' ? 0 : 3, explanation: 'Новое спутанное сознание, острое изменение ментального статуса или любой уровень V, P, U — 3 балла' },
     { key: 'temperature', label: 'Температура', value: `${input.temperature.toFixed(1)} °C`, points: scoreTemperature(input.temperature), explanation: 'Пороговые значения температуры NEWS2' },
   ]
 
@@ -118,7 +118,7 @@ export function calculateNEWS2(input: NEWS2Input): NEWS2Result {
     riskLabel = 'Низкий риск по сумме'
     interpretation = 'Суммарный балл находится в диапазоне 1–4. Проверьте каждый параметр и динамику состояния.'
     monitoringFrequency = 'Не реже 1 раза в 4–6 часов (стационарный контекст; ориентир RCP).'
-    suggestedResponse = 'Зарегистрированная медсестра оценивает пациента, решает, нужно ли увеличить частоту мониторинга или эскалировать помощь, и информирует медицинскую команду.'
+    suggestedResponse = 'Зарегистрированная медсестра оценивает пациента и решает, нужно ли увеличить частоту мониторинга или эскалировать помощь.'
   } else if (score <= 6) {
     riskLevel = 'medium'
     riskLabel = 'Средний риск'
