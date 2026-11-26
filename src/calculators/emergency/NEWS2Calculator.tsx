@@ -126,7 +126,7 @@ export default function NEWS2Calculator() {
               <select required value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
                 <option value="">Выберите состояние</option>
                 <option value="alert">A — бодрствует / обычное состояние (0)</option>
-                <option value="new-confusion">Новое спутанное сознание / делирий / острое изменение ментального статуса, включая GCS <15 (3)</option>
+                <option value="new-confusion">Новое спутанное сознание / делирий / острое изменение ментального статуса, включая GCS &lt;15 (3)</option>
                 <option value="voice">V — реагирует на голос (3)</option>
                 <option value="pain">P — реагирует на боль (3)</option>
                 <option value="unresponsive">U — не реагирует (3)</option>
