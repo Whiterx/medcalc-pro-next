@@ -182,4 +182,4 @@ h3 { margin: 21px 0 8px; color: #253650; font: 700 15px Manrope; }
 /* SOFA-2 calculator */
 .sofa2-section { display:grid; gap:15px; margin-top:26px; padding-top:22px; border-top:1px solid #edf1f6; }
 .sofa2-section h3 { margin:0; color:#34465f; font-size:14px; }
-@media(max-width:620px) { .sofa2-section .field-grid { grid-template-columns:1fr; } }
+@media(max-width:620px) { .result-columns { grid-template-columns:1fr; } .sofa2-section .field-grid { grid-template-columns:1fr; } }
