@@ -1,0 +1,22 @@
+export const MELD_NA_REFERENCE = {
+  title: 'Historical MELD-Na (OPTN/UNOS version before MELD 3.0)',
+  originalSource: 'Kim WR et al. Hyponatremia and mortality among patients on the liver-transplant waiting list. N Engl J Med. 2008;359:1018–1026. doi:10.1056/NEJMoa0801209.',
+  originalUrl: 'https://www.nejm.org/doi/10.1056/NEJMoa0801209',
+  formulaSource: 'MELD 3.0 paper — standard MELD and MELD-Na formulas used for comparison',
+  formulaUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8608337/',
+  historicalPolicySource: 'OPTN policy notice — addition of serum sodium to MELD',
+  historicalPolicyUrl: 'https://hrsa.unos.org/media/1822/optn_policy_notice_07-24-2014.pdf',
+  currentPolicySource: 'HRSA/OPTN — MELD Calculator (current allocation calculator)',
+  currentPolicyUrl: 'https://www.hrsa.gov/optn/data-calculators/allocation-calculators/meld-calculator',
+  currentPolicyUpdateUrl: 'https://www.hrsa.gov/optn/news-events/news/updates-medical-urgency-scoring-liver-transplant-candidates-effect',
+  accessed: '2026-11-26',
+  notes: [
+    'Реализована историческая формула MELD-Na, применявшаяся в системе OPTN/UNOS до перехода на MELD 3.0 в США в июле 2023 года. Это не текущий американский allocation score и не актуальный калькулятор приоритета трансплантации.',
+    'Формула базового MELD: 3,78 × ln(билирубин, мг/дл) + 11,2 × ln(INR) + 9,57 × ln(креатинин, мг/дл) + 6,43. Значения билирубина, INR и креатинина ниже 1,0 принимаются за 1,0; креатинин ≥4,0 мг/дл или ≥2 сеанса диализа либо ≥24 ч CVVHD за предыдущие 7 дней принимается равным 4,0 мг/дл.',
+    'Базовый MELD округляется до ближайшего целого числа и ограничивается диапазоном 6–40. Для исторического OPTN-подхода натриевая поправка применяется при MELD >11: MELD-Na = MELD + 1,32 × (137 − Na) − 0,033 × MELD × (137 − Na). Натрий ограничивается диапазоном 125–137 ммоль/л; итог округляется до целого и ограничивается диапазоном 6–40.',
+    'Для билирубина и креатинина доступны единицы мг/дл и мкмоль/л. Пересчёт: билирубин ÷17,1; креатинин ÷88,4. Натрий вводится в ммоль/л, INR — без единиц.',
+    'Этот вариант предназначен для образовательного расчёта у взрослых. Возрастные, исключительные и локальные правила распределения органов здесь не реализованы.',
+    'Не использовать результат для определения места в листе ожидания, срочности трансплантации или прогноза конкретного пациента без актуальных правил соответствующей страны/системы. В США с 13 июля 2023 года применяется MELD 3.0; в Eurotransplant с 25 марта 2025 года используется reMELD-Na, который отличается от этой формулы.',
+    'MELD-Na — прогностическая модель, а не диагноз и не самостоятельная рекомендация по лечению. INR может быть искажён антикоагулянтами; показатели должны быть актуальными и интерпретироваться в клиническом контексте.',
+  ],
+} as const
