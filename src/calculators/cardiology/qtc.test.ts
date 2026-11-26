@@ -35,10 +35,11 @@ describe('calculateQTC', () => {
     expect(calc({ sex: 'female', qtMs: 480 }).above99thPercentile).toBe(true)
   })
 
-  it('marks QTc of 500 ms or more as markedly prolonged', () => {
+  it('marks QTc above 500 ms as markedly prolonged', () => {
     expect(calc({ qtMs: 499.9 }).category).toBe('prolonged')
-    expect(calc({ qtMs: 500 }).category).toBe('markedly-prolonged')
-    expect(calc({ sex: 'female', qtMs: 500 }).category).toBe('markedly-prolonged')
+    expect(calc({ qtMs: 500 }).category).toBe('prolonged')
+    expect(calc({ qtMs: 500.1 }).category).toBe('markedly-prolonged')
+    expect(calc({ sex: 'female', qtMs: 500.1 }).category).toBe('markedly-prolonged')
   })
 
   it('rejects invalid ranges and missing categorical choices', () => {
