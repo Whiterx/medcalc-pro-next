@@ -1,7 +1,7 @@
 export type RespiratorySupport = 'none' | 'advanced' | 'unavailable' | 'ceiling';
 export interface SOFA2Input {
   pao2: number | null;
-  fio2: number;
+  fio2: number | null;
   spo2: number | null;
   respiratorySupport: RespiratorySupport;
   ecmoForRespiratoryFailure: boolean;
@@ -36,6 +36,7 @@ export interface SOFA2Result {
 }
 export function scoreSOFA2Respiratory(input: Pick<SOFA2Input, 'pao2'|'fio2'|'spo2'|'respiratorySupport'|'ecmoForRespiratoryFailure'>): {points:number|null;ratio:number|null;type:'PaO₂/FiO₂'|'SpO₂/FiO₂'|null} {
   if (input.ecmoForRespiratoryFailure) return {points:4,ratio:null,type:null};
+  if (input.fio2 === null) return {points:null,ratio:null,type:null};
   let ratio:number;
   let type:'PaO₂/FiO₂'|'SpO₂/FiO₂';
   if (input.pao2 !== null) {
