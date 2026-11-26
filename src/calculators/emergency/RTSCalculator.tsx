@@ -59,11 +59,11 @@ export default function RTSCalculator() {
           </div>
           <div className="news2-section">
             <label className="calc-field field-full"><span>Систолическое АД, мм рт. ст.</span><input type="number" min="0" max="300" step="1" required value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} placeholder="0–300" /></label>
-            <p className="field-hint">Коды: >89 = 4; 76–89 = 3; 50–75 = 2; 1–49 = 1; 0 = 0.</p>
+            <p className="field-hint">Коды: &gt;89 = 4; 76–89 = 3; 50–75 = 2; 1–49 = 1; 0 = 0.</p>
           </div>
           <div className="news2-section">
             <label className="calc-field field-full"><span>Частота дыхания, в минуту</span><input type="number" min="0" max="100" step="1" required value={values.respiratoryRate} onChange={(event) => updateField('respiratoryRate', event.target.value)} placeholder="0–100" /></label>
-            <p className="field-hint">Коды: 10–29 = 4; >29 = 3; 6–9 = 2; 1–5 = 1; 0 = 0.</p>
+            <p className="field-hint">Коды: 10–29 = 4; &gt;29 = 3; 6–9 = 2; 1–5 = 1; 0 = 0.</p>
           </div>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="calculator-actions">
