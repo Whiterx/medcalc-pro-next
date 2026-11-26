@@ -69,7 +69,7 @@ const calculatorCatalog = [
   { title: 'BODE Index', category: 'Пульмонология', path: '/calculators/bode', keywords: 'хобл прогноз индекс масса тела обструкция одышка нагрузка' },
   { title: 'PSI / PORT', category: 'Пульмонология', path: '/calculators/psi', keywords: 'пневмония pneumonia severity index риск' },
   { title: 'GOLD ABE', category: 'Пульмонология', path: '/calculators/gold-abe', keywords: 'хобл обострения симптомы классификация' },
-  { title: 'sPESI', category: 'Пульмонология', path: '/calculators/spesi', keywords: 'тэпэ тромбоэмболия легочной артерии прогноз' },
+  { title: 'sPESI', category: 'Пульмонология', path: '/calculators/spesi', keywords: 'тэла тэпэ тромбоэмболия легочной артерии прогноз' },
   { title: 'PBW и дыхательный объём', category: 'Пульмонология', path: '/calculators/ventilation-basics', keywords: 'predicted body weight tidal volume вентиляция мл кг' },
   { title: 'H₂FPEF Score', category: 'Кардиология', path: '/calculators/h2fpef', keywords: 'сердечная недостаточность сохраненная фракция выброса hfpef' },
   { title: 'GRACE Score', category: 'Кардиология', path: '/calculators/grace', keywords: 'острый коронарный синдром инфаркт риск' },
@@ -77,8 +77,8 @@ const calculatorCatalog = [
   { title: 'Корригированный QT (QTc)', category: 'Кардиология', path: '/calculators/qtc', keywords: 'электрокардиограмма экг интервал qtc bazett fridericia' },
   { title: 'HEART Score', category: 'Кардиология', path: '/calculators/heart', keywords: 'боль в груди острый коронарный синдром' },
   { title: 'CHA₂DS₂-VASc + HAS-BLED', category: 'Кардиология', path: '/calculators/cha2ds2vasc-hasbled', keywords: 'фибрилляция предсердий инсульт кровотечение антикоагуляция' },
-  { title: 'Wells Score — ТЭЛА', category: 'Гематология', path: '/calculators/wells-pe', keywords: 'тромбоэмболия легочной артерии pulmonary embolism' },
-  { title: 'Wells Score — ТГВ', category: 'Гематология', path: '/calculators/wells-dvt', keywords: 'тромбоз глубоких вен deep vein thrombosis' },
+  { title: 'Wells Score — ТЭЛА', category: 'Гематология', path: '/calculators/wells-pe', keywords: 'тэла тэпэ тромбоэмболия легочной артерии pulmonary embolism' },
+  { title: 'Wells Score — ТГВ', category: 'Гематология', path: '/calculators/wells-dvt', keywords: 'тгв тромбоз глубоких вен deep vein thrombosis' },
   { title: 'Padua Prediction Score', category: 'Гематология', path: '/calculators/padua', keywords: 'венозная тромбоэмболия профилактика стационар' },
   { title: '4Ts Score — ГИТ', category: 'Гематология', path: '/calculators/4ts', keywords: 'гепарин индуцированная тромбоцитопения hit' },
   { title: 'ISTH DIC Score', category: 'Гематология', path: '/calculators/dic-isth', keywords: 'диссеминированное внутрисосудистое свертывание дсв синдром коагулопатия' },
@@ -114,7 +114,7 @@ const calculatorCatalog = [
 ]
 
 function normalizeSearchText(value: string) {
-  return value.toLocaleLowerCase('ru').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/ё/g, 'е').trim()
+  return value.toLocaleLowerCase('ru').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ё/g, 'е').trim()
 }
 
 function HomePage() {
