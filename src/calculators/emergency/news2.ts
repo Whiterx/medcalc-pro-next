@@ -112,7 +112,7 @@ export function calculateNEWS2(input: NEWS2Input): NEWS2Result {
     riskLabel = '0 баллов · рутинный мониторинг'
     interpretation = 'По введённым параметрам баллы NEWS2 не начислены. Это не отменяет клиническую оценку и повторное наблюдение.'
     monitoringFrequency = 'Не реже 1 раза в 12 часов (стационарный контекст; ориентир RCP).'
-    suggestedResponse = 'Продолжать рутинный мониторинг NEWS; зарегистрированная медсестра должна оценить пациента.'
+    suggestedResponse = 'Продолжать рутинный мониторинг NEWS в соответствии с локальным протоколом.'
   } else if (score <= 4) {
     riskLevel = 'low'
     riskLabel = 'Низкий риск по сумме'
