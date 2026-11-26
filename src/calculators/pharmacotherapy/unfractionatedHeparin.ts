@@ -3,6 +3,7 @@ export type UFHIndication = 'vte' | 'acs'
 export interface UFHInput {
   actualBodyWeightKg: number
   indication: UFHIndication
+  adultConfirmed: boolean
 }
 
 export interface UFHResult {
@@ -21,6 +22,9 @@ export interface UFHResult {
 export function calculateUFHInitialDosing(input: UFHInput): UFHResult {
   if (!input || !Number.isFinite(input.actualBodyWeightKg) || input.actualBodyWeightKg < 20 || input.actualBodyWeightKg > 300) {
     throw new Error('Введите фактическую массу тела от 20 до 300 кг.')
+  }
+  if (input.adultConfirmed !== true) {
+    throw new Error('Подтвердите, что пациент взрослый (18 лет или старше).')
   }
   if (input.indication !== 'vte' && input.indication !== 'acs') {
     throw new Error('Выберите показание: лечение ВТЭО или начальная терапия ОКС.')
