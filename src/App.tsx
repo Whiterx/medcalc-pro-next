@@ -1,6 +1,7 @@
 import { Activity, ArrowRight, BookOpen, Calculator, Search, ShieldCheck, Smartphone } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { getTelegramWebApp, initializeTelegramWebApp } from './platform/telegram'
 import { clearRecentCalculatorPaths, readRecentCalculatorPaths, recordRecentCalculatorPath, type StorageLike } from './catalogHistory'
 import { addCalculationHistory, addRiskBasketItem, clearCalculationHistory, clearRiskBasket, readCalculationHistory, readRiskBasket, type NewCalculationResult, type SavedCalculationResult } from './resultCollections'
 import CURB65Calculator from './calculators/pulmonology/CURB65Calculator'
@@ -347,12 +348,39 @@ function ResultActions() {
   )
 }
 
+function TelegramBridge() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const webApp = initializeTelegramWebApp()
+    if (!webApp) return
+    document.documentElement.classList.add('telegram-mini-app')
+    const handleBack = () => navigate('/')
+    webApp.BackButton?.onClick(handleBack)
+    return () => {
+      webApp.BackButton?.offClick(handleBack)
+      webApp.BackButton?.hide()
+      document.documentElement.classList.remove('telegram-mini-app')
+    }
+  }, [navigate])
+
+  useEffect(() => {
+    const webApp = getTelegramWebApp()
+    if (!webApp?.BackButton) return
+    if (location.pathname === '/') webApp.BackButton.hide()
+    else webApp.BackButton.show()
+  }, [location.pathname])
+
+  return null
+}
+
 function App() {
   const location = useLocation()
   useEffect(() => {
     recordRecentCalculatorPath(location.pathname, catalogPaths, getRecentStorage())
   }, [location.pathname])
-  return <><Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/psi" element={<PSICalculator />} /><Route path="/calculators/gold-abe" element={<GOLDABECalculator />} /><Route path="/calculators/spesi" element={<SPESICalculator />} /><Route path="/calculators/h2fpef" element={<H2FPEFCalculator />} /><Route path="/calculators/grace" element={<GRACECalculator />} /><Route path="/calculators/timi" element={<TIMICalculator />} /><Route path="/calculators/qtc" element={<QTCCalculator />} /><Route path="/calculators/heart" element={<HEARTCalculator />} /><Route path="/calculators/cha2ds2vasc-hasbled" element={<CHA2DS2VAScHASBLEDCalculator />} /><Route path="/calculators/wells-pe" element={<WellsPECalculator />} /><Route path="/calculators/wells-dvt" element={<WellsDVTCalculator />} /><Route path="/calculators/padua" element={<PaduaCalculator />} /><Route path="/calculators/4ts" element={<FourTsCalculator />} /><Route path="/calculators/dic-isth" element={<DICISTHCalculator />} /><Route path="/calculators/homa-ir" element={<HOMAIRCalculator />} /><Route path="/calculators/bmi" element={<BMICalculator />} /><Route path="/calculators/egfr" element={<EGFRCalculator />} /><Route path="/calculators/kdigo-aki" element={<KDIGOAKICalculator />} /><Route path="/calculators/cockcroft-gault" element={<CockcroftGaultCalculator />} /><Route path="/calculators/fib-4" element={<FIB4Calculator />} /><Route path="/calculators/child-pugh" element={<ChildPughCalculator />} /><Route path="/calculators/meld-na" element={<MELDNaCalculator />} /><Route path="/calculators/nihss" element={<NIHSSCalculator />} /><Route path="/calculators/mrs" element={<MRSCalculator />} /><Route path="/calculators/abcd2" element={<ABCD2Calculator />} /><Route path="/calculators/hunt-hess-wfns" element={<HuntHessWFNSCalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/bisap" element={<BISAPCalculator />} /><Route path="/calculators/alvarado" element={<AlvaradoCalculator />} /><Route path="/calculators/glasgow-blatchford" element={<GlasgowBlatchfordCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="/calculators/rass-cam-icu" element={<RASSCAMICUCalculator />} /><Route path="/calculators/rts" element={<RTSCalculator />} /><Route path="/calculators/iss" element={<ISSCalculator />} /><Route path="/calculators/performance-status" element={<PerformanceStatusCalculator />} /><Route path="/calculators/vancomycin" element={<VancomycinCalculator />} /><Route path="/calculators/vasopressors" element={<VasopressorsCalculator />} /><Route path="/calculators/unfractionated-heparin" element={<UnfractionatedHeparinCalculator />} /><Route path="/tools/unit-converter" element={<LabUnitConverter />} /><Route path="*" element={<HomePage />} /></Routes><ResultActions /></>
+  return <><Routes><Route path="/" element={<HomePage />} /><Route path="/calculators/curb-65" element={<CURB65Calculator />} /><Route path="/calculators/pf-ratio" element={<PFRatioCalculator />} /><Route path="/calculators/bode" element={<BODECalculator />} /><Route path="/calculators/psi" element={<PSICalculator />} /><Route path="/calculators/gold-abe" element={<GOLDABECalculator />} /><Route path="/calculators/spesi" element={<SPESICalculator />} /><Route path="/calculators/h2fpef" element={<H2FPEFCalculator />} /><Route path="/calculators/grace" element={<GRACECalculator />} /><Route path="/calculators/timi" element={<TIMICalculator />} /><Route path="/calculators/qtc" element={<QTCCalculator />} /><Route path="/calculators/heart" element={<HEARTCalculator />} /><Route path="/calculators/cha2ds2vasc-hasbled" element={<CHA2DS2VAScHASBLEDCalculator />} /><Route path="/calculators/wells-pe" element={<WellsPECalculator />} /><Route path="/calculators/wells-dvt" element={<WellsDVTCalculator />} /><Route path="/calculators/padua" element={<PaduaCalculator />} /><Route path="/calculators/4ts" element={<FourTsCalculator />} /><Route path="/calculators/dic-isth" element={<DICISTHCalculator />} /><Route path="/calculators/homa-ir" element={<HOMAIRCalculator />} /><Route path="/calculators/bmi" element={<BMICalculator />} /><Route path="/calculators/egfr" element={<EGFRCalculator />} /><Route path="/calculators/kdigo-aki" element={<KDIGOAKICalculator />} /><Route path="/calculators/cockcroft-gault" element={<CockcroftGaultCalculator />} /><Route path="/calculators/fib-4" element={<FIB4Calculator />} /><Route path="/calculators/child-pugh" element={<ChildPughCalculator />} /><Route path="/calculators/meld-na" element={<MELDNaCalculator />} /><Route path="/calculators/nihss" element={<NIHSSCalculator />} /><Route path="/calculators/mrs" element={<MRSCalculator />} /><Route path="/calculators/abcd2" element={<ABCD2Calculator />} /><Route path="/calculators/hunt-hess-wfns" element={<HuntHessWFNSCalculator />} /><Route path="/calculators/ventilation-basics" element={<VentilationBasicsCalculator />} /><Route path="/calculators/bisap" element={<BISAPCalculator />} /><Route path="/calculators/alvarado" element={<AlvaradoCalculator />} /><Route path="/calculators/glasgow-blatchford" element={<GlasgowBlatchfordCalculator />} /><Route path="/calculators/qsofa" element={<QSOFACalculator />} /><Route path="/calculators/news2" element={<NEWS2Calculator />} /><Route path="/calculators/gcs" element={<GCSCalculator />} /><Route path="/calculators/sofa" element={<SOFACalculator />} /><Route path="/calculators/sofa-2" element={<SOFA2Calculator />} /><Route path="/calculators/apache-ii" element={<APACHE2Calculator />} /><Route path="/calculators/saps-ii" element={<SAPS2Calculator />} /><Route path="/calculators/rass-cam-icu" element={<RASSCAMICUCalculator />} /><Route path="/calculators/rts" element={<RTSCalculator />} /><Route path="/calculators/iss" element={<ISSCalculator />} /><Route path="/calculators/performance-status" element={<PerformanceStatusCalculator />} /><Route path="/calculators/vancomycin" element={<VancomycinCalculator />} /><Route path="/calculators/vasopressors" element={<VasopressorsCalculator />} /><Route path="/calculators/unfractionated-heparin" element={<UnfractionatedHeparinCalculator />} /><Route path="/tools/unit-converter" element={<LabUnitConverter />} /><Route path="*" element={<HomePage />} /></Routes><ResultActions /><TelegramBridge /></>
 }
 
 export default App
