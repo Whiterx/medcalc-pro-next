@@ -50,17 +50,18 @@ export default function UnfractionatedHeparinCalculator() {
       </section>
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
-          <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и показание</h2></div><span className="points-label">Ед.</span></div>
+          <div className="panel-heading"><div><span className="panel-kicker">ПАРАМЕТРЫ ПАЦИЕНТА</span><h2>Масса тела и протокол</h2></div><span className="points-label">Ед.</span></div>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Важно: доступны конкретные международные схемы, а не универсальные назначения. Российские КР содержат отличающиеся параметры: для ОКС без подъёма ST — диапазоны 60–70 ЕД/кг и 12–15 ЕД/кг/ч с максимумом болюса 5 000 ЕД; для ТГВ — 80 ЕД/кг и 18 ЕД/кг/ч без указанных в таблице 9 максимумов 10 000/2 000. Не переносите дозы и ограничения между протоколами.</p>
           <label className="calc-field field-full"><span>Фактическая масса тела, кг</span><input type="number" min="20" max="300" step="0.1" required value={values.weight} onChange={(event) => updateField('weight', event.target.value)} placeholder="Введите массу тела" /></label>
           <label className="calc-field field-full">
             <span>Показание / протокол</span>
             <select required value={values.indication} onChange={(event) => updateField('indication', event.target.value as '' | UFHIndication)}>
               <option value="">Выберите протокол</option>
-              <option value="vte">Лечение острого ТГВ / ТЭЛА (80 Ед/кг болюс + 18 Ед/кг/ч)</option>
-              <option value="acs">Начальная терапия ОКС (60 Ед/кг болюс + 12 Ед/кг/ч)</option>
+              <option value="vte">ВТЭО · схема ASHP (80 Ед/кг + 18 Ед/кг/ч; suggested caps)</option>
+              <option value="acs">ОКС · схема ACC/AHA 2025 (60 Ед/кг + 12 Ед/кг/ч)</option>
             </select>
           </label>
-          <p className="field-hint">Используются фактическая масса тела и протокольные максимумы. При переходе с другого антикоагулянта или индивидуальных ограничениях нужен отдельный алгоритм.</p>
+          <p className="field-hint">Для ВТЭО максимумы 10 000 ЕД и 2 000 ЕД/ч — suggested caps из ASHP, а не максимумы российской КР. Для ОКС схема ACC/AHA отличается от диапазонов российской КР. Это только стартовый расчёт; титрование и контроль выполняются по отдельной локальной номограмме. При переходе с другого антикоагулянта нужен отдельный алгоритм.</p>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="calculator-actions">
             <button className="primary-button" type="submit">Рассчитать начальную дозу</button>
@@ -69,8 +70,8 @@ export default function UnfractionatedHeparinCalculator() {
           <p className="privacy-note"><ShieldCheck size={14} /> Данные не отправляются на сервер и не сохраняются.</p>
         </form>
         <aside className="calculator-aside">
-          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Два разных протокола</h3><p>Дозы при ВТЭО и ОКС различаются. Не используйте один режим для другого показания.</p></div>
-          <div className="threshold-panel"><h3>Мониторинг</h3><p>Для большинства терапевтических показаний ISTH 2026 предлагает анти-Xa 0,30–0,70 МЕ/мл. АЧТВ — по локальному лабораторному диапазону.</p><p>Для ОКС ACC/AHA 2025 указывает начальную цель АЧТВ 60–80 секунд.</p></div>
+          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Источники схем</h3><p>ВТЭО: ASHP Clinical Pharmacokinetics Workbook. ОКС: ACC/AHA 2025. Эти схемы не заменяют российские КР и локальные номограммы.</p></div>
+          <div className="threshold-panel"><h3>Мониторинг</h3><p>Для большинства терапевтических показаний ISTH 2026 предлагает анти-Xa 0,30–0,70 МЕ/мл. АЧТВ — по локальному лабораторному диапазону.</p><p>АЧТВ: локальный терапевтический диапазон обязателен; не используйте универсальное отношение без калибровки. Для схемы ОКС ACC/AHA 2025 указан диапазон 60–80 секунд.</p></div>
         </aside>
       </div>
       {result && (
@@ -89,7 +90,7 @@ export default function UnfractionatedHeparinCalculator() {
         <a href={UFH_REFERENCE.acsGuidelineUrl} target="_blank" rel="noreferrer">Открыть руководство ACC/AHA 2025 ↗</a>
         <small>{UFH_REFERENCE.monitoringGuideline} · <a href={UFH_REFERENCE.monitoringUrl} target="_blank" rel="noreferrer">Рекомендации ISTH ↗</a> Проверено: {UFH_REFERENCE.accessed}.</small>
       </section>
-      <p className="calculator-disclaimer">Образовательный инструмент расчёта стартового режима UFH для взрослых. Не заменяет локальный номограммный протокол и лабораторный мониторинг.</p>
+      <p className="calculator-disclaimer">Справочный инструмент расчёта стартового режима UFH для взрослых по выбранному источнику. Не заменяет локальный номограммный протокол и лабораторный мониторинг.</p>
     </main>
   )
 }
