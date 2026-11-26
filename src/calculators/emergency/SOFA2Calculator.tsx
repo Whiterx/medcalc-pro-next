@@ -25,14 +25,14 @@ export default function SOFA2Calculator() {
   function reset(){setValues(initial);setResult(null);setError('')}
   function handleCalculate(event:FormEvent<HTMLFormElement>){
     event.preventDefault()
-    if(values.fio2===''||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||values.map===''||
-      (values.pao2===''&&values.spo2==='')||
+    if((values.ecmo!=='yes'&&values.fio2==='')||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||values.map===''||
+      (values.ecmo!=='yes'&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
       (values.creatinine===''&&values.urineRate===''&&!values.rrt)){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
       setResult(null);return
     }
-    const numeric=[values.fio2,values.platelets,values.bilirubin,values.map,
+    const numeric=[...(values.fio2!==''?[values.fio2]:[]),values.platelets,values.bilirubin,values.map,
       ...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[]),
       ...(values.norepinephrineEnabled?[values.norepinephrineDose]:[]),
       ...(values.epinephrineEnabled?[values.epinephrineDose]:[]),
@@ -42,7 +42,7 @@ export default function SOFA2Calculator() {
     }
     const integerValues=[values.fio2,values.platelets,values.map,...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[])]
     if(integerValues.some(v=>!Number.isInteger(Number(v)))||
-      Number(values.fio2)<21||Number(values.fio2)>100||
+      (values.fio2!==''&&(Number(values.fio2)<21||Number(values.fio2)>100))||
       (values.pao2!==''&&(Number(values.pao2)<1||Number(values.pao2)>800))||
       (values.spo2!==''&&(Number(values.spo2)<1||Number(values.spo2)>100))||
       Number(values.platelets)<0||Number(values.platelets)>1000||
@@ -54,7 +54,7 @@ export default function SOFA2Calculator() {
       (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20))){
       setError('Проверьте диапазоны и точность введённых значений. Дозы норэпинефрина/эпинефрина должны быть больше 0 мкг/кг/мин.');setResult(null);return
     }
-    if(values.pao2!==''&&values.spo2!==''){
+    if(values.gcs!==''&&values.motorScore!==''){\n      setError('Укажите GCS или лучшую двигательную реакцию, но не оба значения одновременно.');setResult(null);return\n    }\n    if(values.preSedationUnknown&&(values.gcs!==''||values.motorScore!=='')){\n      setError('Если GCS до седации неизвестна, не вводите GCS или двигательную реакцию.');setResult(null);return\n    }\n    if(values.pao2!==''&&values.spo2!==''){
       setError('Укажите только один показатель оксигенации: PaO₂/FiO₂ предпочтителен; SpO₂/FiO₂ применяется только если PaO₂ недоступно.');setResult(null);return
     }
     if(values.pao2===''&&Number(values.spo2)>=98){
@@ -67,7 +67,7 @@ export default function SOFA2Calculator() {
       setError('Укажите скорость диуреза или очистите период диуреза.');setResult(null);return
     }
     const input:SOFA2Input={
-      pao2:values.pao2===''?null:Number(values.pao2),fio2:Number(values.fio2),
+      pao2:values.pao2===''?null:Number(values.pao2),fio2:values.fio2===''?null:Number(values.fio2),
       spo2:values.spo2===''?null:Number(values.spo2),
       respiratorySupport:values.respiratorySupport as SOFA2Input['respiratorySupport'],
       ecmoForRespiratoryFailure:values.ecmo==='yes',platelets:Number(values.platelets),
