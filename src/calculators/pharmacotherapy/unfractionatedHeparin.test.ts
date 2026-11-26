@@ -1,102 +1,88 @@
 import { describe, expect, it } from 'vitest'
 import { calculateUFHInitialDosing } from './unfractionatedHeparin'
 
-describe('calculateUFHInitialDosing', () => {
-  it('calculates the VTE protocol at 80 units/kg bolus and 18 units/kg/h', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 70, indication: 'vte' })
-    expect(result.bolusUnits).toBe(5600)
-    expect(result.infusionUnitsPerHour).toBe(1260)
-    expect(result.bolusCapped).toBe(false)
-    expect(result.infusionCapped).toBe(false)
-    expect(result.indicationLabel).toContain('ASHP')
+describe('calculateUFHInitialDosing — Russian clinical recommendations', () => {
+  it('calculates the Russian CPG 960_1 weight-based IV UFH regimen without ASHP caps', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 70, indication: 'vte' })
+    expect(result.bolusMinUnits).toBe(5600)
+    expect(result.bolusMaxUnits).toBe(5600)
+    expect(result.infusionMinUnitsPerHour).toBe(1260)
+    expect(result.infusionMaxUnitsPerHour).toBe(1260)
+    expect(result.bolusCapApplied).toBe(false)
+    expect(result.infusionCapApplied).toBe(false)
+    expect(result.indicationLabel).toContain('960_1')
   })
 
-  it('applies the suggested VTE protocol caps', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 150, indication: 'vte' })
-    expect(result.calculatedBolusUnits).toBe(12000)
-    expect(result.bolusUnits).toBe(10000)
-    expect(result.bolusCapped).toBe(true)
-    expect(result.calculatedInfusionUnitsPerHour).toBe(2700)
-    expect(result.infusionUnitsPerHour).toBe(2000)
-    expect(result.infusionCapped).toBe(true)
-    expect(result.indicationLabel).toContain('ASHP')
+  it('does not apply ASHP maximums to the Russian CPG 960_1 regimen at high weight', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 150, indication: 'vte' })
+    expect(result.bolusMinUnits).toBe(12000)
+    expect(result.infusionMinUnitsPerHour).toBe(2700)
+    expect(result.bolusCapApplied).toBe(false)
+    expect(result.infusionCapApplied).toBe(false)
   })
 
-  it('calculates the 2025 ACS protocol and caps', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 70, indication: 'acs' })
-    expect(result.calculatedBolusUnits).toBe(4200)
-    expect(result.bolusUnits).toBe(4000)
-    expect(result.bolusCapped).toBe(true)
-    expect(result.infusionUnitsPerHour).toBe(840)
-    expect(result.infusionCapped).toBe(false)
-    expect(result.indicationLabel).toContain('ACC/AHA 2025')
-    expect(result.indicationLabel).toContain('не схема ТЛТ или ЧКВ')
-    expect(result.monitoring).toContain('50–70 секунд')
+  it('calculates the full recommended dose ranges for NSTE-ACS under Russian CPG 154_4', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 70, indication: 'acs' })
+    expect(result.bolusMinUnits).toBe(4200)
+    expect(result.bolusMaxUnits).toBe(4900)
+    expect(result.infusionMinUnitsPerHour).toBe(840)
+    expect(result.infusionMaxUnitsPerHour).toBe(1000)
+    expect(result.bolusCapApplied).toBe(false)
+    expect(result.infusionCapApplied).toBe(true)
+    expect(result.indicationLabel).toContain('154_4')
+    expect(result.monitoring).toContain('1,5–2,5')
   })
 
-  it('applies the ACS infusion maximum at high body weight', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 100, indication: 'acs' })
-    expect(result.bolusUnits).toBe(4000)
-    expect(result.infusionUnitsPerHour).toBe(1000)
-    expect(result.infusionCapped).toBe(true)
-    expect(result.indicationLabel).toContain('ACC/AHA 2025')
+  it('applies the Russian CPG bolus and infusion maxima independently', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 100, indication: 'acs' })
+    expect(result.bolusMinUnits).toBe(5000)
+    expect(result.bolusMaxUnits).toBe(5000)
+    expect(result.infusionMinUnitsPerHour).toBe(1000)
+    expect(result.infusionMaxUnitsPerHour).toBe(1000)
+    expect(result.bolusCapApplied).toBe(true)
+    expect(result.infusionCapApplied).toBe(true)
   })
 
-  it('does not flag the VTE bolus cap at its exact threshold', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 125, indication: 'vte' })
-    expect(result.bolusUnits).toBe(10000)
-    expect(result.bolusCapped).toBe(false)
-    expect(result.infusionCapped).toBe(true)
+  it('does not flag the NSTE-ACS bolus cap when the upper dose is exactly at the cap', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 5000 / 70, indication: 'acs' })
+    expect(result.bolusMaxUnits).toBeCloseTo(5000)
+    expect(result.bolusCapApplied).toBe(false)
   })
 
-  it('does not flag the VTE infusion cap at its exact threshold', () => {
-    const thresholdWeight = 2000 / 18
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: thresholdWeight, indication: 'vte' })
-    expect(result.calculatedInfusionUnitsPerHour).toBeCloseTo(2000)
-    expect(result.infusionUnitsPerHour).toBeCloseTo(2000)
-    expect(result.infusionCapped).toBe(false)
+  it('flags the NSTE-ACS bolus cap immediately above its threshold', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 71.5, indication: 'acs' })
+    expect(result.bolusMinUnits).toBe(4290)
+    expect(result.bolusMaxUnits).toBe(5000)
+    expect(result.bolusCapApplied).toBe(true)
   })
 
-  it('flags the VTE infusion cap immediately above its threshold', () => {
-    const result = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 111.2, indication: 'vte' })
-    expect(result.calculatedInfusionUnitsPerHour).toBeCloseTo(2001.6)
-    expect(result.infusionUnitsPerHour).toBe(2000)
-    expect(result.infusionCapped).toBe(true)
+  it('does not flag the NSTE-ACS infusion cap when the upper dose is exactly at the cap', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 1000 / 15, indication: 'acs' })
+    expect(result.infusionMaxUnitsPerHour).toBeCloseTo(1000)
+    expect(result.infusionCapApplied).toBe(false)
   })
 
-  it('distinguishes the ACS bolus cap boundary', () => {
-    const below = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 66.6, indication: 'acs' })
-    const above = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 66.7, indication: 'acs' })
-    expect(below.bolusCapped).toBe(false)
-    expect(above.bolusCapped).toBe(true)
-    expect(above.bolusUnits).toBe(4000)
-  })
-
-  it('respects the ACS infusion cap at the 0.1 kg UI input boundary', () => {
-    const below = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 83.3, indication: 'acs' })
-    const above = calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 83.4, indication: 'acs' })
-    expect(below.calculatedInfusionUnitsPerHour).toBeCloseTo(999.6)
-    expect(below.infusionUnitsPerHour).toBeCloseTo(999.6)
-    expect(below.infusionCapped).toBe(false)
-    expect(above.calculatedInfusionUnitsPerHour).toBeCloseTo(1000.8)
-    expect(above.infusionUnitsPerHour).toBe(1000)
-    expect(above.infusionCapped).toBe(true)
+  it('flags the NSTE-ACS infusion cap immediately above its threshold', () => {
+    const result = calculateUFHInitialDosing({ adultConfirmed: true, bodyWeightKg: 66.7, indication: 'acs' })
+    expect(result.infusionMinUnitsPerHour).toBeCloseTo(800.4)
+    expect(result.infusionMaxUnitsPerHour).toBe(1000)
+    expect(result.infusionCapApplied).toBe(true)
   })
 
   it('requires confirmation that the patient is an adult', () => {
-    expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 70, indication: 'vte', adultConfirmed: false })).toThrow('взрослый')
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 70, indication: 'vte', adultConfirmed: false })).toThrow('взрослый')
   })
 
   it('accepts technical weight boundaries and rejects values outside them', () => {
-    expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 20, indication: 'vte', adultConfirmed: true })).not.toThrow()
-    expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 300, indication: 'vte', adultConfirmed: true })).not.toThrow()
-    expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 19.9, indication: 'vte', adultConfirmed: true })).toThrow()
-    expect(() => calculateUFHInitialDosing({ actualBodyWeightKg: 300.1, indication: 'vte', adultConfirmed: true })).toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 20, indication: 'vte', adultConfirmed: true })).not.toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 300, indication: 'vte', adultConfirmed: true })).not.toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 19.9, indication: 'vte', adultConfirmed: true })).toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 300.1, indication: 'vte', adultConfirmed: true })).toThrow()
   })
 
   it('rejects invalid weight and unsupported indication', () => {
-    expect(() => calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 0, indication: 'vte' })).toThrow()
-    expect(() => calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 301, indication: 'vte' })).toThrow()
-    expect(() => calculateUFHInitialDosing({ adultConfirmed: true, actualBodyWeightKg: 70, indication: 'stroke' as 'vte' })).toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 0, indication: 'vte', adultConfirmed: true })).toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 301, indication: 'vte', adultConfirmed: true })).toThrow()
+    expect(() => calculateUFHInitialDosing({ bodyWeightKg: 70, indication: 'stroke' as 'vte', adultConfirmed: true })).toThrow()
   })
 })
