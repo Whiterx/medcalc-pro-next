@@ -45,10 +45,14 @@ function scoreSpO2(value: number, scale: NEWS2SpO2Scale, oxygen: boolean): numbe
     if (value <= 95) return 1
     return 0
   }
+
+  // NEWS2 Scale 2 is conditional on whether the patient is breathing air or receiving oxygen.
+  // On air, SpO2 >=93% scores 0; on supplemental oxygen, 93–94/95–96/>=97 score 1/2/3.
   if (value <= 83) return 3
   if (value <= 85) return 2
   if (value <= 87) return 1
   if (value <= 92) return 0
+  if (!oxygen) return 0
   if (value <= 94) return 1
   if (value <= 96) return 2
   return 3
