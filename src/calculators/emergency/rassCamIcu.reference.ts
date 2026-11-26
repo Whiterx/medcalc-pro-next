@@ -1,0 +1,22 @@
+export const RASS_CAM_ICU_REFERENCE = {
+  title: 'Richmond Agitation-Sedation Scale (RASS) and Confusion Assessment Method for the ICU (CAM-ICU)',
+  rassSource: 'Sessler CN et al. The Richmond Agitation-Sedation Scale: validity and reliability in adult intensive care unit patients. Am J Respir Crit Care Med. 2002;166:1338–1344.',
+  rassUrl: 'https://pubmed.ncbi.nlm.nih.gov/12421743/',
+  camIcuSource: 'Ely EW et al. Delirium in Mechanically Ventilated Patients: Validity and Reliability of the CAM-ICU. JAMA. 2001;286:2703–2710.',
+  camIcuUrl: 'https://jamanetwork.com/journals/jama/fullarticle/194422',
+  worksheetSource: 'Society of Critical Care Medicine — CAM-ICU Worksheet',
+  worksheetUrl: 'https://www.sccm.org/getmedia/211b7ea6-df63-4944-97d3-c6364cc36a42/Delirium-CAM-ICU-Assessment-Tool.pdf',
+  guideline: 'SCCM PADIS Guidelines (2018) and Focused Update (2025)',
+  guidelineUrl: 'https://www.sccm.org/clinical-resources/guidelines/guidelines/focused-update-padis-guideline',
+  accessed: '2026-11-26',
+  notes: [
+    'RASS — 10-уровневая шкала от +4 (агрессивное поведение) до −5 (не пробуждается). Оценку выполняют последовательно: наблюдение, голосовая стимуляция, при отсутствии ответа — физическая стимуляция.',
+    'CAM-ICU положителен при наличии признаков 1 и 2 и хотя бы одного из признаков 3 или 4: острое изменение/флуктуация; невнимательность; изменённый уровень сознания; дезорганизованное мышление.',
+    'В CAM-ICU Feature 2 считается положительным при >2 ошибках в стандартизированном тесте внимания; Feature 4 — при >1 суммарной ошибке в стандартизированных вопросах/команде. Этот интерфейс фиксирует количество ошибок, полученное при выполнении официальной методики, но не воспроизводит сами тестовые стимулы и вопросы.',
+    'Feature 3 определяется автоматически: RASS, отличный от 0, означает изменённый уровень сознания.',
+    'При RASS −4 или −5 CAM-ICU не оценивается из-за невозможности разбудить пациента для выполнения тестов. Это статус «не подлежит оценке», а не отрицательный CAM-ICU; оценку повторяют после изменения уровня сознания.',
+    'CAM-ICU предназначен для пациентов ОРИТ, в том числе находящихся на ИВЛ. Нельзя использовать упрощённый алгоритм как замену обучению, официальному flowsheet и стандартизированному тестированию.',
+    'RASS описывает уровень возбуждения/седации, но сам по себе не задаёт целевую глубину седации и не является рекомендацией изменить дозу препарата. Цель седации определяется клинической задачей и локальным протоколом.',
+    'Образовательный инструмент для взрослых пациентов ОРИТ. Не является самостоятельной диагностикой причины делирия и не назначает медикаментозное лечение.',
+  ],
+} as const
