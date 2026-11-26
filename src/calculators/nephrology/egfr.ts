@@ -38,28 +38,18 @@ export function calculateEGFR2021(input: EGFRInput): EGFRResult {
     Math.pow(0.9938, input.ageYears) *
     sexFactor
 
-  let category: EGFRCategory
-  let categoryLabel: string
-
-  if (value >= 90) {
-    category = 'G1'
-    categoryLabel = 'G1 — нормальная или высокая расчётная СКФ'
-  } else if (value >= 60) {
-    category = 'G2'
-    categoryLabel = 'G2 — незначительно сниженная расчётная СКФ'
-  } else if (value >= 45) {
-    category = 'G3a'
-    categoryLabel = 'G3a — умеренно сниженная расчётная СКФ'
-  } else if (value >= 30) {
-    category = 'G3b'
-    categoryLabel = 'G3b — умеренно и значительно сниженная расчётная СКФ'
-  } else if (value >= 15) {
-    category = 'G4'
-    categoryLabel = 'G4 — резко сниженная расчётная СКФ'
-  } else {
-    category = 'G5'
-    categoryLabel = 'G5 — почечная недостаточность по категории СКФ'
-  }
-
+  const { category, categoryLabel } = classifyEGFRCategory(value)
   return { value, creatinineMgDl, category, categoryLabel }
+}
+
+export function classifyEGFRCategory(value: number): Pick<EGFRResult, 'category' | 'categoryLabel'> {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error('Значение СКФ должно быть конечным неотрицательным числом.')
+  }
+  if (value >= 90) return { category: 'G1', categoryLabel: 'G1 — нормальная или высокая расчётная СКФ' }
+  if (value >= 60) return { category: 'G2', categoryLabel: 'G2 — незначительно сниженная расчётная СКФ' }
+  if (value >= 45) return { category: 'G3a', categoryLabel: 'G3a — умеренно сниженная расчётная СКФ' }
+  if (value >= 30) return { category: 'G3b', categoryLabel: 'G3b — умеренно и значительно сниженная расчётная СКФ' }
+  if (value >= 15) return { category: 'G4', categoryLabel: 'G4 — резко сниженная расчётная СКФ' }
+  return { category: 'G5', categoryLabel: 'G5 — почечная недостаточность по категории СКФ' }
 }
