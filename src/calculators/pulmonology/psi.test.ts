@@ -81,6 +81,17 @@ describe('calculatePSI', () => {
     expect(result.riskClass).toBe('V')
   })
 
+  it('does not require or substitute step-two laboratory values for class I, but requires them for classes II–V', () => {
+    const stepOneOnly = {
+      age: 50, respiratoryRate: 20, systolicBP: 120, heartRate: 80, temperatureC: 37,
+      nursingHome: false, neoplasticDisease: false, liverDisease: false, heartFailure: false,
+      cerebrovascularDisease: false, renalDisease: false, alteredMentalStatus: false,
+      hypoxemia: false, pleuralEffusion: false,
+    }
+    expect(calculatePSI(stepOneOnly).riskClass).toBe('I')
+    expect(() => calculatePSI({ ...stepOneOnly, age: 51 })).toThrow()
+  })
+
   it('rejects invalid values and non-integer demographic/vital inputs', () => {
     expect(() => calc({ age: 17 })).toThrow()
     expect(() => calc({ age: 121 })).toThrow()
