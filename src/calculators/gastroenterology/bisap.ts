@@ -36,11 +36,11 @@ export function calculateBISAP(input: BISAPInput): BISAPResult {
   }
 
   const flags = {
-    bunAbove25: flags.bunAbove25 as boolean,
-    impairedMentalStatus: flags.impairedMentalStatus as boolean,
-    sirs: flags.sirs as boolean,
-    ageAbove60: flags.ageAbove60 as boolean,
-    pleuralEffusion: flags.pleuralEffusion as boolean,
+    bunAbove25: input.bunAbove25 as boolean,
+    impairedMentalStatus: input.impairedMentalStatus as boolean,
+    sirs: input.sirs as boolean,
+    ageAbove60: input.ageAbove60 as boolean,
+    pleuralEffusion: input.pleuralEffusion as boolean,
   }
 
   const criteria: BISAPCriterion[] = [
