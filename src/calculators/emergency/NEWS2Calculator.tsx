@@ -5,9 +5,9 @@ import { calculateNEWS2, type NEWS2Input, type NEWS2Result } from './news2'
 import { NEWS2_REFERENCE } from './news2.reference'
 
 const initialValues = {
-  respiratoryRate: '16', spo2: '98', spo2Scale: '1' as '1' | '2',
-  supplementalOxygen: 'no' as 'no' | 'yes', systolicBP: '120', pulse: '80',
-  temperature: '37.0', consciousness: 'alert' as NEWS2Input['consciousness'],
+  respiratoryRate: '', spo2: '', spo2Scale: '' as '' | '1' | '2',
+  supplementalOxygen: '' as '' | 'no' | 'yes', systolicBP: '', pulse: '',
+  temperature: '', consciousness: '' as '' | NEWS2Input['consciousness'],
 }
 
 function NumberField({ label, unit, value, onChange, min, max, step = '1' }: {
@@ -15,7 +15,7 @@ function NumberField({ label, unit, value, onChange, min, max, step = '1' }: {
   min: number; max: number; step?: string
 }) {
   return <label className="calc-field"><span>{label} <small>{unit}</small></span>
-    <input type="number" inputMode="decimal" min={min} max={max} step={step} value={value} onChange={(event) => onChange(event.target.value)} required />
+    <input type="number" inputMode="decimal" min={min} max={max} step={step} placeholder={`Введите значение`} value={value} onChange={(event) => onChange(event.target.value)} required />
   </label>
 }
 
@@ -38,6 +38,11 @@ export default function NEWS2Calculator() {
 
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (Object.values(values).some((value) => value.trim() === '')) {
+      setError('Заполните все числовые поля и выберите значения для шкалы SpO₂, кислородной поддержки и уровня сознания.')
+      setResult(null)
+      return
+    }
     const numeric = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse, values.temperature].map(Number)
     if (numeric.some((value) => !Number.isFinite(value)) ||
       Number(values.respiratoryRate) < 0 || Number(values.respiratoryRate) > 100 ||
@@ -93,25 +98,29 @@ export default function NEWS2Calculator() {
             <div className="panel-heading"><div><span className="panel-kicker">ОЦЕНКА ОКСИГЕНАЦИИ</span><h2>Кислородная поддержка</h2></div></div>
             <div className="field-grid">
               <label className="calc-field"><span>Шкала SpO₂</span>
-                <select value={values.spo2Scale} onChange={(e) => update('spo2Scale', e.target.value as '1' | '2')}>
+                <select required value={values.spo2Scale} onChange={(e) => update('spo2Scale', e.target.value as '1' | '2')}>
+                  <option value="">Выберите шкалу</option>
                   <option value="1">Шкала 1 — стандартная</option>
                   <option value="2">Шкала 2 — целевая SpO₂ 88–92%</option>
                 </select>
               </label>
               <label className="calc-field"><span>Дополнительный кислород</span>
-                <select value={values.supplementalOxygen} onChange={(e) => update('supplementalOxygen', e.target.value as 'no' | 'yes')}>
+                <select required value={values.supplementalOxygen} onChange={(e) => update('supplementalOxygen', e.target.value as 'no' | 'yes')}>
+                  <option value="">Укажите вариант</option>
                   <option value="no">Нет — дыхание воздухом</option>
                   <option value="yes">Да — получает кислород</option>
                 </select>
               </label>
             </div>
+            <p className="field-hint">Все параметры и варианты кислородной поддержки необходимо указать вручную — калькулятор не подставляет значения пациента автоматически.</p>
             {values.spo2Scale === '2' && <p className="clinical-warning"><ShieldAlert size={14} /> Шкалу 2 применять только по решению квалифицированного специалиста при подтверждённой гиперкапнической дыхательной недостаточности и целевой SpO₂ 88–92%. Само наличие ХОБЛ не является достаточным основанием.</p>}
           </div>
 
           <div className="news2-section">
             <div className="panel-heading"><div><span className="panel-kicker">НЕВРОЛОГИЧЕСКИЙ СТАТУС</span><h2>Сознание (ACVPU)</h2></div><span className="points-label">0 или 3 балла</span></div>
             <label className="calc-field"><span>Уровень сознания</span>
-              <select value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
+              <select required value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
+                <option value="">Выберите состояние</option>
                 <option value="alert">A — бодрствует / обычное состояние (0)</option>
                 <option value="new-confusion">Новое спутанное сознание (3)</option>
                 <option value="voice">V — реагирует на голос (3)</option>
