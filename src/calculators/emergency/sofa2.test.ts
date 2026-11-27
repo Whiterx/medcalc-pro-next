@@ -26,7 +26,7 @@ describe('SOFA-2 respiratory thresholds',()=>{
   it('scores respiratory ECMO as 4 regardless of ratio',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true,ecmoForCardiovascularIndication:false}).points).toBe(4)
   })
-  it('scores VA-ECMO for cardiovascular indication in both components',()=>{
+  it('scores ECMO for cardiovascular indication in both components',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,ecmoForCardiovascularIndication:true}).points).toBe(4)
     expect(scoreSOFA2Cardiovascular({map:null,vasoactiveAvailability:'available',dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:true})).toBe(4)
   })
@@ -86,6 +86,10 @@ describe('SOFA-2 brain',()=>{
     expect(scoreSOFA2Brain({gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:true})).toBe(1)
     expect(scoreSOFA2Brain({gcs:null,motorScore:null,preSedationGcsUnknown:true,deliriumMedication:true})).toBe(1)
   })
+  it('maps every best motor response to its SOFA-2 brain category',()=>{
+    const motor:[number,number][]=[[6,0],[5,1],[4,2],[3,3],[2,4],[1,4]]
+    motor.forEach(([motorScore,expected])=>expect(scoreSOFA2Brain({gcs:null,motorScore,preSedationGcsUnknown:false,deliriumMedication:false})).toBe(expected))
+  })
   it('uses motor response if full GCS unavailable and 0 if pre-sedation GCS unknown',()=>{
     expect(scoreSOFA2Brain({gcs:null,motorScore:5,preSedationGcsUnknown:false,deliriumMedication:false})).toBe(1)
     expect(scoreSOFA2Brain({gcs:null,motorScore:null,preSedationGcsUnknown:true,deliriumMedication:false})).toBe(0)
@@ -101,6 +105,8 @@ describe('SOFA-2 kidney',()=>{
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6-12'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'6-12'})).toBe(0)
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'12+'})).toBe(0)
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.3,urineOutputDuration:'24+'})).toBe(2)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'12+'})).toBe(2)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.49,urineOutputDuration:'24+'})).toBe(2)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.29,urineOutputDuration:'24+'})).toBe(3)
@@ -119,6 +125,7 @@ describe('SOFA-2 kidney',()=>{
     expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:7.21,bicarbonate:12})).toBe(1)
     expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.29,urineOutputDuration:'6-12',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(4)
     expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.29,urineOutputDuration:'6',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(1)
+    expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.3,urineOutputDuration:'6-12',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(1)
   })
   it('returns NT if RRT criteria may be met but required biochemical data are incomplete',()=>{
     expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:null,ph:null,bicarbonate:null})).toBeNull()
