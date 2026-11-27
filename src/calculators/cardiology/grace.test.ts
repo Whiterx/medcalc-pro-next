@@ -5,7 +5,7 @@ const base: GRACEInput = {
   ageYears: 30,
   heartRate: 50,
   systolicBP: 200,
-  creatinineUmolL: 0,
+  creatinineUmolL: 1,
   killipClass: 1,
   cardiacArrestAtAdmission: false,
   stSegmentDeviation: false,
