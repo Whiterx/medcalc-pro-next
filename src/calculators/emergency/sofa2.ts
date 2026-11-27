@@ -8,7 +8,7 @@ export interface SOFA2Input {
   platelets: number;
   bilirubin: number;
   map: number | null;
-  vasoactiveAvailability: 'available' | 'unavailable' | 'ceiling';
+  vasoactiveAvailability: 'available' | 'unavailable' | 'ceiling' | '';
   dopamineDose: number | null;
   vaEcmoForCardiovascularFailure: boolean;
   norepinephrineDose: number;
@@ -87,7 +87,8 @@ export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'vasoactive
   if (input.vasoactiveAvailability === 'unavailable' || input.vasoactiveAvailability === 'ceiling') {
     return input.map >= 70 ? 0 : input.map >= 60 ? 1 : input.map >= 50 ? 2 : input.map >= 40 ? 3 : 4;
   }
-  return input.map < 70 ? 1 : 0;
+  if (input.vasoactiveAvailability === 'available') return input.map < 70 ? 1 : 0;
+  return null;
 }
 export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSedationGcsUnknown'|'deliriumMedication'>):number|null {
   const observed=input.gcs ?? input.motorScore;

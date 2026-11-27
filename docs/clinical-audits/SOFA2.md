@@ -108,3 +108,10 @@ CI #507: 50 файлов тестов, 590 тестов пройдены; produc
 
 
 CI #510: unit tests passed, TypeScript/build failed due to a missing parenthesis in the newly extended renal input-range validation. The syntax is corrected; the same review also ensures that current/chronic or ongoing intermittent RRT does not require separate creatinine/urine inputs to assign the published 4-point kidney score. New CI pending.
+
+
+### Начальные состояния и доступность вазоактивной терапии
+
+Поле доступности вазоактивной терапии ранее имело предвыбранное значение «Доступна». Это не измеряемый параметр, а клинический контекст, который нельзя предполагать. Значение удалено из начального состояния; выбор обязателен, а расчётное ядро возвращает NT для MAP-компонента, если препараты не применяются и доступность терапии не указана. Добавлен тест отсутствующего выбора.
+
+CI #512: 50 файлов тестов, 596 тестов пройдены; TypeScript, production build и GitHub Pages deploy успешны. Последующее изменение начального состояния доступности вазоактивной терапии ожидает нового CI.

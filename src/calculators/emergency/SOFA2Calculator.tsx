@@ -8,7 +8,7 @@ const initial = {
   pao2:'', spo2:'', fio2:'', respiratorySupport:'', ecmo:'', platelets:'', bilirubin:'', map:'',
   norepinephrineEnabled:false, norepinephrineDose:'', epinephrineEnabled:false, epinephrineDose:'',
   dopamineEnabled:false, dopamineDose:'', otherVasoactive:false, mechanicalSupport:false, vaEcmo:false,
-  vasoactiveAvailability:'available', vasoactiveDurationConfirmed:false,
+  vasoactiveAvailability:'', vasoactiveDurationConfirmed:false,
   gcs:'', motorScore:'', preSedationUnknown:false, deliriumMedication:false,
   creatinine:'', urineRate:'', urineDuration:'', rrtStatus:'', potassium:'', ph:'', bicarbonate:'',
 }
@@ -142,7 +142,7 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>3. Печень</h3><NumberField label="Общий билирубин" unit="мкмоль/л" value={values.bilirubin} onChange={v=>update('bilirubin',v)} min={0} max={2000} step="0.1"/></section>
         <section className="sofa-section"><h3>4. Сердечно-сосудистая система</h3>
           <NumberField label="Среднее АД (MAP)" unit={hasCardiovascularSupport?'мм рт. ст. · не требуется при поддержке':'мм рт. ст. · обязательно без поддержки'} value={values.map} onChange={v=>update('map',v)} min={1} max={250}/>
-          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
+          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select required value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="">Не выбрано</option><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
           <div className="field-grid"><label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={e=>updateVasoactiveFlag('norepinephrineEnabled',e.target.checked)}/> Норэпинефрин</label><label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={e=>updateVasoactiveFlag('epinephrineEnabled',e.target.checked)}/> Эпинефрин</label></div>
           {values.norepinephrineEnabled&&<NumberField label="Доза норэпинефрина (в пересчёте на основание)" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={v=>update('norepinephrineDose',v)} min={0.01} step="any"/>}
           {values.epinephrineEnabled&&<NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={v=>update('epinephrineDose',v)} min={0.01} step="any"/>}

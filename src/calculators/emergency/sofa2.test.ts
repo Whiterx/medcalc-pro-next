@@ -70,6 +70,9 @@ describe('SOFA-2 cardiovascular',()=>{
     expect(score(40,'ceiling')).toBe(3)
     expect(score(39,'ceiling')).toBe(4)
   })
+  it('does not assume vasoactive therapy is available when status is not selected',()=>{
+    expect(scoreSOFA2Cardiovascular({...base,vasoactiveAvailability:''})).toBeNull()
+  })
   it('uses MAP only when no vasoactive support is used and treats missing MAP as untestable',()=>{
     expect(scoreSOFA2Cardiovascular({...base,map:69})).toBe(1)
     expect(scoreSOFA2Cardiovascular({...base,map:null})).toBeNull()
