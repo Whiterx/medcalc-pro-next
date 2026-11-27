@@ -141,6 +141,15 @@ describe('calculateSOFA2',()=>{
   it('returns 0 for normal parameters',()=>expect(calculateSOFA2(normal).total).toBe(0))
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
   it('returns null total when MAP is missing without cardiovascular support',()=>expect(calculateSOFA2({...normal,map:null}).total).toBeNull())
+  it('shows the dopamine dose in the cardiovascular result detail',()=>{
+    expect(calculateSOFA2({...normal,dopamineDose:10}).components.find(c=>c.key==='cardiovascular')?.detail).toContain('Дофамин: 10')
+  })
+  it('shows cardiovascular ECMO in the cardiovascular result detail',()=>{
+    expect(calculateSOFA2({...normal,ecmoForCardiovascularIndication:true,mechanicalCirculatorySupport:false,map:null}).components.find(c=>c.key==='cardiovascular')?.detail).toContain('ECMO по сердечно-сосудистым показаниям')
+  })
+  it('shows whether RRT criteria are met when RRT is unavailable or delayed',()=>{
+    expect(calculateSOFA2({...normal,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:6}).components.find(c=>c.key==='kidney')?.detail).toContain('Критерии RRT выполнены')
+  })
   it('scores cardiovascular-indication ECMO as 4 in both respiratory and cardiovascular systems',()=>{
     const result=calculateSOFA2({...normal,ecmoForCardiovascularIndication:true,mechanicalCirculatorySupport:false,map:null})
     expect(result.components.find(c=>c.key==='respiratory')?.points).toBe(4)

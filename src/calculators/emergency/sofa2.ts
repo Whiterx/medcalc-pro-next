@@ -132,12 +132,26 @@ export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
   const liver=scoreSOFA2Liver(input.bilirubin);
   const kidney=scoreSOFA2Kidney(input);
   const hemostasis=scoreSOFA2Hemostasis(input.platelets);
+  const catecholamineSum=input.norepinephrineDose+input.epinephrineDose;
+  const cardiovascularDetail=[
+    input.ecmoForCardiovascularIndication?'ECMO по сердечно-сосудистым показаниям':'',
+    input.mechanicalCirculatorySupport&&!input.ecmoForCardiovascularIndication?'Механическая поддержка кровообращения':'',
+    input.map!==null?`MAP: ${input.map} мм рт. ст.`:'',
+    catecholamineSum>0?`Сумма норэпинефрина и эпинефрина: ${catecholamineSum.toFixed(3)} мкг/кг/мин`:'',
+    input.dopamineDose!==null?`Дофамин: ${input.dopamineDose} мкг/кг/мин`:'',
+    input.otherVasoactiveOrInotrope?'Другой вазопрессор/инотроп':''
+  ].filter(Boolean).join('; ')||'Недостаточно данных для оценки сердечно-сосудистой системы';
+  const kidneyDetail=input.rrtStatus==='receiving'?'Проводится RRT (4 балла)':
+    input.rrtStatus==='intermittentOffDay'?'Интермиттирующий курс RRT продолжается; день без процедуры (4 балла)':
+    input.rrtStatus==='nonrenalOnly'?'RRT проводится исключительно по непочечным показаниям; она не учитывается как почечная RRT':
+    input.rrtStatus==='unavailableOrDelayed'?(kidney===null?'Недостаточно данных для проверки критериев RRT':kidney===4?'Критерии RRT выполнены (4 балла)':'Критерии RRT не выполнены; оценка по креатинину и диурезу'):
+    [input.creatinine!==null?`Креатинин: ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`Диурез: ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')||'Недостаточно данных для оценки почечной системы';
   const components:SOFA2Component[]=[
     {key:'brain',label:'Головной мозг',points:brain,detail:input.gcs!==null?`GCS: ${input.gcs}`:input.motorScore!==null?`Лучшая двигательная реакция: ${input.motorScore}`:input.preSedationGcsUnknown?'GCS до седации неизвестна; по правилу SOFA-2 — 0':'Невозможно оценить GCS и двигательную реакцию'},
     {key:'respiratory',label:'Дыхательная система',points:respiratory.points,detail:(input.ecmoForRespiratoryFailure||input.ecmoForCardiovascularIndication)?'ECMO при дыхательной или сердечно-сосудистой недостаточности':respiratory.ratio===null?'Недостаточно данных для расчёта отношения':`${respiratory.type}: ${respiratory.ratio.toFixed(1)}`},
-    {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:`MAP ${input.map === null ? 'не указан' : `${input.map} мм рт. ст.`}; сумма норэпинефрина и эпинефрина ${(input.norepinephrineDose+input.epinephrineDose).toFixed(3)} мкг/кг/мин`},
+    {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:cardiovascularDetail},
     {key:'liver',label:'Печень',points:liver,detail:`Общий билирубин: ${input.bilirubin} мкмоль/л`},
-    {key:'kidney',label:'Почки',points:kidney,detail:input.rrtStatus==='receiving'||input.rrtStatus==='intermittentOffDay'?'Проводится/продолжается заместительная почечная терапия':input.rrtStatus==='unavailableOrDelayed'?'RRT не проводится: оценены критерии её необходимости':input.rrtStatus==='nonrenalOnly'?'RRT проводится исключительно по непочечным показаниям':[input.creatinine!==null?`креатинин ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`диурез ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')},
+    {key:'kidney',label:'Почки',points:kidney,detail:kidneyDetail},
     {key:'hemostasis',label:'Гемостаз',points:hemostasis,detail:`Тромбоциты: ${input.platelets} ×10⁹/л`},
   ];
   const hasUntestableComponent=components.some(c=>c.points===null);
