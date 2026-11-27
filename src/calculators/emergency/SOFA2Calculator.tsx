@@ -7,7 +7,7 @@ import { SOFA2_REFERENCE } from './sofa2.reference'
 const initial = {
   pao2:'', spo2:'', fio2:'', respiratorySupport:'', ecmo:'', platelets:'', bilirubin:'', map:'',
   norepinephrineEnabled:false, norepinephrineDose:'', epinephrineEnabled:false, epinephrineDose:'',
-  dopamineEnabled:false, dopamineDose:'', otherVasoactive:false, mechanicalSupport:false, vaEcmo:false,
+  dopamineEnabled:false, dopamineDose:'', otherVasoactive:false, mechanicalSupport:false, cardiovascularEcmo:false,
   vasoactiveAvailability:'', vasoactiveDurationConfirmed:false,
   gcs:'', motorScore:'', preSedationUnknown:false, deliriumMedication:false,
   creatinine:'', urineRate:'', urineDuration:'', rrtStatus:'', potassium:'', ph:'', bicarbonate:'',
@@ -21,7 +21,7 @@ export default function SOFA2Calculator() {
   const [result,setResult]=useState<SOFA2Result|null>(null)
   const [error,setError]=useState('')
   const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.dopamineEnabled||values.otherVasoactive
-  const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.vaEcmo
+  const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.cardiovascularEcmo
   function update<K extends keyof Values>(key:K,value:Values[K]) {
     setValues(current=>({...current,[key]:value,...((key==='norepinephrineDose'||key==='epinephrineDose'||key==='dopamineDose')?{vasoactiveDurationConfirmed:false}:{})})); setResult(null); setError('')
   }
@@ -46,9 +46,9 @@ export default function SOFA2Calculator() {
   function handleCalculate(event:FormEvent<HTMLFormElement>){
     event.preventDefault()
     const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.dopamineEnabled||values.otherVasoactive
-    const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.vaEcmo
-    if((values.ecmo!=='yes'&&!values.vaEcmo&&values.fio2==='')||(values.ecmo!=='yes'&&!values.vaEcmo&&values.respiratorySupport==='')||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
-      (values.ecmo!=='yes'&&!values.vaEcmo&&values.pao2===''&&values.spo2==='')||
+    const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.cardiovascularEcmo
+    if((values.ecmo!=='yes'&&!values.cardiovascularEcmo&&values.fio2==='')||(values.ecmo!=='yes'&&!values.cardiovascularEcmo&&values.respiratorySupport==='')||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
+      (values.ecmo!=='yes'&&!values.cardiovascularEcmo&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
       (values.creatinine===''&&values.urineRate===''&&!['receiving','intermittentOffDay'].includes(values.rrtStatus))){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
@@ -119,8 +119,8 @@ export default function SOFA2Calculator() {
       epinephrineDose:values.epinephrineEnabled?Number(values.epinephrineDose):0,
       dopamineDose:values.dopamineEnabled?Number(values.dopamineDose):null,
       vasoactiveAvailability:values.vasoactiveAvailability as SOFA2Input['vasoactiveAvailability'],
-      vaEcmoForCardiovascularFailure:values.vaEcmo,
-      otherVasoactiveOrInotrope:values.otherVasoactive,mechanicalCirculatorySupport:values.mechanicalSupport||values.vaEcmo,
+      cardiovascularEcmoForCardiovascularFailure:values.cardiovascularEcmo,
+      otherVasoactiveOrInotrope:values.otherVasoactive,mechanicalCirculatorySupport:values.mechanicalSupport||values.cardiovascularEcmo,
       gcs:values.gcs===''?null:Number(values.gcs),motorScore:values.motorScore===''?null:Number(values.motorScore),
       preSedationGcsUnknown:values.preSedationUnknown,deliriumMedication:values.deliriumMedication,
       creatinine:values.creatinine===''?null:Number(values.creatinine),
@@ -138,7 +138,7 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>1. Дыхательная система</h3>
           <div className="field-grid"><NumberField label="PaO₂" unit="мм рт. ст. · предпочтительно" value={values.pao2} onChange={v=>update('pao2',v)} min={1} max={800}/><NumberField label="SpO₂" unit="% · только если PaO₂ недоступно" value={values.spo2} onChange={v=>update('spo2',v)} min={1} max={100}/></div>
           <NumberField label="FiO₂" unit="% · например, 40" value={values.fio2} onChange={v=>update('fio2',v)} min={21} max={100}/>
-          <label className="calc-field"><span>Респираторная поддержка</span><select required={values.ecmo!=='yes'&&!values.vaEcmo} value={values.respiratorySupport} onChange={e=>update('respiratorySupport',e.target.value)}><option value="">Выберите</option><option value="none">Нет</option><option value="advanced">HFNC / CPAP / BiPAP / NIV / ИВЛ / домашняя вентиляция</option><option value="unavailable">Поддержка недоступна (ресурсное ограничение)</option><option value="ceiling">Поддержка ограничена целями лечения</option></select></label>
+          <label className="calc-field"><span>Респираторная поддержка</span><select required={values.ecmo!=='yes'&&!values.cardiovascularEcmo} value={values.respiratorySupport} onChange={e=>update('respiratorySupport',e.target.value)}><option value="">Выберите</option><option value="none">Нет</option><option value="advanced">HFNC / CPAP / BiPAP / NIV / ИВЛ / домашняя вентиляция</option><option value="unavailable">Поддержка недоступна (ресурсное ограничение)</option><option value="ceiling">Поддержка ограничена целями лечения</option></select></label>
           <label className="sofa-check"><input type="checkbox" checked={values.ecmo==='yes'} onChange={e=>update('ecmo',e.target.checked?'yes':'no')}/> ECMO при дыхательной недостаточности</label>
           <p className="field-hint">SpO₂/FiO₂ можно использовать только при отсутствии PaO₂/FiO₂ и SpO₂ &lt;98%. Без расширенной поддержки обычно максимум 2 балла; при недоступности поддержки или ограничении уровня лечения оценка определяется отношением. ECMO при дыхательной недостаточности — 4 балла.</p>
         </section>
@@ -146,7 +146,7 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>3. Печень</h3><NumberField label="Общий билирубин" unit="мкмоль/л" value={values.bilirubin} onChange={v=>update('bilirubin',v)} min={0} max={2000} step="0.1"/></section>
         <section className="sofa-section"><h3>4. Сердечно-сосудистая система</h3>
           <NumberField label="Среднее АД (MAP)" unit={hasCardiovascularSupport?'мм рт. ст. · не требуется при поддержке':'мм рт. ст. · обязательно без поддержки'} value={values.map} onChange={v=>update('map',v)} min={1} max={250}/>
-          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select required={!hasVasoactiveMedication&&!values.mechanicalSupport&&!values.vaEcmo} value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="">Не выбрано</option><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
+          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select required={!hasVasoactiveMedication&&!values.mechanicalSupport&&!values.cardiovascularEcmo} value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="">Не выбрано</option><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
           <div className="field-grid"><label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={e=>updateVasoactiveFlag('norepinephrineEnabled',e.target.checked)}/> Норэпинефрин</label><label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={e=>updateVasoactiveFlag('epinephrineEnabled',e.target.checked)}/> Эпинефрин</label></div>
           {values.norepinephrineEnabled&&<NumberField label="Доза норэпинефрина (в пересчёте на основание)" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={v=>update('norepinephrineDose',v)} min={0.01} step="any"/>}
           {values.epinephrineEnabled&&<NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={v=>update('epinephrineDose',v)} min={0.01} step="any"/>}
@@ -154,7 +154,7 @@ export default function SOFA2Calculator() {
           {values.dopamineEnabled&&<NumberField label="Доза дофамина" unit="мкг/кг/мин" value={values.dopamineDose} onChange={v=>update('dopamineDose',v)} min={0.01} step="any"/>}
           <label className="sofa-check"><input type="checkbox" checked={values.otherVasoactive} onChange={e=>updateVasoactiveFlag('otherVasoactive',e.target.checked)}/> Другой вазопрессор или инотроп (любая доза)</label>
           {hasVasoactiveMedication&&<label className="sofa-check"><input type="checkbox" checked={values.vasoactiveDurationConfirmed} onChange={e=>update('vasoactiveDurationConfirmed',e.target.checked)}/> Подтверждаю: непрерывная внутривенная инфузия вазоактивных препаратов длилась не менее 1 часа</label>}
-          <label className="sofa-check"><input type="checkbox" checked={values.vaEcmo} onChange={e=>update('vaEcmo',e.target.checked)}/> VA-ECMO по сердечно-сосудистым показаниям (учитывается в обоих компонентах)</label>
+          <label className="sofa-check"><input type="checkbox" checked={values.cardiovascularEcmo} onChange={e=>update('cardiovascularEcmo',e.target.checked)}/> ECMO по сердечно-сосудистым показаниям (любой тип; учитывается в обоих компонентах)</label>
           <label className="sofa-check"><input type="checkbox" checked={values.mechanicalSupport} onChange={e=>update('mechanicalSupport',e.target.checked)}/> Другая механическая поддержка кровообращения (ВАБК / VAD / microaxial pump)</label>
           <p className="field-hint">Суммируются дозы норэпинефрина и эпинефрина в пересчёте на основание. Для дофамина применяются отдельные пороги только при его использовании как единственного вазопрессора. VA-ECMO по сердечно-сосудистым показаниям даёт 4 балла и дыхательной, и сердечно-сосудистой системам. VV-ECMO учитывается в дыхательной системе.</p>
         </section>
