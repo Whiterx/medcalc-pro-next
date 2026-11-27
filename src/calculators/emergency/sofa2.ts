@@ -97,6 +97,9 @@ export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSed
 export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'receivingRRT'>):number|null {
   if (input.receivingRRT) return 4;
   if (input.creatinine === null && input.urineOutputMlKgH === null) return null;
+  if ((input.urineOutputMlKgH === null && input.urineOutputDuration !== 'none') ||
+      (input.urineOutputMlKgH !== null && input.urineOutputDuration === 'none') ||
+      (input.urineOutputDuration === 'anuria12' && input.urineOutputMlKgH !== 0)) return null;
   let score=0;
   if (input.creatinine !== null) score=Math.max(score,
     input.creatinine > 300 ? 3 : input.creatinine > 170 ? 2 : input.creatinine > 110 ? 1 : 0);

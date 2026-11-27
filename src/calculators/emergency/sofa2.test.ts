@@ -11,8 +11,8 @@ describe('SOFA-2 respiratory thresholds',()=>{
     expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'ceiling',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(4)
   })
   it('uses SpO2/FiO2 only when SpO2 is below 98 and PaO2 is unavailable',()=>{
-    expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:97,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBe(3)
-    expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:98,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBeNull()
+    expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:97,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(3)
+    expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:98,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBeNull()
   })
   it('checks SpO2/FiO2 boundaries at 300, 250, 200 and 120',()=>{
     const score=(spo2:number,fio2:number,support:'advanced'|'none'|'ceiling'='advanced')=>scoreSOFA2Respiratory({pao2:null,fio2,spo2,respiratorySupport:support,ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points

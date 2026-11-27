@@ -43,8 +43,8 @@ export default function SOFA2Calculator() {
     event.preventDefault()
     const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.dopamineEnabled||values.otherVasoactive
     const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.vaEcmo
-    if((values.ecmo!=='yes'&&values.fio2==='')||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
-      (values.ecmo!=='yes'&&values.pao2===''&&values.spo2==='')||
+    if((values.ecmo!=='yes'&&!values.vaEcmo&&values.fio2==='')||(values.ecmo!=='yes'&&!values.vaEcmo&&values.respiratorySupport==='')||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
+      (values.ecmo!=='yes'&&!values.vaEcmo&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
       (values.creatinine===''&&values.urineRate===''&&!values.rrt)){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
@@ -75,7 +75,7 @@ export default function SOFA2Calculator() {
       (values.dopamineEnabled&&Number(values.dopamineDose)<=0)||
       (values.creatinine!==''&&(Number(values.creatinine)<1||Number(values.creatinine)>3000))||
       (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20))){
-      setError('Проверьте диапазоны и точность введённых значений. Дозы норэпинефрина/эпинефрина должны быть больше 0 мкг/кг/мин.');setResult(null);return
+      setError('Проверьте диапазоны и точность введённых значений. Дозы выбранных норэпинефрина, эпинефрина и дофамина должны быть больше 0 мкг/кг/мин.');setResult(null);return
     }
     if(values.gcs!==''&&values.motorScore!==''){
       setError('Укажите GCS или лучшую двигательную реакцию, но не оба значения одновременно.');setResult(null);return
@@ -127,7 +127,7 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>1. Дыхательная система</h3>
           <div className="field-grid"><NumberField label="PaO₂" unit="мм рт. ст. · предпочтительно" value={values.pao2} onChange={v=>update('pao2',v)} min={1} max={800}/><NumberField label="SpO₂" unit="% · только если PaO₂ недоступно" value={values.spo2} onChange={v=>update('spo2',v)} min={1} max={100}/></div>
           <NumberField label="FiO₂" unit="% · например, 40" value={values.fio2} onChange={v=>update('fio2',v)} min={21} max={100}/>
-          <label className="calc-field"><span>Респираторная поддержка</span><select required value={values.respiratorySupport} onChange={e=>update('respiratorySupport',e.target.value)}><option value="">Выберите</option><option value="none">Нет</option><option value="advanced">HFNC / CPAP / BiPAP / NIV / ИВЛ / домашняя вентиляция</option><option value="unavailable">Поддержка недоступна (ресурсное ограничение)</option><option value="ceiling">Поддержка ограничена целями лечения</option></select></label>
+          <label className="calc-field"><span>Респираторная поддержка</span><select required={values.ecmo!=='yes'&&!values.vaEcmo} value={values.respiratorySupport} onChange={e=>update('respiratorySupport',e.target.value)}><option value="">Выберите</option><option value="none">Нет</option><option value="advanced">HFNC / CPAP / BiPAP / NIV / ИВЛ / домашняя вентиляция</option><option value="unavailable">Поддержка недоступна (ресурсное ограничение)</option><option value="ceiling">Поддержка ограничена целями лечения</option></select></label>
           <label className="sofa-check"><input type="checkbox" checked={values.ecmo==='yes'} onChange={e=>update('ecmo',e.target.checked?'yes':'no')}/> ECMO при дыхательной недостаточности</label>
           <p className="field-hint">SpO₂/FiO₂ можно использовать только при отсутствии PaO₂/FiO₂ и SpO₂ &lt;98%. Без расширенной поддержки обычно максимум 2 балла; при недоступности поддержки или ограничении уровня лечения оценка определяется отношением. ECMO при дыхательной недостаточности — 4 балла.</p>
         </section>
