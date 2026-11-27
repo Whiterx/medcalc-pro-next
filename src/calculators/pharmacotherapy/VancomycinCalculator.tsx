@@ -39,7 +39,7 @@ export default function VancomycinCalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> НАЧАЛЬНЫЙ РАСЧЁТ ДОЗЫ У ВЗРОСЛЫХ</div>
         <h1>Ванкомицин</h1>
-        <p>Ориентировочные весовые диапазоны нагрузочной и начальной поддерживающей дозы с акцентом на AUC-мониторинг.</p>
+        <p>Справочные весовые диапазоны начальной дозы для взрослых при серьёзных инвазивных MRSA-инфекциях. Не рассчитывает индивидуальную поддерживающую схему или AUC.</p>
       </section>
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
@@ -61,8 +61,8 @@ export default function VancomycinCalculator() {
       {result && (
         <section className="result-panel" aria-live="polite">
           <div className="result-topline"><span className="panel-kicker">ОРИЕНТИРОВОЧНЫЕ ДИАПАЗОНЫ</span><span className="risk-tag risk-moderate">Не готовое назначение</span></div>
-          <div className="result-summary"><b>Нагрузочная доза: {Math.round(result.loadingDoseMinMg)}–{Math.round(result.loadingDoseMaxMg)} мг однократно</b><p>20–25 мг/кг фактической массы тела, максимальная доза 3000 мг.</p></div>
-          <div className="result-summary"><b>Начальная поддерживающая доза: {Math.round(result.maintenanceDoseMinMg)}–{Math.round(result.maintenanceDoseMaxMg)} мг на одно введение</b><p>15–20 мг/кг для большинства пациентов с нормальной функцией почек. Интервал не рассчитывается.</p></div>
+          <div className="result-summary"><b>Нагрузочная доза: {Math.round(result.loadingDoseMinMg)}–{Math.round(result.loadingDoseMaxMg)} мг однократно</b><p>Для серьёзных инвазивных MRSA-инфекций: 20–25 мг/кг фактической массы тела, максимум 3000 мг.</p></div>
+          <div className="result-summary"><b>Начальная поддерживающая доза: {Math.round(result.maintenanceDoseMinMg)}–{Math.round(result.maintenanceDoseMaxMg)} мг на одно введение</b><p>15–20 мг/кг на одно введение для большинства взрослых с нормальной функцией почек. Интервал не рассчитывается.</p></div>
           {result.loadingDoseCapped && <p className="field-hint">Нагрузочный диапазон ограничен максимальной дозой 3000 мг.</p>}
           <div className="threshold-panel"><h3>Мониторинг</h3><p>{result.aucTarget}</p><p>Целевое воздействие следует оценить в первые 24–48 часов. Используйте Bayesian-подход или две концентрации по локальному протоколу.</p></div>
           <p className="clinical-warning"><ShieldAlert size={14} /> Не назначайте интервал и последующие дозы только по этому расчёту. При ОПП, сниженной/нестабильной функции почек, ожирении, диализе или критическом состоянии требуется индивидуальный AUC-ориентированный подбор. Традиционная цель trough 15–20 мг/л для серьёзных MRSA-инфекций больше не рекомендуется.</p>
@@ -73,7 +73,7 @@ export default function VancomycinCalculator() {
         <a href={VANCOMYCIN_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">Открыть руководство IDSA ↗</a>
         <small><a href={VANCOMYCIN_REFERENCE.publicationUrl} target="_blank" rel="noreferrer">Публикация консенсуса 2020 ↗</a> Проверено: {VANCOMYCIN_REFERENCE.accessed}.</small>
       </section>
-      <p className="calculator-disclaimer">Образовательный расчёт начальных весовых диапазонов для взрослых. Не заменяет индивидуальный фармакокинетический подбор и мониторинг концентрации ванкомицина.</p>
+      <p className="calculator-disclaimer">Справочный расчёт начальных весовых диапазонов для взрослых при серьёзных инвазивных MRSA-инфекциях. Не является готовым назначением, не заменяет оценку показаний, функции почек, индивидуальный фармакокинетический подбор и AUC-мониторинг. Для других возбудителей и показаний целевой AUC из этого руководства автоматически не переносится.</p>
     </main>
   )
 }
