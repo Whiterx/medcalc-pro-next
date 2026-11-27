@@ -45,6 +45,18 @@ describe('SOFA cardiovascular thresholds', () => {
   it('scores dobutamine at any dose as 2', () => {
     expect(scoreCardiovascular({ ...base, dobutamine: true })).toBe(2)
   })
+  it('uses the highest cardiovascular score when multiple vasoactive agents are present', () => {
+    expect(scoreCardiovascular({
+      ...base, map: 60, dopamineDose: 2, dobutamine: true,
+      epinephrineDose: 0.2, norepinephrineDose: 0.05,
+    })).toBe(4)
+  })
+  it('does not award vasoactive points when status is none', () => {
+    expect(scoreCardiovascular({
+      ...base, vasoactiveStatus: 'none', dopamineDose: null, dobutamine: false,
+      epinephrineDose: null, norepinephrineDose: null,
+    })).toBe(0)
+  })
   const adrenergicCases: [number, number][] = [[0.005,3],[0.1,3],[0.11,4]]
   adrenergicCases.forEach(([dose, expected]) => {
     it(`epinephrine and norepinephrine ${dose} => ${expected}`, () => {
