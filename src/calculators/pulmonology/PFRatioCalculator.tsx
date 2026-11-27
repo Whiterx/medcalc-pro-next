@@ -31,7 +31,7 @@ export default function PFRatioCalculator() {
       setError('Проверьте числовые значения.')
       return
     }
-    if (pao2 < 1 || pao2 > 800 || fio2 < 0.21 || fio2 > 1) {
+    if (pao2 < 1 || fio2 < 0.21 || fio2 > 1) {
       setError('Допустимые значения: PaO₂ ≥1 мм рт. ст.; FiO₂ 0,21–1,00.')
       return
     }
