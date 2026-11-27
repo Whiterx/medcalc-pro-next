@@ -195,7 +195,7 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
 
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.cha2ds2VascCategory === 'low' ? 'risk-low' : result.cha2ds2VaCategory === 'consider' ? 'risk-moderate' : 'risk-high'}`}>CHA₂DS₂-VASc: {result.cha2ds2VascScore}</span></div>
+          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.cha2ds2VascCategory === 'low' ? 'risk-low' : result.cha2ds2VascCategory === 'consider' ? 'risk-moderate' : 'risk-high'}`}>CHA₂DS₂-VASc: {result.cha2ds2VascScore}</span></div>
           <div className="score-display"><strong>{result.cha2ds2VascScore}</strong><span>CHA₂DS₂-VASc</span></div>
           <p className="result-summary">{result.cha2ds2VascGuidance}</p>
           <div className="result-breakdown">
