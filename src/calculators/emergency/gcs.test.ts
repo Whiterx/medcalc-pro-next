@@ -16,6 +16,28 @@ describe('calculateGCS', () => {
     ])
   })
 
+  it('uses the current standardized terms for verbal and motor responses', () => {
+    const result = calculateGCS({ eye: '4', verbal: '3', motor: '4' })
+    expect(result?.components.map((component) => component.response)).toEqual([
+      'Спонтанно', 'Отдельные слова', 'Нормальное сгибание',
+    ])
+    const sounds = calculateGCS({ eye: '4', verbal: '2', motor: '6' })
+    expect(sounds?.components[1].response).toBe('Звуки')
+  })
+
+  it('does not calculate a total when any of the three components is NT', () => {
+    const cases = [
+      { eye: 'NT', verbal: '5', motor: '6' },
+      { eye: '4', verbal: 'NT', motor: '6' },
+      { eye: '4', verbal: '5', motor: 'NT' },
+    ]
+    for (const input of cases) {
+      const result = calculateGCS(input)
+      expect(result?.total).toBeNull()
+      expect(result?.hasUntestableComponent).toBe(true)
+    }
+  })
+
   it('does not calculate a total if any component is not testable', () => {
     const result = calculateGCS({ eye: '4', verbal: 'NT', motor: '6' })
     expect(result?.total).toBeNull()

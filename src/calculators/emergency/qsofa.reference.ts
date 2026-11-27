@@ -4,6 +4,7 @@ export const QSOFA_REFERENCE = {
   originalSource: 'Singer M, et al. JAMA. 2016;315(8):801–810. doi:10.1001/jama.2016.0287',
   russianGuideline: 'Клинические рекомендации Минздрава РФ «Сепсис (у взрослых)», 2024, ID 898_1; приложения Б.1 и Г.2.',
   russianGuidelineUrl: 'https://cr.minzdrav.gov.ru/preview-cr/898_1',
+  gcsGuidanceUrl: 'https://www.glasgowcomascale.org/gcs-aid/',
   guideline: 'Surviving Sepsis Campaign International Guidelines 2026',
   url: 'https://www.sccm.org/clinical-resources/guidelines/guidelines/surviving-sepsis-campaign-international-guidelines-for-management-of-sepsis-and-septic-shock-2026',
   accessed: '2026-11-27',

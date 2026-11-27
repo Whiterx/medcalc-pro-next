@@ -136,14 +136,14 @@ export default function GCSCalculator() {
           <div className="threshold-panel">
             <h3>Важные ограничения</h3>
             <p>При интубации речевой компонент обычно отмечают NT, если речь оценить невозможно. Не заменяйте NT на 1.</p>
-            <p>Учитывайте седацию, паралич, травмы, нарушения слуха/речи и другие факторы, влияющие на оценку. У детей младше 5 лет нужна педиатрическая модификация.</p>
+            <p>Учитывайте седацию, нейромышечную блокаду, языковые и коммуникативные барьеры, нарушения слуха/речи (включая афазию), травмы глаз/лица и повреждение спинного мозга. При мешающем факторе используйте NT для соответствующего компонента. У детей младше 5 лет нужна педиатрическая модификация.</p>
           </div>
         </aside>
       </div>
 
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ ОЦЕНКИ</span><span className={result.hasUntestableComponent ? 'risk-tag risk-high' : 'risk-tag risk-low'}>{result.hasUntestableComponent ? 'Есть NT-компонент' : 'Все компоненты оценены'}</span></div>
+          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ ОЦЕНКИ</span><span className="risk-tag">{result.hasUntestableComponent ? 'Есть NT-компонент' : 'Все компоненты оценены'}</span></div>
           <div className="score-display"><strong>{result.total ?? 'NT'}</strong><span>{result.total === null ? 'общий балл не рассчитывается' : '/ 15 баллов'}</span></div>
           <div className="care-context">
             <b>Компоненты: {result.notation}</b>
@@ -161,8 +161,8 @@ export default function GCSCalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{GCS_REFERENCE.title}</h2><p>{GCS_REFERENCE.originalSource}</p></div>
-        <a href={GCS_REFERENCE.url} target="_blank" rel="noreferrer">Официальная методика ↗</a>
-        <small>{GCS_REFERENCE.organisation}. Проверено: {GCS_REFERENCE.accessed}. {GCS_REFERENCE.notes[1]}</small>
+        <a href={GCS_REFERENCE.url} target="_blank" rel="noreferrer">Официальная методика ↗</a><a href={GCS_REFERENCE.assessmentAidUrl} target="_blank" rel="noreferrer">Памятка по стандартизированной оценке ↗</a><a href={GCS_REFERENCE.faqUrl} target="_blank" rel="noreferrer">FAQ: NT и мешающие факторы ↗</a><a href={GCS_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР РФ по очаговой травме мозга ↗</a>
+        <small>{GCS_REFERENCE.organisation}. Проверено: {GCS_REFERENCE.accessed}. {GCS_REFERENCE.notes[1]} {GCS_REFERENCE.notes[6]} {GCS_REFERENCE.notes[7]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет стандартизированную клиническую оценку, обучение и клиническое решение специалиста.</p>
     </main>
