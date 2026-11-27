@@ -89,8 +89,8 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
           <div className="panel-heading">
-            <div><span className="panel-kicker">ШКАЛА 1</span><h2>CHA₂DS₂-VASc / CHA₂DS₂-VA</h2></div>
-            <span className="points-label">0–9 / 0–8</span>
+            <div><span className="panel-kicker">ШКАЛА 1</span><h2>CHA₂DS₂-VASc</h2></div>
+            <span className="points-label">0–9 баллов</span>
           </div>
 
           <label className="calc-field field-full">
@@ -120,9 +120,9 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
           </label>
           <label className="check-field">
             <input type="checkbox" checked={values.femaleSex} onChange={(event) => updateField('femaleSex', event.target.checked)} />
-            <span>Женский пол — модификатор CHA₂DS₂-VASc (+1; не включается в CHA₂DS₂-VA)</span>
+            <span>Женский пол — модификатор риска в CHA₂DS₂-VASc (+1)</span>
           </label>
-          <p className="field-hint">CHA₂DS₂-VA исключает половой компонент и используется в рекомендациях ESC 2024 для решений об антикоагуляции. Калькулятор показывает обе суммы для сопоставления с прежней шкалой.</p>
+          <p className="field-hint">КР Минздрава РФ 2025 используют CHA₂DS₂-VASc. Шкала CHA₂DS₂-VA из ESC 2024 не валидирована в РФ и не используется здесь для клинической интерпретации.</p>
 
           <div className="panel-heading panel-subheading">
             <div><span className="panel-kicker">ШКАЛА 2</span><h2>HAS-BLED</h2></div>
@@ -139,7 +139,7 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
           </label>
           <label className="check-field">
             <input type="checkbox" checked={values.abnormalLiverFunction} onChange={(event) => updateField('abnormalLiverFunction', event.target.checked)} />
-            <span>A — нарушение функции печени: цирроз или билирубин &gt;2×ВГН вместе с AST/ALT/ALP &gt;3×ВГН (+1)</span>
+            <span>A — нарушение функции печени: цирроз или билирубин ≥2×ВГН вместе с AST/ALT/ALP &gt;3×ВГН (+1)</span>
           </label>
           <label className="check-field">
             <input type="checkbox" checked={values.priorStrokeForBleedingScore} onChange={(event) => updateField('priorStrokeForBleedingScore', event.target.checked)} />
@@ -181,13 +181,13 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
           <div className="info-panel">
             <div className="info-icon"><BookOpen size={18} /></div>
             <h3>Как читать результаты?</h3>
-            <p>CHA₂DS₂-VA оценивает риск инсульта/эмболии и используется ESC 2024 для принятия решений об антикоагуляции. HAS-BLED выявляет факторы риска кровотечения, многие из которых можно модифицировать.</p>
+            <p>CHA₂DS₂-VASc оценивает риск инсульта и системной эмболии при ФП; пороги антикоагуляции зависят от пола согласно КР РФ 2025. HAS-BLED выявляет факторы риска кровотечения, многие из которых можно модифицировать.</p>
           </div>
           <div className="threshold-panel">
-            <h3>ESC 2024 — CHA₂DS₂-VA</h3>
-            <p>0 баллов: <b>низкий риск</b></p>
-            <p>1 балл: <b>антикоагуляцию следует рассмотреть</b></p>
-            <p>≥2 баллов: <b>антикоагуляция рекомендуется</b> подходящим пациентам</p>
+            <h3>КР РФ 2025 — CHA₂DS₂-VASc</h3>
+            <p>Мужчины: 0 — низкий риск; 1 — рассмотреть антикоагуляцию; ≥2 — антикоагуляция рекомендована.</p>
+            
+            <p>Женщины: 1 — низкий риск; 2 — рассмотреть антикоагуляцию; ≥3 — антикоагуляция рекомендована.</p>
             <p>HAS-BLED ≥3: <b>повышенный риск кровотечения</b>; требуется оценка модифицируемых факторов, но не автоматический отказ от антикоагуляции.</p>
           </div>
         </aside>
@@ -195,25 +195,25 @@ export default function CHA2DS2VAScHASBLEDCalculator() {
 
       {result && (
         <section className="result-panel" aria-live="polite">
-          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.cha2ds2VaCategory === 'low' ? 'risk-low' : result.cha2ds2VaCategory === 'consider' ? 'risk-moderate' : 'risk-high'}`}>CHA₂DS₂-VA: {result.cha2ds2VaScore}</span></div>
-          <div className="score-display"><strong>{result.cha2ds2VascScore}</strong><span>CHA₂DS₂-VASc · {result.cha2ds2VaScore} CHA₂DS₂-VA</span></div>
-          <p className="result-summary">{result.cha2ds2VaGuidance}</p>
+          <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.cha2ds2VascCategory === 'low' ? 'risk-low' : result.cha2ds2VaCategory === 'consider' ? 'risk-moderate' : 'risk-high'}`}>CHA₂DS₂-VASc: {result.cha2ds2VascScore}</span></div>
+          <div className="score-display"><strong>{result.cha2ds2VascScore}</strong><span>CHA₂DS₂-VASc</span></div>
+          <p className="result-summary">{result.cha2ds2VascGuidance}</p>
           <div className="result-breakdown">
             <p><b>HAS-BLED: {result.hasBledScore}/9</b> — {result.hasBledHighRisk ? 'повышенный риск кровотечения (≥3)' : 'менее 3 баллов'}</p>
-            <p>CHA₂DS₂-VASc включает женский пол как модификатор; CHA₂DS₂-VA его исключает и соответствует подходу ESC 2024.</p>
+            <p>Интерпретация соответствует половым порогам CHA₂DS₂-VASc в КР РФ 2025.</p>
           </div>
           <div className="result-columns">
-            <div><h3>CHA₂DS₂-VASc / VA</h3>{result.chaComponents.map((component) => <p key={component.key}>{component.label}: <b>{component.value}</b> — {component.points} балл(а)</p>)}</div>
+            <div><h3>CHA₂DS₂-VASc</h3>{result.chaComponents.map((component) => <p key={component.key}>{component.label}: <b>{component.value}</b> — {component.points} балл(а)</p>)}</div>
             <div><h3>HAS-BLED</h3>{result.hasBledComponents.map((component) => <p key={component.key}>{component.label}: <b>{component.value}</b> — {component.points} балл(а)</p>)}</div>
           </div>
-          <p className="clinical-warning">HAS-BLED ≥3 не является противопоказанием к антикоагуляции и не должен использоваться для автоматического отказа или отмены лечения. Устраните модифицируемые факторы риска и проводите повторную оценку. ESC 2024 не рекомендует использовать единственную bleeding score как основание для решения о начале или прекращении антикоагуляции.</p>
+          <p className="clinical-warning">HAS-BLED ≥3 не является противопоказанием к антикоагуляции и не должен использоваться для автоматического отказа или отмены лечения. Устраните модифицируемые факторы риска и проводите повторную оценку. КР РФ 2025 указывают, что HAS-BLED ≥3 — высокий риск кровотечения, но это не должно быть единственным ограничением к назначению антикоагулянтов. Корректируйте модифицируемые факторы риска и оценивайте источники кровотечения.</p>
         </section>
       )}
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{CHA2DS2_VASc_HASBLED_REFERENCE.title}</h2><p>{CHA2DS2_VASc_HASBLED_REFERENCE.guideline} · {CHA2DS2_VASc_HASBLED_REFERENCE.section}</p></div>
-        <a href={CHA2DS2_VASc_HASBLED_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Проверено: {CHA2DS2_VASc_HASBLED_REFERENCE.accessed}. {CHA2DS2_VASc_HASBLED_REFERENCE.notes[4]}</small>
+        <a href={CHA2DS2_VASc_HASBLED_REFERENCE.url} target="_blank" rel="noreferrer">КР Минздрава РФ 2025 ↗</a><a href={CHA2DS2_VASc_HASBLED_REFERENCE.chaSourceUrl} target="_blank" rel="noreferrer">Валидация CHA₂DS₂-VASc ↗</a><a href={CHA2DS2_VASc_HASBLED_REFERENCE.hasBledSourceUrl} target="_blank" rel="noreferrer">Первоисточник HAS-BLED ↗</a>
+        <small>Проверено: {CHA2DS2_VASc_HASBLED_REFERENCE.accessed}. {CHA2DS2_VASc_HASBLED_REFERENCE.notes[4]} {CHA2DS2_VASc_HASBLED_REFERENCE.notes[6]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет индивидуальную оценку риска, противопоказаний и совместное принятие решений.</p>
     </main>

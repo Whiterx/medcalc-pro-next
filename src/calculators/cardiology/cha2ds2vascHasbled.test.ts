@@ -21,30 +21,28 @@ const base: AFCombinedInput = {
 }
 const calc = (overrides: Partial<AFCombinedInput>) => calculateAFCombined({ ...base, ...overrides })
 
-describe('calculateAFCombined — CHA2DS2-VASc / CHA2DS2-VA / HAS-BLED', () => {
+describe('calculateAFCombined — CHA2DS2-VASc / HAS-BLED', () => {
   it('returns zero scores for a low-risk adult without criteria', () => {
     const result = calc({})
     expect(result.cha2ds2VascScore).toBe(0)
-    expect(result.cha2ds2VaScore).toBe(0)
     expect(result.hasBledScore).toBe(0)
-    expect(result.cha2ds2VaCategory).toBe('low')
+    expect(result.cha2ds2VascCategory).toBe('low')
   })
 
-  it('calculates age categories at 65 and 75 years for CHA2DS2-VA', () => {
-    expect(calc({ ageYears: 64 }).cha2ds2VaScore).toBe(0)
-    expect(calc({ ageYears: 65 }).cha2ds2VaScore).toBe(1)
-    expect(calc({ ageYears: 74 }).cha2ds2VaScore).toBe(1)
-    expect(calc({ ageYears: 75 }).cha2ds2VaScore).toBe(2)
+  it('calculates CHA2DS2-VASc age categories at 65 and 75 years', () => {
+    expect(calc({ ageYears: 64 }).cha2ds2VascScore).toBe(0)
+    expect(calc({ ageYears: 65 }).cha2ds2VascScore).toBe(1)
+    expect(calc({ ageYears: 74 }).cha2ds2VascScore).toBe(1)
+    expect(calc({ ageYears: 75 }).cha2ds2VascScore).toBe(2)
   })
 
-  it('applies female sex as a CHA2DS2-VASc modifier, not as a CHA2DS2-VA point', () => {
+  it('applies female sex as a CHA2DS2-VASc modifier and preserves low risk for sex alone', () => {
     const result = calc({ femaleSex: true })
     expect(result.cha2ds2VascScore).toBe(1)
-    expect(result.cha2ds2VaScore).toBe(0)
-    expect(result.cha2ds2VaCategory).toBe('low')
+    expect(result.cha2ds2VascCategory).toBe('low')
   })
 
-  it('adds all CHA2DS2-VA clinical factors and the sex modifier separately', () => {
+  it('adds all CHA2DS2-VASc factors including the sex modifier', () => {
     const result = calc({
       ageYears: 75,
       heartFailure: true,
@@ -54,14 +52,16 @@ describe('calculateAFCombined — CHA2DS2-VASc / CHA2DS2-VA / HAS-BLED', () => {
       vascularDisease: true,
       femaleSex: true,
     })
-    expect(result.cha2ds2VaScore).toBe(8)
     expect(result.cha2ds2VascScore).toBe(9)
   })
 
-  it('uses current ESC 2024 CHA2DS2-VA decision thresholds', () => {
-    expect(calc({}).cha2ds2VaCategory).toBe('low')
-    expect(calc({ ageYears: 65 }).cha2ds2VaCategory).toBe('consider')
-    expect(calc({ ageYears: 75 }).cha2ds2VaCategory).toBe('recommended')
+  it('uses Russian 2025 sex-specific CHA2DS2-VASc thresholds', () => {
+    expect(calc({}).cha2ds2VascCategory).toBe('low')
+    expect(calc({ ageYears: 65 }).cha2ds2VascCategory).toBe('consider')
+    expect(calc({ ageYears: 75 }).cha2ds2VascCategory).toBe('recommended')
+    expect(calc({ femaleSex: true }).cha2ds2VascCategory).toBe('low')
+    expect(calc({ femaleSex: true, hypertension: true }).cha2ds2VascCategory).toBe('consider')
+    expect(calc({ femaleSex: true, hypertension: true, diabetes: true }).cha2ds2VascCategory).toBe('recommended')
   })
 
   it('applies HAS-BLED age criterion strictly above 65 years', () => {

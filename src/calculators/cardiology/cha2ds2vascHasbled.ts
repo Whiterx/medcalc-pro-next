@@ -26,9 +26,8 @@ export interface ScoreComponent {
 
 export interface AFCombinedResult {
   cha2ds2VascScore: number
-  cha2ds2VaScore: number
-  cha2ds2VaCategory: 'low' | 'consider' | 'recommended'
-  cha2ds2VaGuidance: string
+  cha2ds2VascCategory: 'low' | 'consider' | 'recommended'
+  cha2ds2VascGuidance: string
   hasBledScore: number
   hasBledHighRisk: boolean
   chaComponents: ScoreComponent[]
@@ -54,14 +53,17 @@ export function calculateAFCombined(input: AFCombinedInput): AFCombinedResult {
     { key: 'vascular', label: 'V — Сосудистое заболевание', value: input.vascularDisease ? 'Да' : 'Нет', points: input.vascularDisease ? 1 : 0 },
     { key: 'sex', label: 'Sc — Женский пол (модификатор риска)', value: input.femaleSex ? 'Да' : 'Нет', points: input.femaleSex ? 1 : 0 },
   ]
-  const cha2ds2VaScore = chaComponents.slice(0, 6).reduce((sum, component) => sum + component.points, 0)
-  const cha2ds2VascScore = cha2ds2VaScore + (input.femaleSex ? 1 : 0)
-  const cha2ds2VaCategory = cha2ds2VaScore === 0 ? 'low' : cha2ds2VaScore === 1 ? 'consider' : 'recommended'
-  const cha2ds2VaGuidance = cha2ds2VaScore === 0
-    ? 'CHA₂DS₂-VA = 0: низкая категория риска; по шкале ESC 2024 антикоагуляция обычно не показана только на основании этого балла. Учитывайте особые состояния и дополнительные факторы риска.'
-    : cha2ds2VaScore === 1
-      ? 'CHA₂DS₂-VA = 1: повышенный риск; ESC 2024 рекомендует рассмотреть пероральную антикоагуляцию с учётом индивидуальных факторов и совместного принятия решения.'
-      : 'CHA₂DS₂-VA ≥2: повышенный риск; ESC 2024 рекомендует пероральную антикоагуляцию у подходящих пациентов с клинической ФП, если нет противопоказаний.'
+  const cha2ds2VascScore = chaComponents.reduce((sum, component) => sum + component.points, 0)
+  const considerThreshold = input.femaleSex ? 2 : 1
+  const recommendThreshold = input.femaleSex ? 3 : 2
+  const cha2ds2VascCategory = cha2ds2VascScore >= recommendThreshold
+    ? 'recommended'
+    : cha2ds2VascScore >= considerThreshold ? 'consider' : 'low'
+  const cha2ds2VascGuidance = cha2ds2VascCategory === 'low'
+    ? `CHA₂DS₂-VASc = ${cha2ds2VascScore}: низкий риск по порогам КР РФ 2025; антикоагуляция только на основании этого балла обычно не показана. Продолжайте периодическую переоценку риска и учитывайте особые состояния.`
+    : cha2ds2VascCategory === 'consider'
+      ? `CHA₂DS₂-VASc = ${cha2ds2VascScore}: промежуточная категория риска по КР РФ 2025 (${input.femaleSex ? 'женщина, 2 балла' : 'мужчина, 1 балл'}); пероральную антикоагуляцию следует рассмотреть индивидуально с учётом соотношения пользы и риска и предпочтений пациента.`
+      : `CHA₂DS₂-VASc = ${cha2ds2VascScore}: высокий риск по КР РФ 2025 (${input.femaleSex ? 'женщина, ≥3 баллов' : 'мужчина, ≥2 баллов'}); пероральная антикоагуляция рекомендуется при отсутствии противопоказаний.`
 
   const hasBledComponents: ScoreComponent[] = [
     { key: 'hypertension', label: 'H — Неконтролируемая гипертензия (САД >160 мм рт. ст.)', value: input.uncontrolledSystolicBPOver160 ? 'Да' : 'Нет', points: input.uncontrolledSystolicBPOver160 ? 1 : 0 },
@@ -78,9 +80,8 @@ export function calculateAFCombined(input: AFCombinedInput): AFCombinedResult {
 
   return {
     cha2ds2VascScore,
-    cha2ds2VaScore,
-    cha2ds2VaCategory,
-    cha2ds2VaGuidance,
+    cha2ds2VascCategory,
+    cha2ds2VascGuidance,
     hasBledScore,
     hasBledHighRisk: hasBledScore >= 3,
     chaComponents,
