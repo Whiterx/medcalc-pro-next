@@ -46,7 +46,7 @@ export default function SOFA2Calculator() {
     if((values.ecmo!=='yes'&&!values.vaEcmo&&values.fio2==='')||(values.ecmo!=='yes'&&!values.vaEcmo&&values.respiratorySupport==='')||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
       (values.ecmo!=='yes'&&!values.vaEcmo&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
-      (values.creatinine===''&&values.urineRate==='')){
+      (values.creatinine===''&&values.urineRate===''&&!['receiving','intermittentOffDay'].includes(values.rrtStatus))){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
       setResult(null);return
     }
@@ -74,7 +74,7 @@ export default function SOFA2Calculator() {
       (values.epinephrineEnabled&&Number(values.epinephrineDose)<=0)||
       (values.dopamineEnabled&&Number(values.dopamineDose)<=0)||
       (values.creatinine!==''&&(Number(values.creatinine)<1||Number(values.creatinine)>3000))||
-      (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20)||
+      (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20))||
       (values.potassium!==''&&(Number(values.potassium)<0||Number(values.potassium)>20))||
       (values.ph!==''&&(Number(values.ph)<6||Number(values.ph)>8))||
       (values.bicarbonate!==''&&(Number(values.bicarbonate)<0||Number(values.bicarbonate)>100))){

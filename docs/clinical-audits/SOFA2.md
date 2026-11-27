@@ -105,3 +105,6 @@ CI #507: 50 файлов тестов, 590 тестов пройдены; produc
 - не проводится из-за недоступности, отсрочки или ceiling of treatment — 4 балла только при выполнении критериев первоисточника: креатинин >110 мкмоль/л или диурез <0,3 мл/кг/ч более 6 часов плюс калий ≥6,0 ммоль/л либо одновременно pH ≤7,20 и бикарбонат ≤12 ммоль/л.
 
 Добавлены отдельные поля калия, pH и бикарбоната, проверка неполных данных и тесты на положительные/отрицательные случаи и граничные значения. Поле статуса RRT теперь обязательно выбирается явно; начальное состояние не предзаполнено.
+
+
+CI #510: unit tests passed, TypeScript/build failed due to a missing parenthesis in the newly extended renal input-range validation. The syntax is corrected; the same review also ensures that current/chronic or ongoing intermittent RRT does not require separate creatinine/urine inputs to assign the published 4-point kidney score. New CI pending.
