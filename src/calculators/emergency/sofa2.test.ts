@@ -4,10 +4,10 @@ import {calculateSOFA2,scoreSOFA2Brain,scoreSOFA2Cardiovascular,scoreSOFA2Hemost
 describe('SOFA-2 respiratory thresholds',()=>{
   const cases:[number,number][]=[[301,0],[300,1],[226,1],[225,2],[151,2],[150,3],[76,3],[75,4]]
   cases.forEach(([ratio,expected])=>it(`PaO2/FiO2 ${ratio} => ${expected}`,()=>{
-    expect(scoreSOFA2Respiratory({pao2:ratio,fio2:100,spo2:null,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBe(expected)
+    expect(scoreSOFA2Respiratory({pao2:ratio,fio2:100,spo2:null,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(expected)
   }))
   it('caps score at 2 without advanced support unless support is unavailable or limited',()=>{
-    expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false}).points).toBe(2)
+    expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(2)
     expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'ceiling',ecmoForRespiratoryFailure:false}).points).toBe(4)
   })
   it('uses SpO2/FiO2 only when SpO2 is below 98 and PaO2 is unavailable',()=>{
@@ -15,7 +15,7 @@ describe('SOFA-2 respiratory thresholds',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:98,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBeNull()
   })
   it('checks SpO2/FiO2 boundaries at 300, 250, 200 and 120',()=>{
-    const score=(spo2:number,fio2:number,support:'advanced'|'none'|'ceiling'='advanced')=>scoreSOFA2Respiratory({pao2:null,fio2,spo2,respiratorySupport:support,ecmoForRespiratoryFailure:false}).points
+    const score=(spo2:number,fio2:number,support:'advanced'|'none'|'ceiling'='advanced')=>scoreSOFA2Respiratory({pao2:null,fio2,spo2,respiratorySupport:support,ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points
     expect(score(90,30)).toBe(1) // 300
     expect(score(75,30)).toBe(2) // 250
     expect(score(60,30)).toBe(3) // 200
@@ -24,7 +24,11 @@ describe('SOFA-2 respiratory thresholds',()=>{
     expect(score(60,30,'ceiling')).toBe(3)
   })
   it('scores respiratory ECMO as 4 regardless of ratio',()=>{
-    expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true}).points).toBe(4)
+    expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:true,vaEcmoForCardiovascularFailure:false}).points).toBe(4)
+  })
+  it('scores VA-ECMO for cardiovascular indication in both components',()=>{
+    expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:true}).points).toBe(4)
+    expect(scoreSOFA2Cardiovascular({...base,mechanicalCirculatorySupport:true})).toBe(4)
   })
 })
 describe('SOFA-2 hemostasis and liver',()=>{
@@ -34,7 +38,7 @@ describe('SOFA-2 hemostasis and liver',()=>{
   bilirubin.forEach(([v,s])=>it(`bilirubin ${v} => ${s}`,()=>expect(scoreSOFA2Liver(v)).toBe(s)))
 })
 describe('SOFA-2 cardiovascular',()=>{
-  const base={map:70,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false}
+  const base={map:70,vasoactiveAvailability:'available' as const,dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false}
   const cases:[number,number][]=[[0,0],[0.1,2],[0.2,2],[0.201,3],[0.4,3],[0.401,4]]
   cases.forEach(([dose,score])=>it(`catecholamine sum ${dose} => ${score}`,()=>expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:dose})).toBe(score)))
   it('adds one severity category for other vasoactive/inotropic agents with low or medium catecholamine dose',()=>{
@@ -49,6 +53,23 @@ describe('SOFA-2 cardiovascular',()=>{
     expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.15,epinephrineDose:0.1,otherVasoactiveOrInotrope:true})).toBe(4)
   })
   it('mechanical circulatory support scores 4',()=>expect(scoreSOFA2Cardiovascular({...base,mechanicalCirculatorySupport:true})).toBe(4))
+  it('scores dopamine as a single vasopressor using its specific cutoffs',()=>{
+    expect(scoreSOFA2Cardiovascular({...base,dopamineDose:20})).toBe(2)
+    expect(scoreSOFA2Cardiovascular({...base,dopamineDose:20.1})).toBe(3)
+    expect(scoreSOFA2Cardiovascular({...base,dopamineDose:40})).toBe(3)
+    expect(scoreSOFA2Cardiovascular({...base,dopamineDose:40.1})).toBe(4)
+  })
+  it('uses specific MAP thresholds when vasopressors are unavailable or precluded by treatment ceiling',()=>{
+    const score=(map:number,vasoactiveAvailability:'unavailable'|'ceiling')=>scoreSOFA2Cardiovascular({...base,map,vasoactiveAvailability})
+    expect(score(70,'unavailable')).toBe(0)
+    expect(score(69,'unavailable')).toBe(1)
+    expect(score(60,'unavailable')).toBe(1)
+    expect(score(59,'unavailable')).toBe(2)
+    expect(score(50,'ceiling')).toBe(2)
+    expect(score(49,'ceiling')).toBe(3)
+    expect(score(40,'ceiling')).toBe(3)
+    expect(score(39,'ceiling')).toBe(4)
+  })
   it('uses MAP only when no vasoactive support is used and treats missing MAP as untestable',()=>{
     expect(scoreSOFA2Cardiovascular({...base,map:69})).toBe(1)
     expect(scoreSOFA2Cardiovascular({...base,map:null})).toBeNull()
@@ -86,7 +107,7 @@ describe('SOFA-2 kidney',()=>{
   })
 })
 describe('calculateSOFA2',()=>{
-  const normal:SOFA2Input={pao2:100,fio2:30,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,platelets:200,bilirubin:10,map:80,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false,gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false,creatinine:80,urineOutputMlKgH:null,urineOutputDuration:'none',receivingRRT:false}
+  const normal:SOFA2Input={pao2:100,fio2:30,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false,platelets:200,bilirubin:10,map:80,vasoactiveAvailability:'available',dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false,gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false,creatinine:80,urineOutputMlKgH:null,urineOutputDuration:'none',receivingRRT:false}
   it('returns 0 for normal parameters',()=>expect(calculateSOFA2(normal).total).toBe(0))
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
   it('returns null total when MAP is missing without cardiovascular support',()=>expect(calculateSOFA2({...normal,map:null}).total).toBeNull())

@@ -8,6 +8,9 @@ export interface SOFA2Input {
   platelets: number;
   bilirubin: number;
   map: number | null;
+  vasoactiveAvailability: 'available' | 'unavailable' | 'ceiling';
+  dopamineDose: number | null;
+  vaEcmoForCardiovascularFailure: boolean;
   norepinephrineDose: number;
   epinephrineDose: number;
   otherVasoactiveOrInotrope: boolean;
@@ -35,7 +38,7 @@ export interface SOFA2Result {
   hasUntestableComponent: boolean;
 }
 export function scoreSOFA2Respiratory(input: Pick<SOFA2Input, 'pao2'|'fio2'|'spo2'|'respiratorySupport'|'ecmoForRespiratoryFailure'>): {points:number|null;ratio:number|null;type:'PaO₂/FiO₂'|'SpO₂/FiO₂'|null} {
-  if (input.ecmoForRespiratoryFailure) return {points:4,ratio:null,type:null};
+  if (input.ecmoForRespiratoryFailure || input.vaEcmoForCardiovascularFailure) return {points:4,ratio:null,type:null};
   if (input.fio2 === null) return {points:null,ratio:null,type:null};
   let ratio:number;
   let type:'PaO₂/FiO₂'|'SpO₂/FiO₂';
@@ -65,14 +68,22 @@ export function scoreSOFA2Liver(bilirubin:number):number {
   if (bilirubin > 20.6) return 1;
   return 0;
 }
-export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'norepinephrineDose'|'epinephrineDose'|'otherVasoactiveOrInotrope'|'mechanicalCirculatorySupport'>):number|null {
+export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'vasoactiveAvailability'|'dopamineDose'|'norepinephrineDose'|'epinephrineDose'|'otherVasoactiveOrInotrope'|'mechanicalCirculatorySupport'>):number|null {
   const catecholamineSum=input.norepinephrineDose+input.epinephrineDose;
   if (input.mechanicalCirculatorySupport) return 4;
+  const hasCatecholamine=catecholamineSum > 0;
+  const hasOtherAgent=input.otherVasoactiveOrInotrope || input.dopamineDose !== null;
+  if (input.dopamineDose !== null && !hasCatecholamine && !input.otherVasoactiveOrInotrope) {
+    return input.dopamineDose <= 20 ? 2 : input.dopamineDose <= 40 ? 3 : 4;
+  }
   if (catecholamineSum > 0.4) return 4;
-  if (catecholamineSum > 0.2) return input.otherVasoactiveOrInotrope ? 4 : 3;
-  if (catecholamineSum > 0) return input.otherVasoactiveOrInotrope ? 3 : 2;
-  if (input.otherVasoactiveOrInotrope) return 2;
+  if (catecholamineSum > 0.2) return hasOtherAgent ? 4 : 3;
+  if (hasCatecholamine) return hasOtherAgent ? 3 : 2;
+  if (hasOtherAgent) return 2;
   if (input.map === null) return null;
+  if (input.vasoactiveAvailability === 'unavailable' || input.vasoactiveAvailability === 'ceiling') {
+    return input.map >= 70 ? 0 : input.map >= 60 ? 1 : input.map >= 50 ? 2 : input.map >= 40 ? 3 : 4;
+  }
   return input.map < 70 ? 1 : 0;
 }
 export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSedationGcsUnknown'|'deliriumMedication'>):number|null {
