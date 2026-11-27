@@ -70,7 +70,7 @@ KDIGO Acute Kidney Injury Work Group. KDIGO Clinical Practice Guideline for Acut
 
 ## 8. Техническая проверка
 
-CI #487, commit `55224bd1ad95d04018147dd1f5c942be3cc5c37b`: 50 test files, 566 tests passed; build succeeded; GitHub Pages deploy succeeded. Этот результат подтверждает только тесты и сборку, не клиническую валидацию. Ручная проверка интерфейса после публикации и экспертная проверка врачом/нефрологом ещё не выполнены.
+CI #487, commit `55224bd1ad95d04018147dd1f5c942be3cc5c37b`: 50 test files, 566 tests passed; build and deploy succeeded. После уточнения веса для диуреза и текста подсказок CI #490, commit `74acd67f9e6fb8b5bffafbe28d149b7c00ce076b`: 50 test files, 566 tests passed; build and GitHub Pages deploy succeeded. Эти результаты подтверждают только тесты и сборку, не клиническую валидацию. Ручная проверка интерфейса после последней публикации и экспертная проверка врачом/нефрологом ещё не выполнены.
 
 ## 9. Уточнение массы тела и диуреза
 
