@@ -5,7 +5,7 @@ export interface KDIGOAKIInput {
   creatinineCurrent?: number | null
   creatinineUnit?: CreatinineUnit
   creatinineIntervalHours?: number | null
-  bodyWeightKg?: number | null
+  idealBodyWeightKg?: number | null
   urineVolumeMl?: number | null
   urineIntervalHours?: number | null
   renalReplacementTherapyStarted: boolean
@@ -53,7 +53,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     throw new Error('Для креатининового критерия заполните исходный и текущий креатинин, а также интервал между измерениями.')
   }
 
-  const hasWeight = input.bodyWeightKg !== undefined && input.bodyWeightKg !== null
+  const hasWeight = input.idealBodyWeightKg !== undefined && input.idealBodyWeightKg !== null
   const hasUrineVolume = input.urineVolumeMl !== undefined && input.urineVolumeMl !== null
   const hasUrineInterval = input.urineIntervalHours !== undefined && input.urineIntervalHours !== null
   if ((hasWeight || hasUrineVolume || hasUrineInterval) && !(hasWeight && hasUrineVolume && hasUrineInterval)) {
@@ -107,10 +107,10 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
   let urineOutputStage: 0 | 1 | 2 | 3 | null = null
   let urineOutputRate: number | null = null
   if (hasWeight && hasUrineVolume && hasUrineInterval) {
-    const weight = input.bodyWeightKg as number
+    const weight = input.idealBodyWeightKg as number
     const volume = input.urineVolumeMl as number
     const duration = input.urineIntervalHours as number
-    validateRange(weight, 'Масса тела', 0.5, 500)
+    validateRange(weight, 'Идеальная масса тела', 0.5, 500)
     if (!Number.isFinite(volume) || volume < 0 || volume > 50000) {
       throw new Error('Объём мочи должен быть от 0 до 50 000 мл.')
     }
@@ -125,7 +125,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     else urineOutputStage = 0
 
     details.push(
-      `Диурез: ${volume} мл за ${duration} ч при массе ${weight} кг = ${urineOutputRate.toFixed(3)} мл/кг/ч; ${urineOutputStage === 0 ? 'критерии ОПП по диурезу не выполнены' : `стадия ${urineOutputStage} по критерию диуреза`}.`
+      `Диурез: ${volume} мл за ${duration} ч при идеальной массе ${weight} кг = ${urineOutputRate.toFixed(3)} мл/кг/ч; ${urineOutputStage === 0 ? 'критерии ОПП по диурезу не выполнены' : `стадия ${urineOutputStage} по критерию диуреза`}.`
     )
   }
 

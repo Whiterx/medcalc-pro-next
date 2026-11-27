@@ -6,7 +6,7 @@ import { KDIGO_AKI_REFERENCE } from './kdigoAKI.reference'
 
 const initialValues = {
   creatinineBaseline: '', creatinineCurrent: '', creatinineUnit: 'µmol/L' as CreatinineUnit, creatinineIntervalHours: '',
-  bodyWeightKg: '', urineVolumeMl: '', urineIntervalHours: '', renalReplacementTherapyStarted: false,
+  idealBodyWeightKg: '', urineVolumeMl: '', urineIntervalHours: '', renalReplacementTherapyStarted: false,
 }
 
 export default function KDIGOAKICalculator() {
@@ -26,7 +26,7 @@ export default function KDIGOAKICalculator() {
   }
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const numericKeys = ['creatinineBaseline', 'creatinineCurrent', 'creatinineIntervalHours', 'bodyWeightKg', 'urineVolumeMl', 'urineIntervalHours'] as const
+    const numericKeys = ['creatinineBaseline', 'creatinineCurrent', 'creatinineIntervalHours', 'idealBodyWeightKg', 'urineVolumeMl', 'urineIntervalHours'] as const
     const parsed = Object.fromEntries(numericKeys.map((key) => [key, values[key] === '' ? null : Number(values[key])]))
     try {
       setResult(calculateKDIGOAKI({
@@ -34,7 +34,7 @@ export default function KDIGOAKICalculator() {
         creatinineCurrent: parsed.creatinineCurrent,
         creatinineUnit: values.creatinineUnit,
         creatinineIntervalHours: parsed.creatinineIntervalHours,
-        bodyWeightKg: parsed.bodyWeightKg,
+        idealBodyWeightKg: parsed.idealBodyWeightKg,
         urineVolumeMl: parsed.urineVolumeMl,
         urineIntervalHours: parsed.urineIntervalHours,
         renalReplacementTherapyStarted: values.renalReplacementTherapyStarted,
@@ -74,11 +74,11 @@ export default function KDIGOAKICalculator() {
           <div className="news2-section">
             <div className="panel-heading panel-subheading"><div><span className="panel-kicker">КРИТЕРИЙ 2</span><h2>Диурез</h2></div><span className="points-label">1–3</span></div>
             <div className="form-row">
-              <label className="calc-field"><span>Масса тела, кг</span><input type="number" min="0.5" max="500" step="any" value={values.bodyWeightKg} onChange={(event) => updateField('bodyWeightKg', event.target.value)} placeholder="Масса тела" /></label>
+              <label className="calc-field"><span>Идеальная масса тела, кг</span><input type="number" min="0.5" max="500" step="any" value={values.idealBodyWeightKg} onChange={(event) => updateField('idealBodyWeightKg', event.target.value)} placeholder="Идеальная масса" /></label>
               <label className="calc-field"><span>Объём мочи за период, мл</span><input type="number" min="0" max="50000" step="any" value={values.urineVolumeMl} onChange={(event) => updateField('urineVolumeMl', event.target.value)} placeholder="Объём мочи" /></label>
             </div>
             <label className="calc-field field-full"><span>Длительность периода, часов</span><input type="number" min="1" max="168" step="any" value={values.urineIntervalHours} onChange={(event) => updateField('urineIntervalHours', event.target.value)} placeholder="Длительность наблюдения" /></label>
-            <p className="field-hint">Заполните все три поля вместе. Калькулятор рассчитает средний диурез в мл/кг/ч за непрерывный период. Используйте полные почасовые измерения; не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
+            <p className="field-hint">Введите идеальную, а не фактическую массу тела (ERBP 2012); калькулятор не рассчитывает идеальную массу. Заполните все три поля вместе. Средний диурез рассчитывается за один непрерывный период; используйте полные измерения и не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
           </div>
           <div className="news2-section">
             <label className="form-check">
@@ -106,17 +106,17 @@ export default function KDIGOAKICalculator() {
           <div className="result-summary"><b>{result.interpretation}</b></div>
           <div className="criteria-list">
             <div className="criterion-row"><span className="criterion-point">{result.creatinineStage === null || result.creatinineStage === 0 ? '—' : result.creatinineStage}</span><span><b>Критерий креатинина</b><small>{stageLabel(result.creatinineStage)}</small></span></div>
-            <div className="criterion-row"><span className="criterion-point">{result.urineOutputStage === null || result.urineOutputStage === 0 ? '—' : result.urineOutputStage}</span><span><b>Критерий диуреза</b><small>{stageLabel(result.urineOutputStage)}{result.urineOutputRate !== null ? ` · ${result.urineOutputRate.toFixed(3)} мл/кг/ч` : ''}</small></span></div>
+            <div className="criterion-row"><span className="criterion-point">{result.urineOutputStage === null || result.urineOutputStage === 0 ? '—' : result.urineOutputStage}</span><span><b>Критерий диуреза (среднее за период)</b><small>{stageLabel(result.urineOutputStage)}{result.urineOutputRate !== null ? ` · ${result.urineOutputRate.toFixed(3)} мл/кг/ч` : ''}</small></span></div>
             <div className="criterion-row"><span className="criterion-point">{result.renalReplacementTherapyStarted ? 'Да' : 'Нет'}</span><span><b>Начало ЗПТ</b><small>{result.renalReplacementTherapyStarted ? 'Критерий стадии 3' : 'Не отмечено'}</small></span></div>
           </div>
           {result.details.map((detail) => <p className="field-hint" key={detail}>{detail}</p>)}
-          <p className="clinical-warning"><ShieldAlert size={14} /> Если по введённым данным критерии не выявлены, это не исключает ОПП: исходный креатинин может быть неизвестен, а диурез — неполно измерен. Стадия не определяет причину ОПП и сама по себе не является показанием к ЗПТ.</p>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Если по введённым данным критерии не выявлены, это не исключает ОПП: исходный креатинин может быть неизвестен, а диурез — неполно измерен. Расчёт диуреза является средним за один интервал и не проверяет последовательные 6–8-часовые блоки, рекомендуемые ERBP. Стадия не определяет причину ОПП и сама по себе не является показанием к ЗПТ.</p>
         </section>
       )}
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{KDIGO_AKI_REFERENCE.title}</h2><p>{KDIGO_AKI_REFERENCE.guideline}</p></div>
         <a href={KDIGO_AKI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">Открыть руководство KDIGO ↗</a>
-        <small>{KDIGO_AKI_REFERENCE.currentUpdate} · <a href={KDIGO_AKI_REFERENCE.currentUpdateUrl} target="_blank" rel="noreferrer">Статус обновления KDIGO ↗</a> Проверено: {KDIGO_AKI_REFERENCE.accessed}.</small>
+        <small><a href={KDIGO_AKI_REFERENCE.urineWeightBasisUrl} target="_blank" rel="noreferrer">Основание для идеальной массы тела: ERBP 2012 ↗</a> · {KDIGO_AKI_REFERENCE.currentUpdate} · <a href={KDIGO_AKI_REFERENCE.currentUpdateUrl} target="_blank" rel="noreferrer">Статус обновления KDIGO ↗</a> Проверено: {KDIGO_AKI_REFERENCE.accessed}.</small>
       </section>
       <p className="calculator-disclaimer">Стадирование по KDIGO 2012 у взрослых. Нулевой результат означает, что по введённым данным критерии не выявлены, а не официальную «стадию 0». Отсутствие критериев по неполным данным не исключает ОПП. Не заменяет клиническую оценку и решение о лечении.</p>
     </main>

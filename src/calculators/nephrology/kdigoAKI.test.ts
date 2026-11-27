@@ -39,7 +39,7 @@ describe('calculateKDIGOAKI', () => {
   it('uses the highest stage when multiple criteria are present', () => {
     const result = calculateKDIGOAKI({
       ...noData, creatinineBaseline: 100, creatinineCurrent: 150, creatinineIntervalHours: 24,
-      bodyWeightKg: 70, urineVolumeMl: 600, urineIntervalHours: 24,
+      idealBodyWeightKg: 70, urineVolumeMl: 600, urineIntervalHours: 24,
     })
     expect(result.creatinineStage).toBe(1)
     expect(result.urineOutputStage).toBe(2)
@@ -47,33 +47,33 @@ describe('calculateKDIGOAKI', () => {
   })
 
   it('stages urine output <0.5 mL/kg/h for 6 to <12 hours as stage 1', () => {
-    const result = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 200, urineIntervalHours: 6 })
+    const result = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 200, urineIntervalHours: 6 })
     expect(result.urineOutputRate).toBeCloseTo(0.476, 3)
     expect(result.urineOutputStage).toBe(1)
   })
 
   it('stages urine output <0.5 mL/kg/h for at least 12 hours as stage 2', () => {
-    const result = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 400, urineIntervalHours: 12 })
+    const result = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 400, urineIntervalHours: 12 })
     expect(result.urineOutputRate).toBeCloseTo(0.476, 3)
     expect(result.urineOutputStage).toBe(2)
   })
 
   it('stages urine output <0.3 mL/kg/h for at least 24 hours as stage 3', () => {
-    const result = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 400, urineIntervalHours: 24 })
+    const result = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 400, urineIntervalHours: 24 })
     expect(result.urineOutputRate).toBeCloseTo(0.238, 3)
     expect(result.urineOutputStage).toBe(3)
   })
 
   it('does not cross strict urine-output thresholds at exactly 0.5 or 0.3 mL/kg/h', () => {
-    const exactHalf = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 210, urineIntervalHours: 6 })
+    const exactHalf = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 210, urineIntervalHours: 6 })
     expect(exactHalf.urineOutputStage).toBe(0)
-    const exactPointThree = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 504, urineIntervalHours: 24 })
+    const exactPointThree = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 504, urineIntervalHours: 24 })
     expect(exactPointThree.urineOutputRate).toBeCloseTo(0.3, 10)
     expect(exactPointThree.urineOutputStage).toBe(2)
   })
 
   it('stages anuria for at least 12 hours as stage 3', () => {
-    const result = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 0, urineIntervalHours: 12 })
+    const result = calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 0, urineIntervalHours: 12 })
     expect(result.urineOutputStage).toBe(3)
   })
 
@@ -84,11 +84,11 @@ describe('calculateKDIGOAKI', () => {
 
   it('rejects partial input sections and values outside physiological input ranges', () => {
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 100 })).toThrow()
-    expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 200 })).toThrow()
+    expect(() => calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 200 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 0, creatinineCurrent: 100, creatinineIntervalHours: 24 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 0.009, creatinineCurrent: 0.02, creatinineIntervalHours: 24 })).toThrow()
-    expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 0.4, urineVolumeMl: 0, urineIntervalHours: 6 })).toThrow()
-    expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: -1, urineIntervalHours: 12 })).toThrow()
+    expect(() => calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 0.4, urineVolumeMl: 0, urineIntervalHours: 6 })).toThrow()
+    expect(() => calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: -1, urineIntervalHours: 12 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 100, creatinineCurrent: 200, creatinineIntervalHours: 169 })).toThrow()
   })
 })
