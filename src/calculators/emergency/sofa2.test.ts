@@ -130,8 +130,9 @@ describe('calculateSOFA2',()=>{
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
   it('returns null total when MAP is missing without cardiovascular support',()=>expect(calculateSOFA2({...normal,map:null}).total).toBeNull())
   it('returns null total when both kidney inputs are missing',()=>expect(calculateSOFA2({...normal,creatinine:null,urineOutputMlKgH:null}).total).toBeNull())
+  it('allows a complete SOFA-2 total when renal RRT is ongoing despite missing creatinine and urine output',()=>expect(calculateSOFA2({...normal,creatinine:null,urineOutputMlKgH:null,rrtStatus:'receiving'}).total).toBe(4))
   it('sums six maximum components to 24',()=>{
-    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,rrtStatus:'receiving'}
+    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,rrtStatus:'receiving' as const}
     expect(calculateSOFA2(severe).total).toBe(24)
   })
 })

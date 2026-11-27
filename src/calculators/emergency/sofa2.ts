@@ -109,7 +109,7 @@ export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutput
   if (input.rrtStatus === 'unavailableOrDelayed' && hasRRTTrigger) {
     const hyperkalemia = input.potassium !== null && input.potassium >= 6.0;
     const acidosisKnown = input.ph !== null && input.bicarbonate !== null;
-    const severeAcidosis = acidosisKnown && input.ph <= 7.20 && input.bicarbonate <= 12;
+    const severeAcidosis = input.ph !== null && input.bicarbonate !== null && input.ph <= 7.20 && input.bicarbonate <= 12;
     if (hyperkalemia || severeAcidosis) return 4;
     if (input.potassium === null || (!acidosisKnown && input.potassium < 6.0)) return null;
   }
