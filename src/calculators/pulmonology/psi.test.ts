@@ -76,6 +76,9 @@ describe('calculatePSI', () => {
     expect(calc({ age: 100, neoplasticDisease: true }).riskClass).toBe('IV')
     expect(calc({ age: 101, neoplasticDisease: true }).score).toBe(131)
     expect(calc({ age: 101, neoplasticDisease: true }).riskClass).toBe('V')
+    expect(calc({ age: 101, neoplasticDisease: true }).mortalityEstimate).toContain('27–31,1%')
+    expect(calc({ age: 101, neoplasticDisease: true }).suggestedSetting).toContain('ОРИТ')
+    expect(calc({ age: 91 }).mortalityEstimate).toContain('8,5–9,3%')
   })
 
   it('matches the legacy high-severity example with corrected sodium points', () => {
