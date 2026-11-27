@@ -10,7 +10,7 @@ const initial = {
   dopamineEnabled:false, dopamineDose:'', otherVasoactive:false, mechanicalSupport:false, vaEcmo:false,
   vasoactiveAvailability:'available', vasoactiveDurationConfirmed:false,
   gcs:'', motorScore:'', preSedationUnknown:false, deliriumMedication:false,
-  creatinine:'', urineRate:'', urineDuration:'', rrt:false,
+  creatinine:'', urineRate:'', urineDuration:'', rrtStatus:'', potassium:'', ph:'', bicarbonate:'',
 }
 type Values=typeof initial
 function NumberField({label,unit,value,onChange,min,max,step='any'}:{label:string;unit:string;value:string;onChange:(v:string)=>void;min:number;max?:number;step?:string}) {
@@ -46,7 +46,7 @@ export default function SOFA2Calculator() {
     if((values.ecmo!=='yes'&&!values.vaEcmo&&values.fio2==='')||(values.ecmo!=='yes'&&!values.vaEcmo&&values.respiratorySupport==='')||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
       (values.ecmo!=='yes'&&!values.vaEcmo&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||
-      (values.creatinine===''&&values.urineRate===''&&!values.rrt)){
+      (values.creatinine===''&&values.urineRate==='')){
       setError('Заполните обязательные параметры. Для дыхательной системы укажите PaO₂ или допустимое SpO₂; для мозга — GCS, двигательную реакцию или отметьте неизвестную GCS до седации; для почек — креатинин, диурез или RRT.')
       setResult(null);return
     }
@@ -60,7 +60,7 @@ export default function SOFA2Calculator() {
       ...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[]),
       ...(values.norepinephrineEnabled?[values.norepinephrineDose]:[]),
       ...(values.epinephrineEnabled?[values.epinephrineDose]:[]),...(values.dopamineEnabled?[values.dopamineDose]:[]),
-      ...(values.creatinine!==''?[values.creatinine]:[]),...(values.urineRate!==''?[values.urineRate]:[])]
+      ...(values.creatinine!==''?[values.creatinine]:[]),...(values.urineRate!==''?[values.urineRate]:[]),...(values.potassium!==''?[values.potassium]:[]),...(values.ph!==''?[values.ph]:[]),...(values.bicarbonate!==''?[values.bicarbonate]:[])]
     if(numeric.some(v=>v.trim()===''||!Number.isFinite(Number(v)))){
       setError('Проверьте числовые поля и дозы выбранных препаратов.');setResult(null);return
     }
@@ -74,7 +74,10 @@ export default function SOFA2Calculator() {
       (values.epinephrineEnabled&&Number(values.epinephrineDose)<=0)||
       (values.dopamineEnabled&&Number(values.dopamineDose)<=0)||
       (values.creatinine!==''&&(Number(values.creatinine)<1||Number(values.creatinine)>3000))||
-      (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20))){
+      (values.urineRate!==''&&(Number(values.urineRate)<0||Number(values.urineRate)>20)||
+      (values.potassium!==''&&(Number(values.potassium)<0||Number(values.potassium)>20))||
+      (values.ph!==''&&(Number(values.ph)<6||Number(values.ph)>8))||
+      (values.bicarbonate!==''&&(Number(values.bicarbonate)<0||Number(values.bicarbonate)>100))){
       setError('Проверьте диапазоны и точность введённых значений. Дозы выбранных норэпинефрина, эпинефрина и дофамина должны быть больше 0 мкг/кг/мин.');setResult(null);return
     }
     if(values.gcs!==''&&values.motorScore!==''){
@@ -95,6 +98,10 @@ export default function SOFA2Calculator() {
     if(values.urineDuration==='anuria12'&&values.urineRate!==''&&Number(values.urineRate)!==0){
       setError('Для категории «анурия ≥12 часов» скорость диуреза должна быть 0 мл/кг/ч.');setResult(null);return
     }
+    if(values.rrtStatus===''){setError('Укажите статус заместительной почечной терапии.');setResult(null);return}
+    const rrtTrigger=(values.creatinine!==''&&Number(values.creatinine)>110)||(values.urineRate!==''&&Number(values.urineRate)<0.3&&['6-12','12+','24+'].includes(values.urineDuration));
+    if(values.rrtStatus==='unavailableOrDelayed'&&rrtTrigger&&values.potassium===''&&values.ph===''&&values.bicarbonate===''){setError('Для оценки критериев RRT укажите калий или одновременно pH и бикарбонат.');setResult(null);return}
+    if(values.rrtStatus==='unavailableOrDelayed'&&rrtTrigger&&((values.ph==='')!==(values.bicarbonate===''))){setError('Для оценки ацидоза необходимо указать одновременно pH и бикарбонат.');setResult(null);return}
     if(values.urineRate===''&&values.urineDuration!==''){
       setError('Укажите скорость диуреза или очистите период диуреза.');setResult(null);return
     }
@@ -114,7 +121,7 @@ export default function SOFA2Calculator() {
       preSedationGcsUnknown:values.preSedationUnknown,deliriumMedication:values.deliriumMedication,
       creatinine:values.creatinine===''?null:Number(values.creatinine),
       urineOutputMlKgH:values.urineRate===''?null:Number(values.urineRate),
-      urineOutputDuration:values.urineDuration as SOFA2Input['urineOutputDuration'],receivingRRT:values.rrt,
+      urineOutputDuration:values.urineDuration as SOFA2Input['urineOutputDuration'],rrtStatus:values.rrtStatus as SOFA2Input['rrtStatus'],potassium:values.potassium===''?null:Number(values.potassium),ph:values.ph===''?null:Number(values.ph),bicarbonate:values.bicarbonate===''?null:Number(values.bicarbonate),
     }
     setResult(calculateSOFA2(input));setError('')
   }
@@ -157,9 +164,10 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>6. Почки</h3>
           <NumberField label="Креатинин" unit="мкмоль/л" value={values.creatinine} onChange={v=>update('creatinine',v)} min={1} max={3000} step="0.1"/>
           <div className="field-grid"><NumberField label="Диурез" unit="мл/кг/ч" value={values.urineRate} onChange={v=>update('urineRate',v)} min={0} max={20} step="0.01"/>
-            <label className="calc-field"><span>Длительность олигурии / анурии</span><select value={values.urineDuration} onChange={e=>update('urineDuration',e.target.value)}><option value="">Не выбрано</option><option value="6-12">6–12 часов</option><option value="12+">≥12 часов</option><option value="24+">≥24 часов</option><option value="anuria12">Анурия ≥12 часов</option></select></label></div>
-          <label className="sofa-check"><input type="checkbox" checked={values.rrt} onChange={e=>update('rrt',e.target.checked)}/> Получает RRT / имеются критерии для заместительной почечной терапии</label>
-          <p className="field-hint">Диурез оценивается с учётом массы тела и длительности. Отметку RRT/критериев RRT используйте только при почечных показаниях: креатинин &gt;110 мкмоль/л или диурез &lt;0,3 мл/кг/ч более 6 часов, плюс калий ≥6,0 ммоль/л либо метаболический ацидоз с pH ≤7,20 и HCO₃⁻ ≤12 ммоль/л. При недоступности RRT или ограничении лечения балл 4 сохраняется, если критерии выполнены. При интермиттирующей RRT балл 4 сохраняется в дни без процедуры до прекращения курса. RRT исключительно по непочечным причинам не учитывается.</p>
+            <label className="calc-field"><span>Длительность олигурии / анурии</span><select value={values.urineDuration} onChange={e=>update('urineDuration',e.target.value)}><option value="">Не выбрано</option><option value="6-12">&gt;6–12 часов</option><option value="12+">≥12 часов</option><option value="24+">≥24 часов</option><option value="anuria12">Анурия ≥12 часов</option></select></label></div>
+          <label className="calc-field"><span>Статус заместительной почечной терапии (RRT)</span><select required value={values.rrtStatus} onChange={e=>update('rrtStatus',e.target.value)}><option value="">Не выбрано</option><option value="none">Не проводится</option><option value="receiving">Проводится сейчас или хроническая RRT</option><option value="intermittentOffDay">Интермиттирующая RRT: день без процедуры, курс продолжается</option><option value="nonrenalOnly">Проводится исключительно по непочечным показаниям</option><option value="unavailableOrDelayed">Не проводится из-за недоступности, отсрочки или ограничения лечения</option></select></label>
+          {values.rrtStatus==='unavailableOrDelayed'&&<div className="field-grid"><NumberField label="Калий" unit="ммоль/л" value={values.potassium} onChange={v=>update('potassium',v)} min={0} max={20} step="0.1"/><NumberField label="pH" unit="" value={values.ph} onChange={v=>update('ph',v)} min={6} max={8} step="0.01"/><NumberField label="Бикарбонат" unit="ммоль/л" value={values.bicarbonate} onChange={v=>update('bicarbonate',v)} min={0} max={100} step="0.1"/></div>}
+          <p className="field-hint">RRT учитывается при почечных показаниях; исключительно непочечная RRT не даёт 4 балла. Если RRT не проводится из-за недоступности, отсрочки или ограничения лечения, 4 балла возможны при креатинине &gt;110 мкмоль/л или диурезе &lt;0,3 мл/кг/ч более 6 часов, плюс калий ≥6,0 ммоль/л либо одновременно pH ≤7,20 и HCO₃⁻ ≤12 ммоль/л. В день без интермиттирующей процедуры 4 балла сохраняются, пока курс RRT не прекращён.</p>
         </section>
         {error&&<p className="form-error" role="alert">{error}</p>}
         <div className="calculator-actions"><button className="primary-button" type="submit">Рассчитать SOFA-2</button><button className="reset-button" type="button" onClick={reset}><RotateCcw size={15}/> Сбросить</button></div>

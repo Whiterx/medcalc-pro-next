@@ -22,7 +22,10 @@ export interface SOFA2Input {
   creatinine: number | null;
   urineOutputMlKgH: number | null;
   urineOutputDuration: 'none' | '6-12' | '12+' | '24+' | 'anuria12';
-  receivingRRT: boolean;
+  rrtStatus: 'none' | 'receiving' | 'intermittentOffDay' | 'nonrenalOnly' | 'unavailableOrDelayed';
+  potassium: number | null;
+  ph: number | null;
+  bicarbonate: number | null;
 }
 export interface SOFA2Component {
   key: 'brain' | 'respiratory' | 'cardiovascular' | 'liver' | 'kidney' | 'hemostasis';
@@ -94,15 +97,24 @@ export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSed
     : (observed === 6 ? 0 : observed === 5 ? 1 : observed === 4 ? 2 : observed === 3 ? 3 : 4);
   return input.deliriumMedication ? Math.max(score,1) : score;
 }
-export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'receivingRRT'>):number|null {
-  if (input.receivingRRT) return 4;
+export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'rrtStatus'|'potassium'|'ph'|'bicarbonate'>):number|null {
+  if (input.rrtStatus === 'receiving' || input.rrtStatus === 'intermittentOffDay') return 4;
   if (input.creatinine === null && input.urineOutputMlKgH === null) return null;
   if ((input.urineOutputMlKgH === null && input.urineOutputDuration !== 'none') ||
       (input.urineOutputMlKgH !== null && input.urineOutputDuration === 'none') ||
       (input.urineOutputDuration === 'anuria12' && input.urineOutputMlKgH !== 0)) return null;
+  const hasRRTTrigger = (input.creatinine !== null && input.creatinine > 110) ||
+    (input.urineOutputMlKgH !== null && input.urineOutputMlKgH < 0.3 &&
+      ['6-12','12+','24+'].includes(input.urineOutputDuration));
+  if (input.rrtStatus === 'unavailableOrDelayed' && hasRRTTrigger) {
+    const hyperkalemia = input.potassium !== null && input.potassium >= 6.0;
+    const acidosisKnown = input.ph !== null && input.bicarbonate !== null;
+    const severeAcidosis = acidosisKnown && input.ph <= 7.20 && input.bicarbonate <= 12;
+    if (hyperkalemia || severeAcidosis) return 4;
+    if (input.potassium === null || (!acidosisKnown && input.potassium < 6.0)) return null;
+  }
   let score=0;
-  if (input.creatinine !== null) score=Math.max(score,
-    input.creatinine > 300 ? 3 : input.creatinine > 170 ? 2 : input.creatinine > 110 ? 1 : 0);
+  if (input.creatinine !== null) score=Math.max(score,input.creatinine > 300 ? 3 : input.creatinine > 170 ? 2 : input.creatinine > 110 ? 1 : 0);
   if (input.urineOutputMlKgH !== null) {
     if (input.urineOutputDuration === 'anuria12' && input.urineOutputMlKgH === 0) score=Math.max(score,3);
     else if (input.urineOutputDuration === '24+' && input.urineOutputMlKgH < 0.3) score=Math.max(score,3);
@@ -111,6 +123,7 @@ export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutput
   }
   return score;
 }
+
 export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
   const respiratory=scoreSOFA2Respiratory(input);
   const brain=scoreSOFA2Brain(input);
@@ -123,7 +136,7 @@ export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
     {key:'respiratory',label:'Дыхательная система',points:respiratory.points,detail:(input.ecmoForRespiratoryFailure||input.vaEcmoForCardiovascularFailure)?'ECMO при дыхательной или сердечно-сосудистой недостаточности':respiratory.ratio===null?'Недостаточно данных для расчёта отношения':`${respiratory.type}: ${respiratory.ratio.toFixed(1)}`},
     {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:`MAP ${input.map === null ? 'не указан' : `${input.map} мм рт. ст.`}; сумма норэпинефрина и эпинефрина ${(input.norepinephrineDose+input.epinephrineDose).toFixed(3)} мкг/кг/мин`},
     {key:'liver',label:'Печень',points:liver,detail:`Общий билирубин: ${input.bilirubin} мкмоль/л`},
-    {key:'kidney',label:'Почки',points:kidney,detail:input.receivingRRT?'Проводится заместительная почечная терапия':[input.creatinine!==null?`креатинин ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`диурез ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')},
+    {key:'kidney',label:'Почки',points:kidney,detail:input.rrtStatus==='receiving'||input.rrtStatus==='intermittentOffDay'?'Проводится/продолжается заместительная почечная терапия':input.rrtStatus==='unavailableOrDelayed'?'RRT не проводится: оценены критерии её необходимости':input.rrtStatus==='nonrenalOnly'?'RRT проводится исключительно по непочечным показаниям':[input.creatinine!==null?`креатинин ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`диурез ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')},
     {key:'hemostasis',label:'Гемостаз',points:hemostasis,detail:`Тромбоциты: ${input.platelets} ×10⁹/л`},
   ];
   const hasUntestableComponent=components.some(c=>c.points===null);

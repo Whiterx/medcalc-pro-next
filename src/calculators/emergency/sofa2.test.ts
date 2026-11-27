@@ -90,30 +90,48 @@ describe('SOFA-2 brain',()=>{
   })
 })
 describe('SOFA-2 kidney',()=>{
-  const base={creatinine:null,urineOutputMlKgH:null,urineOutputDuration:'none' as const,receivingRRT:false}
-  const cr:[number,number][]=[[110,0],[111,1],[170,1],[171,2],[300,2],[301,3]]
+  const base={creatinine:null,urineOutputMlKgH:null,urineOutputDuration:'none' as const,rrtStatus:'none' as const,potassium:null,ph:null,bicarbonate:null}
+  const cr:[number,number][]=[[110,0],[110.1,1],[170,1],[170.1,2],[300,2],[300.1,3]]
   cr.forEach(([v,s])=>it(`creatinine ${v} => ${s}`,()=>expect(scoreSOFA2Kidney({...base,creatinine:v})).toBe(s)))
-  it('does not treat absent creatinine and urine output as normal',()=>{
-    expect(scoreSOFA2Kidney(base)).toBeNull()
-  })
-  it('scores oliguria by duration and anuria separately, including strict cutoffs',()=>{
+  it('does not treat absent creatinine and urine output as normal',()=>expect(scoreSOFA2Kidney(base)).toBeNull())
+  it('scores urine output by threshold and duration',()=>{
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6-12'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'6-12'})).toBe(0)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'12+'})).toBe(2)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.49,urineOutputDuration:'24+'})).toBe(2)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.29,urineOutputDuration:'24+'})).toBe(3)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0,urineOutputDuration:'anuria12'})).toBe(3)
-    expect(scoreSOFA2Kidney({...base,receivingRRT:true})).toBe(4)
+  })
+  it('scores renal RRT and ongoing intermittent RRT off-days as 4',()=>{
+    expect(scoreSOFA2Kidney({...base,rrtStatus:'receiving'})).toBe(4)
+    expect(scoreSOFA2Kidney({...base,rrtStatus:'intermittentOffDay'})).toBe(4)
+  })
+  it('does not count RRT exclusively for nonrenal indications',()=>{
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'nonrenalOnly'})).toBe(1)
+  })
+  it('scores RRT criteria when treatment is unavailable or delayed',()=>{
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(4)
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:7.2,bicarbonate:12})).toBe(4)
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:7.21,bicarbonate:12})).toBe(1)
+    expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.29,urineOutputDuration:'6-12',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(4)
+  })
+  it('returns NT if RRT criteria may be met but required biochemical data are incomplete',()=>{
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:null,ph:null,bicarbonate:null})).toBeNull()
+    expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:null,bicarbonate:null})).toBeNull()
+  })
+  it('returns NT for inconsistent urine duration data',()=>{
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'none'})).toBeNull()
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:null,urineOutputDuration:'12+'})).toBeNull()
   })
 })
 describe('calculateSOFA2',()=>{
-  const normal:SOFA2Input={pao2:100,fio2:30,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false,platelets:200,bilirubin:10,map:80,vasoactiveAvailability:'available',dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false,gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false,creatinine:80,urineOutputMlKgH:null,urineOutputDuration:'none',receivingRRT:false}
+  const normal:SOFA2Input={pao2:100,fio2:30,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false,platelets:200,bilirubin:10,map:80,vasoactiveAvailability:'available',dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false,gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false,creatinine:80,urineOutputMlKgH:null,urineOutputDuration:'none',rrtStatus:'none',potassium:null,ph:null,bicarbonate:null}
   it('returns 0 for normal parameters',()=>expect(calculateSOFA2(normal).total).toBe(0))
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
   it('returns null total when MAP is missing without cardiovascular support',()=>expect(calculateSOFA2({...normal,map:null}).total).toBeNull())
   it('returns null total when both kidney inputs are missing',()=>expect(calculateSOFA2({...normal,creatinine:null,urineOutputMlKgH:null}).total).toBeNull())
   it('sums six maximum components to 24',()=>{
-    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,receivingRRT:true}
+    const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,rrtStatus:'receiving'}
     expect(calculateSOFA2(severe).total).toBe(24)
   })
 })
