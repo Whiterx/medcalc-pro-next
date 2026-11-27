@@ -90,4 +90,4 @@ CI и ручной QA будут внесены сюда после выполн
 
 ## 7. CI и ручной QA
 
-CI #492: 50 test files, 567 tests passed; build and GitHub Pages deploy succeeded. Это техническая проверка, не клиническая валидация. Ручной QA опубликованного интерфейса на desktop/iPhone ещё не подтверждён.
+CI #492: 50 test files, 567 tests passed; build and GitHub Pages deploy succeeded. После исправления неполных почечных данных CI #497: 50 test files, 569 tests passed; production build и GitHub Pages deploy успешны. Это техническая проверка, не клиническая валидация. Ручной QA опубликованного интерфейса на desktop/iPhone ещё не подтверждён.
