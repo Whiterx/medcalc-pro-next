@@ -7,7 +7,7 @@ import { WELLS_DVT_REFERENCE } from './wellsDVT.reference'
 const initialValues: WellsDVTInput = {
   activeCancer: false, paralysisOrCast: false, bedriddenOrSurgery: false, deepVenousTenderness: false,
   entireLegSwollen: false, calfDifferenceAtLeast3cm: false, pittingEdema: false, collateralVeins: false,
-  previousDVT: false, alternativeDiagnosisAtLeastAsLikely: false,
+  previousDVT: false, alternativeDiagnosisAtLeastAsLikely: false, assessmentConfirmed: false,
 }
 
 const fields: { key: keyof Omit<WellsDVTInput, 'assessmentConfirmed'>; label: string; points: number; detail: string }[] = [
