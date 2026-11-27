@@ -34,9 +34,9 @@ function isStrictlyBelow(value: number, threshold: number): boolean {
   return value < threshold - tolerance
 }
 
-function validatePositive(value: number, label: string, max: number): void {
-  if (!Number.isFinite(value) || value <= 0 || value > max) {
-    throw new Error(`${label}: значение должно быть больше 0 и не выше ${max}.`)
+function validateRange(value: number, label: string, min: number, max: number): void {
+  if (!Number.isFinite(value) || value < min || value > max) {
+    throw new Error(`${label}: значение должно быть от ${min} до ${max}.`)
   }
 }
 
@@ -76,8 +76,8 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     const interval = input.creatinineIntervalHours as number
     const unit = input.creatinineUnit ?? 'µmol/L'
     if (unit !== 'µmol/L' && unit !== 'mg/dL') throw new Error('Неизвестная единица измерения креатинина.')
-    validatePositive(baseline, 'Исходный креатинин', unit === 'mg/dL' ? 30 : 2652)
-    validatePositive(current, 'Текущий креатинин', unit === 'mg/dL' ? 30 : 2652)
+    validateRange(baseline, 'Исходный креатинин', 0.01, unit === 'mg/dL' ? 30 : 2652)
+    validateRange(current, 'Текущий креатинин', 0.01, unit === 'mg/dL' ? 30 : 2652)
     if (!Number.isFinite(interval) || interval < 1 || interval > 168) {
       throw new Error('Интервал между измерениями креатинина должен быть от 1 до 168 часов (7 суток).')
     }
@@ -110,7 +110,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     const weight = input.bodyWeightKg as number
     const volume = input.urineVolumeMl as number
     const duration = input.urineIntervalHours as number
-    validatePositive(weight, 'Масса тела', 500)
+    validateRange(weight, 'Масса тела', 0.5, 500)
     if (!Number.isFinite(volume) || volume < 0 || volume > 50000) {
       throw new Error('Объём мочи должен быть от 0 до 50 000 мл.')
     }

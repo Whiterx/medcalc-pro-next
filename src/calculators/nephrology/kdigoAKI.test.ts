@@ -86,6 +86,8 @@ describe('calculateKDIGOAKI', () => {
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 100 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 200 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 0, creatinineCurrent: 100, creatinineIntervalHours: 24 })).toThrow()
+    expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 0.009, creatinineCurrent: 0.02, creatinineIntervalHours: 24 })).toThrow()
+    expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 0.4, urineVolumeMl: 0, urineIntervalHours: 6 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: -1, urineIntervalHours: 12 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 100, creatinineCurrent: 200, creatinineIntervalHours: 169 })).toThrow()
   })

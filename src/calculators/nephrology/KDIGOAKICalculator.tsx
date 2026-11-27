@@ -68,7 +68,7 @@ export default function KDIGOAKICalculator() {
           </div>
           <div className="form-row">
             <label className="calc-field"><span>Единицы измерения</span><select value={values.creatinineUnit} onChange={(event) => updateField('creatinineUnit', event.target.value as CreatinineUnit)}><option value="µmol/L">мкмоль/л</option><option value="mg/dL">мг/дл</option></select></label>
-            <label className="calc-field"><span>Интервал между анализами, ч</span><input type="number" min="1" max="168" step="1" value={values.creatinineIntervalHours} onChange={(event) => updateField('creatinineIntervalHours', event.target.value)} placeholder="1–168 часов" /></label>
+            <label className="calc-field"><span>Интервал между анализами, ч</span><input type="number" min="1" max="168" step="any" value={values.creatinineIntervalHours} onChange={(event) => updateField('creatinineIntervalHours', event.target.value)} placeholder="1–168 часов" /></label>
           </div>
           <p className="field-hint">Для применения критерия 1,5× интервал между исходным и текущим измерениями должен быть ≤7 суток; прирост ≥0,3 мг/дл (≥26,5 мкмоль/л) учитывается только при интервале ≤48 часов. Не подставляйте расчётный исходный креатинин.</p>
           <div className="news2-section">
@@ -95,7 +95,7 @@ export default function KDIGOAKICalculator() {
           <p className="privacy-note"><ShieldCheck size={14} /> Данные не отправляются на сервер и не сохраняются.</p>
         </form>
         <aside className="calculator-aside">
-          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Два независимых критерия</h3><p>Креатинин и диурез оцениваются отдельно. Итоговая стадия — наиболее высокая из выявленных по любому критерию.</p></div>
+          <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Два основных показателя</h3><p>Креатинин и диурез оцениваются отдельно. Начало ЗПТ в текущем эпизоде — самостоятельный критерий стадии 3. Итоговая стадия — наиболее высокая из выявленных.</p></div>
           <div className="threshold-panel"><h3>Критерии диуреза</h3><p><b>Стадия 1:</b> &lt;0,5 мл/кг/ч в течение 6–&lt;12 часов.</p><p><b>Стадия 2:</b> &lt;0,5 мл/кг/ч ≥12 часов.</p><p><b>Стадия 3:</b> &lt;0,3 мл/кг/ч ≥24 часов или анурия ≥12 часов.</p></div>
         </aside>
       </div>
