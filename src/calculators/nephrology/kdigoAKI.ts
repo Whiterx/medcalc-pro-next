@@ -24,6 +24,16 @@ export interface KDIGOAKIResult {
   details: string[]
 }
 
+function isAtLeast(value: number, threshold: number): boolean {
+  const tolerance = Number.EPSILON * Math.max(1, Math.abs(value), Math.abs(threshold)) * 4
+  return value >= threshold - tolerance
+}
+
+function isStrictlyBelow(value: number, threshold: number): boolean {
+  const tolerance = Number.EPSILON * Math.max(1, Math.abs(value), Math.abs(threshold)) * 4
+  return value < threshold - tolerance
+}
+
 function validatePositive(value: number, label: string, max: number): void {
   if (!Number.isFinite(value) || value <= 0 || value > max) {
     throw new Error(`${label}: значение должно быть больше 0 и не выше ${max}.`)
@@ -76,7 +86,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     creatinineRise = current - baseline
     creatinineRiseUnit = unit
     const absoluteRiseThreshold = unit === 'mg/dL' ? 0.3 : 26.5
-    const absoluteRiseCriterion = interval <= 48 && creatinineRise >= absoluteRiseThreshold - 1e-9
+    const absoluteRiseCriterion = interval <= 48 && isAtLeast(creatinineRise, absoluteRiseThreshold)
     const meetsAKICreatinineDefinition = creatinineRatio >= 1.5 || absoluteRiseCriterion
     const reachedStage3Threshold = meetsAKICreatinineDefinition && interval <= 168 && (
       unit === 'mg/dL'
@@ -109,9 +119,9 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     }
     urineOutputRate = volume / (weight * duration)
     if (volume === 0 && duration >= 12) urineOutputStage = 3
-    else if (duration >= 24 && urineOutputRate < 0.3) urineOutputStage = 3
-    else if (duration >= 12 && urineOutputRate < 0.5) urineOutputStage = 2
-    else if (duration >= 6 && duration < 12 && urineOutputRate < 0.5) urineOutputStage = 1
+    else if (duration >= 24 && isStrictlyBelow(urineOutputRate, 0.3)) urineOutputStage = 3
+    else if (duration >= 12 && isStrictlyBelow(urineOutputRate, 0.5)) urineOutputStage = 2
+    else if (duration >= 6 && duration < 12 && isStrictlyBelow(urineOutputRate, 0.5)) urineOutputStage = 1
     else urineOutputStage = 0
 
     details.push(
