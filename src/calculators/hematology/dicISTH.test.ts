@@ -46,11 +46,18 @@ describe('calculateISTHDIC — classic ISTH overt DIC score', () => {
     expect(() => calc({ underlyingDisorderPresent: false })).toThrow()
   })
 
-  it('requires confirmation and valid laboratory values', () => {
+  it('requires confirmation and rejects negative or non-finite laboratory values', () => {
     expect(() => calc({ assessmentConfirmed: false })).toThrow()
     expect(() => calc({ plateletCount: -1 })).toThrow()
-    expect(() => calc({ ptProlongationSeconds: 31 })).toThrow()
-    expect(() => calc({ fibrinogenGPerL: 21 })).toThrow()
+    expect(() => calc({ plateletCount: Number.NaN })).toThrow()
+    expect(() => calc({ ptProlongationSeconds: Number.POSITIVE_INFINITY })).toThrow()
+    expect(() => calc({ fibrinogenGPerL: -0.1 })).toThrow()
+  })
+
+  it('does not impose unsupported upper limits on laboratory values', () => {
+    expect(calc({ plateletCount: 2500 }).components[0].points).toBe(0)
+    expect(calc({ ptProlongationSeconds: 31 }).components[2].points).toBe(2)
+    expect(calc({ fibrinogenGPerL: 21 }).components[3].points).toBe(0)
   })
 
   it('marks a score of exactly 5 as compatible with overt DIC', () => {
@@ -91,7 +98,9 @@ describe('calculateISTHDIC — 2025 updated overt DIC score', () => {
     expect(updated({ dDimerMultipleOfULN: 7.01 }).components[1].points).toBe(3)
   })
 
-  it('requires numeric D-dimer relative to the local ULN', () => {
+  it('requires numeric D-dimer relative to the local ULN and accepts high valid multiples', () => {
     expect(() => updated({ dDimerMultipleOfULN: undefined })).toThrow()
+    expect(updated({ dDimerMultipleOfULN: 1001 }).components[1].points).toBe(3)
+    expect(() => updated({ dDimerMultipleOfULN: Number.NaN })).toThrow()
   })
 })

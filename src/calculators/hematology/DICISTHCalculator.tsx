@@ -5,7 +5,7 @@ import { calculateISTHDIC, type DICResult, type DICVersion, type DimerCategory }
 import { DIC_ISTH_REFERENCE } from './dicISTH.reference'
 
 const initialValues = {
-  version: 'updated2025' as DICVersion,
+  version: 'classic2001' as DICVersion,
   underlyingDisorderPresent: false,
   plateletCount: '',
   ptProlongationSeconds: '',
@@ -88,10 +88,11 @@ export default function DICISTHCalculator() {
           <label className="calc-field field-full">
             <span>Версия ISTH</span>
             <select value={values.version} onChange={(event) => updateField('version', event.target.value as DICVersion)}>
-              <option value="updated2025">Обновлённые критерии ISTH SSC 2025</option>
-              <option value="classic2001">Классические критерии ISTH (2001)</option>
+              <option value="classic2001">Классические критерии ISTH (2001) — основной вариант</option>
+              <option value="updated2025">Обновлённые критерии ISTH SSC 2025 — дополнительный вариант</option>
             </select>
           </label>
+          <p className="field-hint">По умолчанию используется классическая версия ISTH 2001. КР РФ по сепсису 2024 рекомендуют лабораторную оценку ДВС; КР РФ по внематочной беременности приводят ISTH 2001. Обновление ISTH SSC 2025 — дополнительное международное предложение, пока не отражённое в этих российских КР.</p>
           <label className="check-field">
             <input type="checkbox" checked={values.underlyingDisorderPresent} onChange={(event) => updateField('underlyingDisorderPresent', event.target.checked)} />
             <span>У пациента имеется основное заболевание, ассоциированное с ДВС (обязательное условие применения score)</span>
@@ -104,15 +105,15 @@ export default function DICISTHCalculator() {
           <div className="field-grid">
             <label className="calc-field">
               <span>Тромбоциты <small>×10⁹/л</small></span>
-              <input type="number" min="0" max="2000" step="1" inputMode="numeric" placeholder="Введите значение" value={values.plateletCount} onChange={(event) => updateField('plateletCount', event.target.value)} />
+              <input type="number" min="0" step="1" inputMode="numeric" placeholder="Введите значение" value={values.plateletCount} onChange={(event) => updateField('plateletCount', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Удлинение ПВ <small>секунд относительно контроля</small></span>
-              <input type="number" min="0" max="30" step="0.1" inputMode="decimal" placeholder="Введите секунды" value={values.ptProlongationSeconds} onChange={(event) => updateField('ptProlongationSeconds', event.target.value)} />
+              <input type="number" min="0" step="0.1" inputMode="decimal" placeholder="Введите секунды" value={values.ptProlongationSeconds} onChange={(event) => updateField('ptProlongationSeconds', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Фибриноген <small>г/л</small></span>
-              <input type="number" min="0" max="20" step="0.01" inputMode="decimal" placeholder="Введите значение" value={values.fibrinogenGPerL} onChange={(event) => updateField('fibrinogenGPerL', event.target.value)} />
+              <input type="number" min="0" step="0.01" inputMode="decimal" placeholder="Введите значение" value={values.fibrinogenGPerL} onChange={(event) => updateField('fibrinogenGPerL', event.target.value)} />
             </label>
             {values.version === 'classic2001' ? (
               <label className="calc-field">
@@ -127,7 +128,7 @@ export default function DICISTHCalculator() {
             ) : (
               <label className="calc-field">
                 <span>D-димер <small>кратность верхней границы нормы (ВГН)</small></span>
-                <input type="number" min="0" max="1000" step="0.01" inputMode="decimal" placeholder="Например, 4.5" value={values.dDimerMultipleOfULN} onChange={(event) => updateField('dDimerMultipleOfULN', event.target.value)} />
+                <input type="number" min="0" step="0.01" inputMode="decimal" placeholder="Например, 4.5" value={values.dDimerMultipleOfULN} onChange={(event) => updateField('dDimerMultipleOfULN', event.target.value)} />
               </label>
             )}
           </div>
@@ -177,8 +178,8 @@ export default function DICISTHCalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{DIC_ISTH_REFERENCE.title}</h2><p>{DIC_ISTH_REFERENCE.guideline} · {DIC_ISTH_REFERENCE.section}</p></div>
-        <a href={DIC_ISTH_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>{DIC_ISTH_REFERENCE.published}. Проверено: {DIC_ISTH_REFERENCE.accessed}. {DIC_ISTH_REFERENCE.notes[0]}</small>
+        <a href={DIC_ISTH_REFERENCE.russianSepsisUrl} target="_blank" rel="noreferrer">КР РФ «Сепсис», 2024 ↗</a><a href={DIC_ISTH_REFERENCE.russianObstetricUrl} target="_blank" rel="noreferrer">КР РФ «Внематочная беременность», 2024 ↗</a><a href={DIC_ISTH_REFERENCE.classicUrl} target="_blank" rel="noreferrer">ISTH 2001 ↗</a><a href={DIC_ISTH_REFERENCE.updated2025Url} target="_blank" rel="noreferrer">ISTH SSC 2025 ↗</a>
+        <small>{DIC_ISTH_REFERENCE.published}. Проверено: {DIC_ISTH_REFERENCE.accessed}. {DIC_ISTH_REFERENCE.notes[0]} {DIC_ISTH_REFERENCE.notes[4]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельного назначения лечения.</p>
     </main>

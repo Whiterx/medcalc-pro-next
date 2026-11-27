@@ -29,20 +29,22 @@ export interface DICResult {
 }
 
 export function calculateISTHDIC(input: DICInput): DICResult {
-  if (!input.underlyingDisorderPresent) {
+  if (!input || typeof input !== 'object') throw new Error('Введите лабораторные показатели.')
+  if (input.version !== 'classic2001' && input.version !== 'updated2025') throw new Error('Выберите версию критериев ISTH.')
+  if (input.underlyingDisorderPresent !== true) {
     throw new Error('Классический overt DIC score применяют только при наличии основного заболевания, ассоциированного с ДВС.')
   }
-  if (!input.assessmentConfirmed) {
+  if (input.assessmentConfirmed !== true) {
     throw new Error('Подтвердите, что все лабораторные показатели оценены и относятся к одному клиническому периоду.')
   }
-  if (!Number.isFinite(input.plateletCount) || input.plateletCount < 0 || input.plateletCount > 2000) {
-    throw new Error('Тромбоциты должны быть в диапазоне 0–2000 ×10⁹/л.')
+  if (!Number.isFinite(input.plateletCount) || input.plateletCount < 0) {
+    throw new Error('Тромбоциты должны быть конечным неотрицательным числом ×10⁹/л.')
   }
-  if (!Number.isFinite(input.ptProlongationSeconds) || input.ptProlongationSeconds < 0 || input.ptProlongationSeconds > 30) {
-    throw new Error('Удлинение ПВ должно быть в диапазоне 0–30 секунд.')
+  if (!Number.isFinite(input.ptProlongationSeconds) || input.ptProlongationSeconds < 0) {
+    throw new Error('Удлинение ПВ должно быть конечным неотрицательным числом секунд.')
   }
-  if (!Number.isFinite(input.fibrinogenGPerL) || input.fibrinogenGPerL < 0 || input.fibrinogenGPerL > 20) {
-    throw new Error('Фибриноген должен быть в диапазоне 0–20 г/л.')
+  if (!Number.isFinite(input.fibrinogenGPerL) || input.fibrinogenGPerL < 0) {
+    throw new Error('Фибриноген должен быть конечным неотрицательным числом г/л.')
   }
 
   const plateletPoints = input.plateletCount < 50
@@ -66,8 +68,8 @@ export function calculateISTHDIC(input: DICInput): DICResult {
     dDimerPoints = input.dDimerCategory === 'strong' ? 3 : input.dDimerCategory === 'moderate' ? 2 : 0
     dDimerValue = input.dDimerCategory === 'strong' ? 'Значительное повышение' : input.dDimerCategory === 'moderate' ? 'Умеренное повышение' : 'Повышения нет'
   } else {
-    if (!Number.isFinite(input.dDimerMultipleOfULN) || (input.dDimerMultipleOfULN as number) < 0 || (input.dDimerMultipleOfULN as number) > 1000) {
-      throw new Error('Укажите отношение D-димера к ВГН в диапазоне 0–1000.')
+    if (!Number.isFinite(input.dDimerMultipleOfULN) || (input.dDimerMultipleOfULN as number) < 0) {
+      throw new Error('Укажите конечное неотрицательное отношение D-димера к ВГН.')
     }
     const multiple = input.dDimerMultipleOfULN as number
     dDimerPoints = multiple > 7 ? 3 : multiple > 3 ? 2 : 0
