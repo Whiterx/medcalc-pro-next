@@ -8,7 +8,12 @@ const none: WellsDVTInput = {
 }
 
 describe('calculateWellsDVT', () => {
-  it('returns zero and unlikely when all criteria are absent', () => {
+  it('requires explicit confirmation that all ten criteria were assessed', () => {
+    expect(() => calculateWellsDVT({ ...none, assessmentConfirmed: false })).toThrow()
+    expect(() => calculateWellsDVT({ ...none, assessmentConfirmed: undefined as unknown as boolean })).toThrow()
+  })
+
+  it('returns zero and unlikely when all criteria are absent after confirmation', () => {
     const result = calculateWellsDVT(none)
     expect(result.score).toBe(0)
     expect(result.category).toBe('unlikely')

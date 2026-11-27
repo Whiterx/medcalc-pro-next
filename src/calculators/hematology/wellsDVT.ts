@@ -9,12 +9,13 @@ export interface WellsDVTInput {
   collateralVeins: boolean
   previousDVT: boolean
   alternativeDiagnosisAtLeastAsLikely: boolean
+  assessmentConfirmed: boolean
 }
 
 export type WellsDVTCategory = 'unlikely' | 'likely'
 
 export interface WellsDVTCriterion {
-  key: keyof WellsDVTInput
+  key: keyof Omit<WellsDVTInput, 'assessmentConfirmed'>
   label: string
   present: boolean
   points: -2 | 0 | 1
@@ -41,7 +42,8 @@ export function classifyWellsDVT(score: number): Pick<WellsDVTResult, 'category'
 
 export function calculateWellsDVT(input: WellsDVTInput): WellsDVTResult {
   if (!input || typeof input !== 'object') throw new Error('Оцените все десять критериев Wells DVT.')
-  const keys: (keyof WellsDVTInput)[] = [
+  if (input.assessmentConfirmed !== true) throw new Error('Подтвердите, что все 10 критериев оценены и неотмеченные признаки действительно отсутствуют.')
+  const keys: (keyof Omit<WellsDVTInput, 'assessmentConfirmed'>)[] = [
     'activeCancer', 'paralysisOrCast', 'bedriddenOrSurgery', 'deepVenousTenderness',
     'entireLegSwollen', 'calfDifferenceAtLeast3cm', 'pittingEdema', 'collateralVeins',
     'previousDVT', 'alternativeDiagnosisAtLeastAsLikely',

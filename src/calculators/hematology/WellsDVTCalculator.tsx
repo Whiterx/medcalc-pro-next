@@ -10,7 +10,7 @@ const initialValues: WellsDVTInput = {
   previousDVT: false, alternativeDiagnosisAtLeastAsLikely: false,
 }
 
-const fields: { key: keyof WellsDVTInput; label: string; points: number; detail: string }[] = [
+const fields: { key: keyof Omit<WellsDVTInput, 'assessmentConfirmed'>; label: string; points: number; detail: string }[] = [
   { key: 'activeCancer', label: 'Активное онкологическое заболевание', points: 1, detail: 'Лечение продолжается, проводилось в последние 6 месяцев или заболевание находится в паллиативной стадии.' },
   { key: 'paralysisOrCast', label: 'Парез/паралич или недавняя иммобилизация нижней конечности гипсовой повязкой', points: 1, detail: 'Любой из перечисленных признаков.' },
   { key: 'bedriddenOrSurgery', label: 'Постельный режим ≥3 дней или большая операция в последние 12 недель', points: 1, detail: 'Операция под общей или регионарной анестезией.' },
@@ -75,6 +75,12 @@ export default function WellsDVTCalculator() {
               </label>
             </div>
           ))}
+          <div className="news2-section">
+            <label className="form-check">
+              <input type="checkbox" className="form-check__input" checked={values.assessmentConfirmed} onChange={(event) => updateField('assessmentConfirmed', event.target.checked)} />
+              <span className="form-check__label"><b>Подтверждаю, что все 10 критериев оценены</b><small>Неотмеченные признаки действительно отсутствуют; это подтверждение не добавляет баллы.</small></span>
+            </label>
+          </div>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="calculator-actions">
             <button className="primary-button" type="submit">Рассчитать Wells DVT</button>
@@ -84,7 +90,7 @@ export default function WellsDVTCalculator() {
         </form>
         <aside className="calculator-aside">
           <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Двухуровневая модель</h3><p>Девять критериев добавляют по 1 баллу; альтернативный диагноз как минимум столь же вероятный вычитает 2 балла.</p></div>
-          <div className="threshold-panel"><h3>Интерпретация NICE NG158</h3><p><b>≥2 баллов:</b> ТГВ вероятен.</p><p><b>≤1 балла:</b> ТГВ маловероятен.</p><p>Дальнейшее обследование проводят по диагностическому алгоритму, а не только по сумме баллов.</p></div>
+          <div className="threshold-panel"><h3>КР РФ 2025 — Wells DVT</h3><p><b>≥2 баллов:</b> ТГВ вероятен.</p><p><b>≤1 балла:</b> ТГВ маловероятен.</p><p>При низкой вероятности можно рассмотреть D-димер вместо УЗИ. Если вероятность высокая и/или D-димер повышен, а первичное УЗИ отрицательно, КР РФ рекомендуют повторить исследование через 7 дней.</p></div>
         </aside>
       </div>
       {result && (
@@ -96,15 +102,15 @@ export default function WellsDVTCalculator() {
           <div className="criteria-list">{result.criteria.map((item) => (
             <div className="criterion-row" key={item.key}><span className="criterion-point">{item.points > 0 ? '+' : ''}{item.points}</span><span><b>{item.label}</b><small>{item.interpretation}</small></span><span className="criterion-status">{item.points > 0 ? '+' : ''}{item.points} б.</span></div>
           ))}</div>
-          <p className="clinical-warning"><ShieldAlert size={14} /> Шкала оценивает только предтестовую вероятность. При вероятном ТГВ обычно требуется УЗИ проксимальных вен; при маловероятном — D-димер согласно NICE NG158. Балл не подтверждает и не исключает диагноз самостоятельно и не является основанием для назначения антикоагулянта.</p>
+          <p className="clinical-warning"><ShieldAlert size={14} /> Шкала оценивает только предтестовую вероятность. По КР РФ 2025 при низкой вероятности можно рассмотреть D-димер как альтернативу УЗИ; при высокой вероятности и/или повышенном D-димере с отрицательным первичным УЗИ требуется повторное дуплексное/триплексное исследование через 7 дней. При беременности, рецидиве ТГВ, у детей и при тромбозе вен верхней конечности нужен отдельный алгоритм. Балл не подтверждает диагноз и не является основанием для назначения антикоагулянта.</p>
         </section>
       )}
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{WELLS_DVT_REFERENCE.title}</h2><p>{WELLS_DVT_REFERENCE.originalSource}</p></div>
-        <a href={WELLS_DVT_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Открыть оригинальную публикацию ↗</a>
-        <small>{WELLS_DVT_REFERENCE.guideline} · <a href={WELLS_DVT_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">Рекомендации NICE ↗</a> Проверено: {WELLS_DVT_REFERENCE.accessed}.</small>
+        <a href={WELLS_DVT_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2025 ↗</a><a href={WELLS_DVT_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Первоисточник Wells 2003 ↗</a><a href={WELLS_DVT_REFERENCE.niceUrl} target="_blank" rel="noreferrer">NICE NG158 ↗</a>
+        <small>{WELLS_DVT_REFERENCE.guideline} · Проверено: {WELLS_DVT_REFERENCE.accessed}. {WELLS_DVT_REFERENCE.notes[3]}</small>
       </section>
-      <p className="calculator-disclaimer">Образовательный инструмент для взрослых с подозрением на ТГВ нижней конечности. Не предназначен для скрининга или самостоятельной диагностики.</p>
+      <p className="calculator-disclaimer">Образовательный инструмент для взрослых с подозрением на ТГВ нижней конечности; не применять при беременности, у детей, при рецидиве ТГВ или тромбозе вен верхней конечности. Не предназначен для скрининга или самостоятельной диагностики.</p>
     </main>
   )
 }
