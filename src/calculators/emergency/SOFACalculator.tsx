@@ -30,7 +30,13 @@ export default function SOFACalculator() {
   const [error, setError] = useState('')
 
   function update<K extends keyof Values>(key: K, value: Values[K]) {
-    setValues((current) => ({ ...current, [key]: value }))
+    setValues((current) => {
+      const next = { ...current, [key]: value }
+      if (key === 'dopamineDose' || key === 'epinephrineDose' || key === 'norepinephrineDose') {
+        next.vasoactiveAtLeastOneHour = false
+      }
+      return next
+    })
     setResult(null)
     setError('')
   }
@@ -181,12 +187,12 @@ export default function SOFACalculator() {
             {values.vasoactiveStatus === 'receiving' && <div className="sofa-drugs">
               <p className="field-hint">Отметьте все применяемые препараты; дозы — мкг/кг/мин. Для исходной SOFA учитывается введение не менее 1 часа.</p>
               <label className="sofa-check"><input type="checkbox" checked={values.vasoactiveAtLeastOneHour} onChange={(e) => update('vasoactiveAtLeastOneHour', e.target.checked)} /> Выбранные препараты вводились не менее 1 часа</label>
-              <label className="sofa-check"><input type="checkbox" checked={values.dopamineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, dopamineEnabled: checked, dopamineDose: checked ? current.dopamineDose : '' })); setResult(null); setError('') }} /> Дофамин</label>
+              <label className="sofa-check"><input type="checkbox" checked={values.dopamineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, dopamineEnabled: checked, dopamineDose: checked ? current.dopamineDose : '', vasoactiveAtLeastOneHour: false })); setResult(null); setError('') }} /> Дофамин</label>
               {values.dopamineEnabled && <NumberField label="Доза дофамина" unit="мкг/кг/мин" value={values.dopamineDose} onChange={(v) => update('dopamineDose', v)} min={0} step="any" />}
-              <label className="sofa-check"><input type="checkbox" checked={values.dobutamine} onChange={(e) => { setValues((current) => ({ ...current, dobutamine: e.target.checked })); setResult(null); setError('') }} /> Добутамин (любая доза)</label>
-              <label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, epinephrineEnabled: checked, epinephrineDose: checked ? current.epinephrineDose : '' })); setResult(null); setError('') }} /> Эпинефрин</label>
+              <label className="sofa-check"><input type="checkbox" checked={values.dobutamine} onChange={(e) => { setValues((current) => ({ ...current, dobutamine: e.target.checked, vasoactiveAtLeastOneHour: false })); setResult(null); setError('') }} /> Добутамин (любая доза)</label>
+              <label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, epinephrineEnabled: checked, epinephrineDose: checked ? current.epinephrineDose : '', vasoactiveAtLeastOneHour: false })); setResult(null); setError('') }} /> Эпинефрин</label>
               {values.epinephrineEnabled && <NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={(v) => update('epinephrineDose', v)} min={0} step="any" />}
-              <label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, norepinephrineEnabled: checked, norepinephrineDose: checked ? current.norepinephrineDose : '' })); setResult(null); setError('') }} /> Норэпинефрин</label>
+              <label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, norepinephrineEnabled: checked, norepinephrineDose: checked ? current.norepinephrineDose : '', vasoactiveAtLeastOneHour: false })); setResult(null); setError('') }} /> Норэпинефрин</label>
               {values.norepinephrineEnabled && <NumberField label="Доза норэпинефрина" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={(v) => update('norepinephrineDose', v)} min={0} step="any" />}
             </div>}
           </section>
