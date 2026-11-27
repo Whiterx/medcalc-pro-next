@@ -144,7 +144,7 @@ export default function NEWS2Calculator() {
           <div className="news2-section">
             <div className="panel-heading"><div><span className="panel-kicker">НЕВРОЛОГИЧЕСКИЙ СТАТУС</span><h2>Сознание (ACVPU)</h2></div><span className="points-label">0 или 3 балла</span></div>
             <label className="calc-field"><span>Уровень сознания</span>
-              <select value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
+              <select value={values.consciousness ?? ''} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
                 <option value="">Выберите состояние</option>
                 <option value="alert">A — бодрствует / обычное состояние (0)</option>
                 <option value="new-confusion">Новое спутанное сознание / делирий / острое изменение ментального статуса, включая GCS &lt;15 (3)</option>

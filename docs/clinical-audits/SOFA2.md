@@ -152,3 +152,6 @@ CI #515 выявил несоответствие имени поля после
 ### Закрытие технического аудита
 
 27.11.2026 — технический и источниковый аудит SOFA-2 завершён. Реализация сверена с таблицей и сносками Ranzani et al., JAMA 2025, включая коррекцию от 29.01.2026; проверены все шесть компонентов, граничные значения, специальные сценарии поддержки органов, RRT, обработка пропусков и UI-валидация. CI #519: 50 файлов / 602 теста, TypeScript, build и deploy — success. Статус «ПРОВЕРЕН» относится только к технической и источниковой проверке; клиническая валидация врачами остаётся запланированной после релиза.
+
+
+CI #521: tests passed, but the production build failed due to a TypeScript nullability error in the unrelated NEWS2 consciousness select. This does not change SOFA-2 calculation; NEWS2 UI binding is corrected to render null as an empty select value. A new CI run is required before the branch is considered green.
