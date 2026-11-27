@@ -11,6 +11,11 @@ const base: PSIInput = {
 const calc = (overrides: Partial<PSIInput>) => calculatePSI({ ...base, ...overrides })
 
 describe('calculatePSI', () => {
+  it('rejects missing input and non-boolean clinical checkboxes', () => {
+    expect(() => calculatePSI(null as unknown as PSIInput)).toThrow()
+    expect(() => calc({ nursingHome: undefined as never })).toThrow()
+    expect(() => calc({ hypoxemia: 'yes' as never })).toThrow()
+  })
   it('assigns class I by step 1 when age is 50 or younger and no step-1 risk factors exist', () => {
     expect(calc({ age: 50 }).riskClass).toBe('I')
     expect(calc({ age: 18 }).score).toBeNull()

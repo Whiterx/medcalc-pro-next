@@ -42,11 +42,14 @@ export interface PSIResult {
 }
 
 function validateStepOne(input: PSIInput): void {
+  if (!input || typeof input !== 'object') throw new Error('Введите клинические показатели PSI.')
   if (!Number.isInteger(input.age) || input.age < 18 || input.age > 120) throw new Error('Возраст должен быть целым числом от 18 до 120 лет. PSI предназначен для взрослых.')
   if (!Number.isInteger(input.respiratoryRate) || input.respiratoryRate < 1 || input.respiratoryRate > 100) throw new Error('ЧДД должна быть целым числом от 1 до 100 в минуту.')
   if (!Number.isInteger(input.systolicBP) || input.systolicBP < 1 || input.systolicBP > 300) throw new Error('Систолическое АД должно быть целым числом от 1 до 300 мм рт. ст.')
   if (!Number.isInteger(input.heartRate) || input.heartRate < 1 || input.heartRate > 300) throw new Error('ЧСС должна быть целым числом от 1 до 300 в минуту.')
   if (!Number.isFinite(input.temperatureC) || input.temperatureC < 25 || input.temperatureC > 45) throw new Error('Температура должна быть в диапазоне 25–45 °C.')
+  const booleanFields: (keyof PSIInput)[] = ['nursingHome', 'neoplasticDisease', 'liverDisease', 'heartFailure', 'cerebrovascularDisease', 'renalDisease', 'alteredMentalStatus', 'hypoxemia', 'pleuralEffusion']
+  if (booleanFields.some((key) => typeof input[key] !== 'boolean')) throw new Error('Проверьте все отмечаемые клинические признаки: каждый должен иметь значение да или нет.')
 }
 
 function validateStepTwo(input: PSIInput): asserts input is PSIInput & { sex: PSISex; bunUreaMmol: number; sodiumMmol: number; glucoseMmol: number; hematocritPercent: number; arterialPH: number } {
@@ -128,12 +131,12 @@ export function calculatePSI(input: PSIInput): PSIResult {
     suggestedSetting = 'Рассмотреть краткосрочное наблюдение или госпитализацию; решение зависит от клинической оценки.'
   } else if (score <= 130) {
     riskClass = 'IV'
-    mortalityEstimate = 'Ориентировочная летальность в исходных когортах — около 8,2–9,3%.'
-    suggestedSetting = 'Как правило, требуется госпитализация.'
+    mortalityEstimate = 'Ориентировочная летальность по КР Минздрава РФ 2024 — около 8,5–9,3%.'
+    suggestedSetting = 'Стационарное лечение.'
   } else {
     riskClass = 'V'
     mortalityEstimate = 'Ориентировочная летальность в исходных когортах — около 27–31%.'
-    suggestedSetting = 'Как правило, требуется госпитализация и тщательная оценка тяжести состояния.'
+    suggestedSetting = 'Стационарное лечение в ОРИТ по таблице классов риска КР Минздрава РФ 2024.'
   }
 
   return {

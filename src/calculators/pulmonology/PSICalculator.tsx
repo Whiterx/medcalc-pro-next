@@ -115,7 +115,7 @@ export default function PSICalculator() {
         <form className="calculator-panel" onSubmit={handleCalculate}>
           <div className="panel-heading">
             <div><span className="panel-kicker">ШАГ 1</span><h2>Возраст и клинические показатели</h2></div>
-            <span className="points-label">5 показателей</span>
+            <span className="points-label">11 критериев</span>
           </div>
           <div className="field-grid">
             <label className="calc-field"><span>Возраст <small>лет, только взрослые</small></span><input type="number" min="18" max="120" step="1" inputMode="numeric" placeholder="Например, 67" value={values.age} onChange={(e) => updateValue('age', e.target.value)} /></label>
@@ -139,7 +139,7 @@ export default function PSICalculator() {
 
           <h3 className="form-section-title">Шаг 2 · Дополнительные факторы</h3>
           {check('nursingHome', 'Проживание в учреждении длительного ухода', '+10')}
-          {check('hypoxemia', 'PaO₂ <60 мм рт. ст. или SpO₂ <90%', '+10')}
+          {check('hypoxemia', 'PaO₂ <60 мм рт. ст. или SaO₂ <90%', '+10')}
           {check('pleuralEffusion', 'Плевральный выпот на рентгенограмме', '+10')}
 
           <div className="field-grid">
@@ -189,8 +189,8 @@ export default function PSICalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{PSI_REFERENCE.title}</h2><p>{PSI_REFERENCE.guideline}</p></div>
-        <a href={PSI_REFERENCE.url} target="_blank" rel="noreferrer">Открыть оригинальную публикацию ↗</a>
-        <small>{PSI_REFERENCE.notes[4]} <a href={PSI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">ATS/IDSA 2019 ↗</a> Проверено: {PSI_REFERENCE.accessed}.</small>
+        <a href={PSI_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a><a href={PSI_REFERENCE.url} target="_blank" rel="noreferrer">Исходная публикация Fine 1997 ↗</a>
+        <small>{PSI_REFERENCE.notes[6]} <a href={PSI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">ATS/IDSA 2019 ↗</a> Проверено: {PSI_REFERENCE.accessed}.</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. PSI предназначен для взрослых с внебольничной пневмонией; не используйте его изолированно для решения о выписке, госпитализации или переводе в ОРИТ.</p>
     </main>
