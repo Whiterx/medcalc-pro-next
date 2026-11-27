@@ -17,14 +17,14 @@ describe('SOFA respiratory thresholds', () => {
 })
 
 describe('SOFA coagulation thresholds', () => {
-  const cases: [number, number][] = [[150,0],[149,1],[100,1],[99,2],[50,2],[49,3],[20,3],[19,4]]
+  const cases: [number, number][] = [[150,0],[149.9,1],[149,1],[100,1],[99.9,2],[99,2],[50,2],[49,3],[20,3],[19,4]]
   cases.forEach(([value, expected]) => {
     it(`platelets ${value} => ${expected}`, () => expect(scoreCoagulation(value)).toBe(expected))
   })
 })
 
 describe('SOFA liver thresholds', () => {
-  const cases: [number, number][] = [[19,0],[20,1],[32,1],[33,2],[101,2],[102,3],[204,3],[205,4]]
+  const cases: [number, number][] = [[19.9,0],[19,0],[20,1],[32.9,1],[32,1],[33,2],[101.9,2],[101,2],[102,3],[204,3],[204.1,4],[205,4]]
   cases.forEach(([value, expected]) => {
     it(`bilirubin ${value} => ${expected}`, () => expect(scoreLiver(value)).toBe(expected))
   })
@@ -62,7 +62,7 @@ describe('SOFA neurologic thresholds', () => {
 })
 
 describe('SOFA renal thresholds', () => {
-  const creatinineCases: [number, number][] = [[109,0],[110,1],[170,1],[171,2],[299,2],[300,3],[440,3],[441,4]]
+  const creatinineCases: [number, number][] = [[109.9,0],[109,0],[110,1],[110.1,1],[170,1],[170.9,1],[171,2],[299,2],[299.9,2],[300,3],[440,3],[440.1,4],[441,4]]
   creatinineCases.forEach(([value, expected]) => {
     it(`creatinine ${value} => ${expected}`, () => expect(scoreRenal(value, null)).toBe(expected))
   })

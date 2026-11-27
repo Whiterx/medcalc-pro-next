@@ -83,11 +83,7 @@ export default function SOFACalculator() {
       return
     }
 
-    const ints = [values.platelets, values.bilirubin, values.map, values.pao2, values.fio2,
-      ...(values.creatinine !== '' ? [values.creatinine] : []),
-      ...(values.urineOutput !== '' ? [values.urineOutput] : []),
-      ...(values.baseline !== '' ? [values.baseline] : [])]
-    if (ints.some((value) => !Number.isInteger(Number(value))) ||
+    if ((values.baseline !== '' && !Number.isInteger(Number(values.baseline))) ||
       Number(values.pao2) < 1 || Number(values.pao2) > 800 ||
       Number(values.fio2) < 21 || Number(values.fio2) > 100 ||
       Number(values.platelets) < 0 || Number(values.platelets) > 1000 ||
@@ -96,7 +92,7 @@ export default function SOFACalculator() {
       (values.creatinine !== '' && (Number(values.creatinine) < 1 || Number(values.creatinine) > 3000)) ||
       (values.urineOutput !== '' && (Number(values.urineOutput) < 0 || Number(values.urineOutput) > 20000)) ||
       (values.baseline !== '' && (Number(values.baseline) < 0 || Number(values.baseline) > 24))) {
-      setError('Проверьте диапазоны и точность: лабораторные и гемодинамические значения должны быть целыми; дозы препаратов могут быть десятичными.')
+      setError('Проверьте диапазоны значений; исходный балл SOFA должен быть целым числом. Измеряемые показатели и дозы могут содержать десятичную часть.')
       setResult(null)
       return
     }
