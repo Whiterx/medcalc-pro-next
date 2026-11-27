@@ -76,7 +76,7 @@ export default function CURB65Calculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> КЛИНИЧЕСКАЯ ШКАЛА</div>
         <h1>CURB-65</h1>
-        <p>Оценка тяжести внебольничной пневмонии у взрослых в стационаре и риска 30-дневной смертности. Для первичной медицинской помощи NICE рекомендует шкалу CRB-65.</p>
+        <p>Оценка риска при внебольничной пневмонии у взрослых. КР Минздрава РФ 2024 рекомендуют CURB/CRB-65 амбулаторным пациентам и CURB/CRB-65 или PORT госпитализированным. Этот калькулятор рассчитывает CURB-65 с мочевиной.</p>
       </section>
 
       <div className="calculator-layout">
@@ -97,22 +97,22 @@ export default function CURB65Calculator() {
             </label>
             <label className="calc-field">
               <span>Частота дыхания <small>в минуту</small></span>
-              <input type="number" min="0" max="100" step="1" inputMode="numeric" placeholder="Например, 32" value={values.respiratoryRate} onChange={(event) => updateField('respiratoryRate', event.target.value)} />
+              <input type="number" min="1" max="100" step="1" inputMode="numeric" placeholder="Например, 32" value={values.respiratoryRate} onChange={(event) => updateField('respiratoryRate', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Систолическое АД <small>мм рт. ст.</small></span>
-              <input type="number" min="0" max="300" step="1" inputMode="numeric" placeholder="Например, 88" value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} />
+              <input type="number" min="1" max="300" step="1" inputMode="numeric" placeholder="Например, 88" value={values.systolicBP} onChange={(event) => updateField('systolicBP', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Диастолическое АД <small>мм рт. ст.</small></span>
-              <input type="number" min="0" max="200" step="1" inputMode="numeric" placeholder="Например, 58" value={values.diastolicBP} onChange={(event) => updateField('diastolicBP', event.target.value)} />
+              <input type="number" min="1" max="200" step="1" inputMode="numeric" placeholder="Например, 58" value={values.diastolicBP} onChange={(event) => updateField('diastolicBP', event.target.value)} />
             </label>
           </div>
 
           <label className="confusion-option">
-            <input type="checkbox" checked={confusion} onChange={(event) => { setConfusion(event.target.checked); setResult(null) }} />
+            <input type="checkbox" checked={confusion} onChange={(event) => { setConfusion(event.target.checked); setResult(null); setError('') }} />
             <span className="custom-check" />
-            <span className="confusion-copy"><b>Новое нарушение сознания</b><small>AMTS ≤8 или новая дезориентация в месте, времени или собственной личности</small></span>
+            <span className="confusion-copy"><b>Новое нарушение сознания, обусловленное пневмонией</b><small>AMTS ≤8 или новая дезориентация в месте, времени или собственной личности</small></span>
             <strong>+1</strong>
           </label>
 
@@ -147,7 +147,7 @@ export default function CURB65Calculator() {
           <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag risk-${result.risk}`}>{result.riskLabel}</span></div>
           <div className="score-display"><strong>{result.score}</strong><span>/ 5 баллов</span></div>
           <div className="risk-meter" aria-label={`Набрано ${result.score} из 5 баллов`}><span style={{ width: `${result.score * 20}%` }} /></div>
-          <p className="mortality-estimate">Группа риска 30-дневной смертности по NICE: <b>{result.mortality}</b></p>
+          <p className="mortality-estimate">Группа риска 30-дневной смертности по NICE NG250 (2025): <b>{result.mortality}</b></p>
           <h3>Разбор критериев</h3>
           <div className="criteria-list">
             {result.criteria.map((criterion) => <div className="criterion-row" key={criterion.key}><span className={criterion.met ? 'criterion-point active' : 'criterion-point'}>{criterion.points ? '+1' : '0'}</span><span><b>{criterion.label}</b><small>{criterion.explanation}</small></span><span className="criterion-status">{criterion.met ? 'Критерий есть' : 'Нет'}</span></div>)}
@@ -159,7 +159,7 @@ export default function CURB65Calculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{CURB65_REFERENCE.title}</h2><p>{CURB65_REFERENCE.guideline} · {CURB65_REFERENCE.section}</p></div>
-        <a href={CURB65_REFERENCE.url} target="_blank" rel="noreferrer">Открыть руководство NICE ↗</a>
+        <a href={CURB65_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a><a href={CURB65_REFERENCE.url} target="_blank" rel="noreferrer">NICE NG250 2025 ↗</a><a href={CURB65_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Исходное исследование CURB-65 ↗</a>
         <small>Версия источника: {CURB65_REFERENCE.published}. Проверено: {CURB65_REFERENCE.accessed}. {CURB65_REFERENCE.notes[0]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Результат предназначен для поддержки обучения и не является самостоятельным основанием для выбора места лечения.</p>
