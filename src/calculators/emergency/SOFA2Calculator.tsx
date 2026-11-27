@@ -42,7 +42,7 @@ export default function SOFA2Calculator() {
   function handleCalculate(event:FormEvent<HTMLFormElement>){
     event.preventDefault()
     const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.dopamineEnabled||values.otherVasoactive
-    const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport
+    const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport||values.vaEcmo
     if((values.ecmo!=='yes'&&values.fio2==='')||values.respiratorySupport===''||values.platelets===''||values.bilirubin===''||(!hasCardiovascularSupport&&values.map==='')||
       (values.ecmo!=='yes'&&values.pao2===''&&values.spo2==='')||
       (values.gcs===''&&values.motorScore===''&&!values.preSedationUnknown)||

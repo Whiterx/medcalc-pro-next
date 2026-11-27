@@ -8,7 +8,7 @@ describe('SOFA-2 respiratory thresholds',()=>{
   }))
   it('caps score at 2 without advanced support unless support is unavailable or limited',()=>{
     expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(2)
-    expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'ceiling',ecmoForRespiratoryFailure:false}).points).toBe(4)
+    expect(scoreSOFA2Respiratory({pao2:50,fio2:100,spo2:null,respiratorySupport:'ceiling',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:false}).points).toBe(4)
   })
   it('uses SpO2/FiO2 only when SpO2 is below 98 and PaO2 is unavailable',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:50,spo2:97,respiratorySupport:'advanced',ecmoForRespiratoryFailure:false}).points).toBe(3)
@@ -28,7 +28,7 @@ describe('SOFA-2 respiratory thresholds',()=>{
   })
   it('scores VA-ECMO for cardiovascular indication in both components',()=>{
     expect(scoreSOFA2Respiratory({pao2:null,fio2:null,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,vaEcmoForCardiovascularFailure:true}).points).toBe(4)
-    expect(scoreSOFA2Cardiovascular({...base,mechanicalCirculatorySupport:true})).toBe(4)
+    expect(scoreSOFA2Cardiovascular({map:null,vasoactiveAvailability:'available',dopamineDose:null,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:true})).toBe(4)
   })
 })
 describe('SOFA-2 hemostasis and liver',()=>{

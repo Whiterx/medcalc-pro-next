@@ -37,7 +37,7 @@ export interface SOFA2Result {
   respiratoryRatioType: 'PaO₂/FiO₂' | 'SpO₂/FiO₂' | null;
   hasUntestableComponent: boolean;
 }
-export function scoreSOFA2Respiratory(input: Pick<SOFA2Input, 'pao2'|'fio2'|'spo2'|'respiratorySupport'|'ecmoForRespiratoryFailure'>): {points:number|null;ratio:number|null;type:'PaO₂/FiO₂'|'SpO₂/FiO₂'|null} {
+export function scoreSOFA2Respiratory(input: Pick<SOFA2Input, 'pao2'|'fio2'|'spo2'|'respiratorySupport'|'ecmoForRespiratoryFailure'|'vaEcmoForCardiovascularFailure'>): {points:number|null;ratio:number|null;type:'PaO₂/FiO₂'|'SpO₂/FiO₂'|null} {
   if (input.ecmoForRespiratoryFailure || input.vaEcmoForCardiovascularFailure) return {points:4,ratio:null,type:null};
   if (input.fio2 === null) return {points:null,ratio:null,type:null};
   let ratio:number;
@@ -117,7 +117,7 @@ export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
   const hemostasis=scoreSOFA2Hemostasis(input.platelets);
   const components:SOFA2Component[]=[
     {key:'brain',label:'Головной мозг',points:brain,detail:input.gcs!==null?`GCS: ${input.gcs}`:input.motorScore!==null?`Лучшая двигательная реакция: ${input.motorScore}`:input.preSedationGcsUnknown?'GCS до седации неизвестна; по правилу SOFA-2 — 0':'Невозможно оценить GCS и двигательную реакцию'},
-    {key:'respiratory',label:'Дыхательная система',points:respiratory.points,detail:input.ecmoForRespiratoryFailure?'ECMO при дыхательной недостаточности':respiratory.ratio===null?'Недостаточно данных для расчёта отношения':`${respiratory.type}: ${respiratory.ratio.toFixed(1)}`},
+    {key:'respiratory',label:'Дыхательная система',points:respiratory.points,detail:(input.ecmoForRespiratoryFailure||input.vaEcmoForCardiovascularFailure)?'ECMO при дыхательной или сердечно-сосудистой недостаточности':respiratory.ratio===null?'Недостаточно данных для расчёта отношения':`${respiratory.type}: ${respiratory.ratio.toFixed(1)}`},
     {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:`MAP ${input.map === null ? 'не указан' : `${input.map} мм рт. ст.`}; сумма норэпинефрина и эпинефрина ${(input.norepinephrineDose+input.epinephrineDose).toFixed(3)} мкг/кг/мин`},
     {key:'liver',label:'Печень',points:liver,detail:`Общий билирубин: ${input.bilirubin} мкмоль/л`},
     {key:'kidney',label:'Почки',points:kidney,detail:input.receivingRRT?'Проводится заместительная почечная терапия':[input.creatinine!==null?`креатинин ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`диурез ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')},
