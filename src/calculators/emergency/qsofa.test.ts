@@ -59,6 +59,13 @@ describe('calculateQSOFA', () => {
     expect(calculateQSOFA({ ...baseline, respiratoryRate: 22, systolicBP: 100, gcs: 14 }).score).toBe(3)
   })
 
+  it('includes the Russian CPG next steps for a positive qSOFA with suspected infection', () => {
+    const result = calculateQSOFA({ ...baseline, respiratoryRate: 22, systolicBP: 100 })
+    expect(result.positive).toBe(true)
+    expect(result.interpretation).toContain('госпитализация')
+    expect(result.interpretation).toContain('анестезиолога-реаниматолога')
+  })
+
   it('does not label a negative qSOFA as ruling out sepsis', () => {
     expect(calculateQSOFA(baseline).interpretation).toMatch(/не исключают сепсис/i)
   })

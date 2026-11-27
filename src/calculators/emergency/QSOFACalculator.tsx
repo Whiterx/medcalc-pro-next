@@ -9,7 +9,7 @@ const initialValues = { respiratoryRate: '', systolicBP: '', eye: '', verbal: ''
 const gcsOptions = {
   eye: [
     { value: '4', label: '4 — спонтанно' },
-    { value: '3', label: '3 — на обращение' },
+    { value: '3', label: '3 — на вербальную стимуляцию' },
     { value: '2', label: '2 — на давление' },
     { value: '1', label: '1 — отсутствует' },
     { value: 'NT', label: 'NT — не оценивается' },
@@ -215,7 +215,7 @@ export default function QSOFACalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{QSOFA_REFERENCE.title}</h2><p>{QSOFA_REFERENCE.definition} · {QSOFA_REFERENCE.guideline}</p></div>
-        <a href={QSOFA_REFERENCE.url} target="_blank" rel="noreferrer">Открыть руководство SSC 2026 ↗</a>
+        <a href={QSOFA_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">Открыть КР Минздрава РФ 2024 ↗</a><a href={QSOFA_REFERENCE.url} target="_blank" rel="noreferrer">Открыть SSC 2026 ↗</a>
         <small>{QSOFA_REFERENCE.originalSource}. Проверено: {QSOFA_REFERENCE.accessed}. {QSOFA_REFERENCE.notes[0]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. qSOFA не устанавливает и не исключает диагноз сепсиса и не заменяет клиническую оценку.</p>
