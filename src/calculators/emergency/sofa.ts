@@ -76,7 +76,8 @@ export function scoreNeurologic(gcs: number): number {
   return 0;
 }
 
-export function scoreRenal(creatinine: number | null, urineOutput: number | null): number {
+export function scoreRenal(creatinine: number | null, urineOutput: number | null): number | null {
+  if (creatinine === null && urineOutput === null) return null;
   let score = 0;
   if (creatinine !== null) {
     score = Math.max(score,
@@ -105,10 +106,10 @@ export function calculateSOFA(input: SOFAInput, baseline: number | null = null):
     { key: 'liver', label: 'Печень', points: liver, detail: `Билирубин: ${input.bilirubin} мкмоль/л` },
     { key: 'cardiovascular', label: 'Сердечно-сосудистая система', points: cardiovascular, detail: `MAP: ${input.map} мм рт. ст.; вазоактивная поддержка: ${input.vasoactiveStatus === 'receiving' ? 'да' : 'нет'}` },
     { key: 'neurologic', label: 'Центральная нервная система', points: neurologic, detail: input.gcs === null ? 'GCS: NT — не оценивается' : `GCS: ${input.gcs}` },
-    { key: 'renal', label: 'Почки', points: renal, detail: [input.creatinine !== null ? `креатинин ${input.creatinine} мкмоль/л` : '', input.urineOutput !== null ? `диурез ${input.urineOutput} мл/24 ч` : ''].filter(Boolean).join(' · ') },
+    { key: 'renal', label: 'Почки', points: renal, detail: [input.creatinine !== null ? `креатинин ${input.creatinine} мкмоль/л` : '', input.urineOutput !== null ? `диурез ${input.urineOutput} мл/24 ч` : ''].filter(Boolean).join(' · ') || 'Нет данных для оценки почечного компонента' },
   ];
-  const hasUntestableComponent = neurologic === null;
-  const total = hasUntestableComponent ? null : components.reduce((sum, component) => sum + (component.points ?? 0), 0);
+  const hasUntestableComponent = components.some((component) => component.points === null);
+  const total = hasUntestableComponent ? null : components.reduce((sum, component) => sum + component.points!, 0);
   return {
     total,
     components,
