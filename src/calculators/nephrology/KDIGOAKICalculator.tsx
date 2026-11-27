@@ -70,7 +70,7 @@ export default function KDIGOAKICalculator() {
             <label className="calc-field"><span>Единицы измерения</span><select value={values.creatinineUnit} onChange={(event) => updateField('creatinineUnit', event.target.value as CreatinineUnit)}><option value="µmol/L">мкмоль/л</option><option value="mg/dL">мг/дл</option></select></label>
             <label className="calc-field"><span>Интервал между анализами, ч</span><input type="number" min="1" max="168" step="any" value={values.creatinineIntervalHours} onChange={(event) => updateField('creatinineIntervalHours', event.target.value)} placeholder="1–168 часов" /></label>
           </div>
-          <p className="field-hint">Для применения критерия 1,5× интервал между исходным и текущим измерениями должен быть ≤7 суток; прирост ≥0,3 мг/дл (≥26,5 мкмоль/л) учитывается только при интервале ≤48 часов. Не подставляйте расчётный исходный креатинин.</p>
+          <p className="field-hint">Для применения критерия 1,5× интервал между исходным и текущим измерениями должен быть ≤7 суток; прирост ≥0,3 мг/дл (≥26,5 мкмоль/л) учитывается только при интервале ≤48 часов. Используйте первое документированное значение креатинина текущего эпизода; не подставляйте расчётный исходный креатинин.</p>
           <div className="news2-section">
             <div className="panel-heading panel-subheading"><div><span className="panel-kicker">КРИТЕРИЙ 2</span><h2>Диурез</h2></div><span className="points-label">1–3</span></div>
             <div className="form-row">
@@ -78,7 +78,7 @@ export default function KDIGOAKICalculator() {
               <label className="calc-field"><span>Объём мочи за период, мл</span><input type="number" min="0" max="50000" step="any" value={values.urineVolumeMl} onChange={(event) => updateField('urineVolumeMl', event.target.value)} placeholder="Объём мочи" /></label>
             </div>
             <label className="calc-field field-full"><span>Длительность периода, часов</span><input type="number" min="1" max="168" step="any" value={values.urineIntervalHours} onChange={(event) => updateField('urineIntervalHours', event.target.value)} placeholder="Длительность наблюдения" /></label>
-            <p className="field-hint">Введите идеальную, а не фактическую массу тела (ERBP 2012; с учётом возраста, роста и пола); калькулятор не рассчитывает идеальную массу. Заполните все три поля вместе. Средний диурез рассчитывается за один непрерывный период; используйте полные измерения и не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
+            <p className="field-hint">Введите идеальную, а не фактическую массу тела (ERBP 2012; с учётом возраста, роста и пола); калькулятор не рассчитывает идеальную массу. Заполните все три поля вместе. Средний диурез рассчитывается за один непрерывный период; используйте полные измерения и не объединяйте разрозненные интервалы. Диуретики могут изменять диурез; ERBP рекомендует оценивать этот критерий у пациентов, не получающих диуретики. Для анурии укажите объём мочи 0 мл.</p>
           </div>
           <div className="news2-section">
             <label className="form-check">
