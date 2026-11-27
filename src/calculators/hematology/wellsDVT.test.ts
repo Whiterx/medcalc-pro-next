@@ -4,7 +4,7 @@ import { calculateWellsDVT, classifyWellsDVT, type WellsDVTInput } from './wells
 const none: WellsDVTInput = {
   activeCancer: false, paralysisOrCast: false, bedriddenOrSurgery: false, deepVenousTenderness: false,
   entireLegSwollen: false, calfDifferenceAtLeast3cm: false, pittingEdema: false, collateralVeins: false,
-  previousDVT: false, alternativeDiagnosisAtLeastAsLikely: false,
+  previousDVT: false, alternativeDiagnosisAtLeastAsLikely: false, assessmentConfirmed: true,
 }
 
 describe('calculateWellsDVT', () => {
@@ -52,7 +52,7 @@ describe('calculateWellsDVT', () => {
     const result = calculateWellsDVT({
       activeCancer: true, paralysisOrCast: true, bedriddenOrSurgery: true, deepVenousTenderness: true,
       entireLegSwollen: true, calfDifferenceAtLeast3cm: true, pittingEdema: true, collateralVeins: true,
-      previousDVT: true, alternativeDiagnosisAtLeastAsLikely: false,
+      previousDVT: true, alternativeDiagnosisAtLeastAsLikely: false, assessmentConfirmed: true,
     })
     expect(result.score).toBe(9)
     expect(result.category).toBe('likely')
