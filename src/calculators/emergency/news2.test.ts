@@ -64,7 +64,7 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.riskLevel).toBe('routine')
     expect(result.monitoringFrequency).toContain('12 часов')
     expect(result.suggestedResponse).toContain('должна оценить пациента')
-    expect(result.suggestedResponse).toContain('Продолжать рутинный мониторинг NEWS')
+    expect(result.suggestedResponse).toMatch(/продолжать рутинный мониторинг NEWS/i)
   })
 
   it('uses the 1–4 low aggregate band and 4–6 hourly monitoring interval', () => {
@@ -118,6 +118,15 @@ describe('NEWS2 incomplete-data handling per RCP additional guidance', () => {
     expect(result.riskLevel).toBe('incomplete')
     expect(result.missingParameters).toContain('Температура')
     expect(result.monitoringFrequency).not.toContain('12 часов')
+  })
+
+  it('preserves the aggregate urgent-response trigger when data are incomplete', () => {
+    const result = calculateNEWS2({ ...normal, respiratoryRate: 22, supplementalOxygen: true, temperature: 38.5, pulse: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.score).toBe(5)
+    expect(result.isIncomplete).toBe(true)
+    expect(result.riskLevel).toBe('medium')
+    expect(result.monitoringFrequency).toContain('1 раза в час')
+    expect(result.suggestedResponse).toMatch(/60 минут/)
   })
 
   it('preserves a single red-score trigger when another measurement is missing', () => {

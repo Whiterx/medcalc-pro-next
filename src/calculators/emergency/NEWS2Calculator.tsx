@@ -11,6 +11,14 @@ const initialValues = {
   scale2Confirmed: false, missingDataReason: '' as '' | NEWS2MissingDataReason,
 }
 
+type NEWS2FormValues = typeof initialValues
+
+function hasMissingValues(values: NEWS2FormValues): boolean {
+  return values.respiratoryRate === '' || values.spo2 === '' || values.spo2Scale === '' ||
+    values.supplementalOxygen === '' || values.systolicBP === '' || values.pulse === '' ||
+    values.temperature === '' || values.consciousness === ''
+}
+
 function NumberField({ label, unit, value, onChange, min, max, step = '1' }: {
   label: string; unit: string; value: string; onChange: (value: string) => void
   min: number; max: number; step?: string
@@ -26,20 +34,24 @@ export default function NEWS2Calculator() {
   const [error, setError] = useState('')
 
   function update<K extends keyof typeof initialValues>(key: K, value: typeof initialValues[K]) {
-    setValues((current) => ({ ...current, [key]: value }))
+    setValues((current) => {
+      const next = { ...current, [key]: value }
+      return { ...next, missingDataReason: hasMissingValues(next) ? next.missingDataReason : '' }
+    })
     setResult(null)
     setError('')
   }
 
   function updateScale(value: '' | '1' | '2') {
-    setValues((current) => ({ ...current, spo2Scale: value, scale2Confirmed: value === '2' ? current.scale2Confirmed : false }))
+    setValues((current) => {
+      const next = { ...current, spo2Scale: value, scale2Confirmed: value === '2' ? current.scale2Confirmed : false }
+      return { ...next, missingDataReason: hasMissingValues(next) ? next.missingDataReason : '' }
+    })
     setResult(null)
     setError('')
   }
 
-  const hasMissing = values.respiratoryRate === '' || values.spo2 === '' || values.spo2Scale === '' ||
-    (values.spo2Scale === '2' && values.supplementalOxygen === '') || values.supplementalOxygen === '' ||
-    values.systolicBP === '' || values.pulse === '' || values.temperature === '' || values.consciousness === ''
+  const hasMissing = hasMissingValues(values)
 
   function reset() {
     setValues(initialValues)
@@ -138,7 +150,7 @@ export default function NEWS2Calculator() {
             </div>
             <p className="field-hint">Все параметры вводятся вручную. Если показатель недоступен, оставьте поле пустым: NEWS2 будет рассчитан как неполный по доступным данным согласно дополнительному руководству RCP.</p>
             {values.spo2Scale === '2' && <><p className="clinical-warning"><ShieldAlert size={14} /> Шкалу 2 применять только при подтверждённой анализом газов крови гиперкапнической дыхательной недостаточности и назначенной целевой SpO₂ 88–92%; решение принимает компетентный специалист и документирует его. Само наличие ХОБЛ не является достаточным основанием.</p><label className="sofa-check"><input type="checkbox" checked={values.scale2Confirmed} onChange={(e) => update('scale2Confirmed', e.target.checked)} /> Подтверждаю: гиперкапническая дыхательная недостаточность подтверждена газовым анализом, целевой диапазон 88–92% назначен, выбор Scale 2 сделан компетентным специалистом и документирован.</label></>}
-            {hasMissing && <label className="calc-field"><span>Причина отсутствия одного или нескольких показателей</span><select required value={values.missingDataReason} onChange={(e) => update('missingDataReason', e.target.value as '' | NEWS2MissingDataReason)}><option value="">Выберите причину</option><option value="equipment-unavailable">Нет оборудования / данные недоступны</option><option value="unobtainable-despite-equipment">Не удалось получить показатель несмотря на использование оборудования</option></select></label>}
+            {hasMissing && <label className="calc-field"><span>Причина отсутствия одного или нескольких показателей</span><select required value={values.missingDataReason} onChange={(e) => update('missingDataReason', e.target.value as '' | NEWS2MissingDataReason)}><option value="">Выберите причину</option><option value="equipment-unavailable">Нет оборудования / данные недоступны</option><option value="unobtainable-despite-equipment">Не удалось получить показатель несмотря на использование оборудования</option></select></label><p className="field-hint">Если хотя бы один отсутствующий показатель невозможно получить несмотря на использование оборудования, выберите второй вариант: по RCP это требует немедленного реагирования.</p>}
           </div>
 
           <div className="news2-section">
