@@ -82,7 +82,7 @@ describe('calculateKDIGOAKI', () => {
     expect(result.overallStage).toBe(3)
   })
 
-  it('rejects partial input sections and values outside physiological input ranges', () => {
+  it('rejects partial input sections and values outside technical input bounds', () => {
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 100 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, idealBodyWeightKg: 70, urineVolumeMl: 200 })).toThrow()
     expect(() => calculateKDIGOAKI({ ...noData, creatinineBaseline: 0, creatinineCurrent: 100, creatinineIntervalHours: 24 })).toThrow()

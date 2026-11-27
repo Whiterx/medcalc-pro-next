@@ -57,7 +57,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
   const hasUrineVolume = input.urineVolumeMl !== undefined && input.urineVolumeMl !== null
   const hasUrineInterval = input.urineIntervalHours !== undefined && input.urineIntervalHours !== null
   if ((hasWeight || hasUrineVolume || hasUrineInterval) && !(hasWeight && hasUrineVolume && hasUrineInterval)) {
-    throw new Error('Для критерия диуреза заполните массу тела, объём мочи и длительность периода.')
+    throw new Error('Для критерия диуреза заполните идеальную массу тела, объём мочи и длительность периода.')
   }
 
   if (!hasBaseline && !hasWeight && !input.renalReplacementTherapyStarted) {

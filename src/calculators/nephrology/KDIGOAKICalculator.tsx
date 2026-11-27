@@ -78,7 +78,7 @@ export default function KDIGOAKICalculator() {
               <label className="calc-field"><span>Объём мочи за период, мл</span><input type="number" min="0" max="50000" step="any" value={values.urineVolumeMl} onChange={(event) => updateField('urineVolumeMl', event.target.value)} placeholder="Объём мочи" /></label>
             </div>
             <label className="calc-field field-full"><span>Длительность периода, часов</span><input type="number" min="1" max="168" step="any" value={values.urineIntervalHours} onChange={(event) => updateField('urineIntervalHours', event.target.value)} placeholder="Длительность наблюдения" /></label>
-            <p className="field-hint">Введите идеальную, а не фактическую массу тела (ERBP 2012); калькулятор не рассчитывает идеальную массу. Заполните все три поля вместе. Средний диурез рассчитывается за один непрерывный период; используйте полные измерения и не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
+            <p className="field-hint">Введите идеальную, а не фактическую массу тела (ERBP 2012; с учётом возраста, роста и пола); калькулятор не рассчитывает идеальную массу. Заполните все три поля вместе. Средний диурез рассчитывается за один непрерывный период; используйте полные измерения и не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
           </div>
           <div className="news2-section">
             <label className="form-check">
