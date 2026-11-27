@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowLeft, BookOpen, RotateCcw, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { calculateVasoactiveRate, type VasoactiveDrug, type VasoactiveResult } from './vasopressors'
+import { calculateVasoactiveRate, createEmptyVasoactiveFormValues, type VasoactiveDrug, type VasoactiveResult } from './vasopressors'
 import { VASOPRESSORS_REFERENCE } from './vasopressors.reference'
 
-const initialValues = { drug: '' as '' | VasoactiveDrug, dose: '', weightKg: '', concentration: '' }
+const initialValues = createEmptyVasoactiveFormValues()
 
 const drugOptions: { value: VasoactiveDrug; label: string }[] = [
   { value: 'norepinephrine', label: 'Норадреналин' },
@@ -25,7 +25,7 @@ export default function VasopressorsCalculator() {
     setError('')
   }
   function reset() {
-    setValues(initialValues)
+    setValues(createEmptyVasoactiveFormValues())
     setResult(null)
     setError('')
   }
@@ -76,7 +76,12 @@ export default function VasopressorsCalculator() {
           <div className="panel-heading"><div><span className="panel-kicker">ПРЕПАРАТ И ДОЗА</span><h2>Параметры инфузии</h2></div><span className="points-label">мл/ч</span></div>
           <label className="calc-field field-full">
             <span>Препарат</span>
-            <select required value={values.drug} onChange={(event) => updateField('drug', event.target.value as '' | VasoactiveDrug)}>
+            <select required value={values.drug} onChange={(event) => {
+              const nextDrug = event.target.value as '' | VasoactiveDrug
+              setValues(createEmptyVasoactiveFormValues(nextDrug))
+              setResult(null)
+              setError('')
+            }}>
               <option value="">Выберите препарат</option>
               {drugOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>

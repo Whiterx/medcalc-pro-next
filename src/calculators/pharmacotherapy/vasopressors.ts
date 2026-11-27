@@ -1,5 +1,16 @@
 export type VasoactiveDrug = 'norepinephrine' | 'epinephrine' | 'dopamine' | 'dobutamine' | 'vasopressin'
 
+export interface VasoactiveFormValues {
+  drug: '' | VasoactiveDrug
+  dose: string
+  weightKg: string
+  concentration: string
+}
+
+export function createEmptyVasoactiveFormValues(drug: '' | VasoactiveDrug = ''): VasoactiveFormValues {
+  return { drug, dose: '', weightKg: '', concentration: '' }
+}
+
 export interface VasoactiveInput {
   drug: VasoactiveDrug
   dose: number

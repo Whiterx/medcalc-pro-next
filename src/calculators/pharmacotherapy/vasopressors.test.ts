@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { calculateVasoactiveRate } from './vasopressors'
+import { calculateVasoactiveRate, createEmptyVasoactiveFormValues } from './vasopressors'
+
+describe('createEmptyVasoactiveFormValues', () => {
+  it('clears dose, weight and concentration whenever a new drug is selected', () => {
+    for (const drug of ['norepinephrine', 'epinephrine', 'dopamine', 'dobutamine', 'vasopressin'] as const) {
+      expect(createEmptyVasoactiveFormValues(drug)).toEqual({
+        drug,
+        dose: '',
+        weightKg: '',
+        concentration: '',
+      })
+    }
+  })
+})
 
 describe('calculateVasoactiveRate', () => {
   it('calculates norepinephrine from mcg/kg/min and labeled mcg/ml concentration', () => {
