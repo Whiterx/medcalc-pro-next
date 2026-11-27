@@ -48,7 +48,17 @@ describe('Tidal volume calculation', () => {
     const result = calculateVentilationBasics({ heightCm: 170, formulaSex: 'male', tidalVolumeMl: 396 })
     expect(result.measuredMlKg).toBeCloseTo(6, 2)
     expect(result.measuredRange).toBe('within')
-    expect(result.measuredArdsRange).toBe('within')
+    expect(result.measuredArdsRange).toBe('below')
+    // 396 / 66.016 is slightly below 6; classification uses unrounded PBW, not the displayed one-decimal value.
+  })
+
+  it('keeps exact 6 and 8 mL/kg ARDS boundaries inclusive using unrounded PBW', () => {
+    const six = calculateVentilationBasics({ heightCm: 152.4, formulaSex: 'male', tidalVolumeMl: 300 })
+    const eight = calculateVentilationBasics({ heightCm: 152.4, formulaSex: 'male', tidalVolumeMl: 400 })
+    expect(six.measuredMlKg).toBe(6)
+    expect(six.measuredArdsRange).toBe('within')
+    expect(eight.measuredMlKg).toBe(8)
+    expect(eight.measuredArdsRange).toBe('within')
   })
 
   it('rejects non-integer or implausible measured tidal volume', () => {
