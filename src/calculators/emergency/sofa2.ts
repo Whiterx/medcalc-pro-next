@@ -128,7 +128,7 @@ export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutput
 export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
   const respiratory=scoreSOFA2Respiratory(input);
   const brain=scoreSOFA2Brain(input);
-  const cardiovascular=scoreSOFA2Cardiovascular(input);
+  const cardiovascular=scoreSOFA2Cardiovascular({...input,mechanicalCirculatorySupport:input.mechanicalCirculatorySupport||input.ecmoForCardiovascularIndication});
   const liver=scoreSOFA2Liver(input.bilirubin);
   const kidney=scoreSOFA2Kidney(input);
   const hemostasis=scoreSOFA2Hemostasis(input.platelets);

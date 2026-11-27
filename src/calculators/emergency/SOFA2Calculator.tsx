@@ -119,7 +119,7 @@ export default function SOFA2Calculator() {
       epinephrineDose:values.epinephrineEnabled?Number(values.epinephrineDose):0,
       dopamineDose:values.dopamineEnabled?Number(values.dopamineDose):null,
       vasoactiveAvailability:values.vasoactiveAvailability as SOFA2Input['vasoactiveAvailability'],
-      cardiovascularEcmoForCardiovascularFailure:values.cardiovascularEcmo,
+      ecmoForCardiovascularIndication:values.cardiovascularEcmo,
       otherVasoactiveOrInotrope:values.otherVasoactive,mechanicalCirculatorySupport:values.mechanicalSupport||values.cardiovascularEcmo,
       gcs:values.gcs===''?null:Number(values.gcs),motorScore:values.motorScore===''?null:Number(values.motorScore),
       preSedationGcsUnknown:values.preSedationUnknown,deliriumMedication:values.deliriumMedication,
@@ -140,7 +140,7 @@ export default function SOFA2Calculator() {
           <NumberField label="FiO₂" unit="% · например, 40" value={values.fio2} onChange={v=>update('fio2',v)} min={21} max={100}/>
           <label className="calc-field"><span>Респираторная поддержка</span><select required={values.ecmo!=='yes'&&!values.cardiovascularEcmo} value={values.respiratorySupport} onChange={e=>update('respiratorySupport',e.target.value)}><option value="">Выберите</option><option value="none">Нет</option><option value="advanced">HFNC / CPAP / BiPAP / NIV / ИВЛ / домашняя вентиляция</option><option value="unavailable">Поддержка недоступна (ресурсное ограничение)</option><option value="ceiling">Поддержка ограничена целями лечения</option></select></label>
           <label className="sofa-check"><input type="checkbox" checked={values.ecmo==='yes'} onChange={e=>update('ecmo',e.target.checked?'yes':'no')}/> ECMO при дыхательной недостаточности</label>
-          <p className="field-hint">SpO₂/FiO₂ можно использовать только при отсутствии PaO₂/FiO₂ и SpO₂ &lt;98%. Без расширенной поддержки обычно максимум 2 балла; при недоступности поддержки или ограничении уровня лечения оценка определяется отношением. ECMO при дыхательной недостаточности — 4 балла.</p>
+          <p className="field-hint">SpO₂/FiO₂ можно использовать только при отсутствии PaO₂/FiO₂ и SpO₂ &lt;98%. Без расширенной поддержки обычно максимум 2 балла; при недоступности поддержки или ограничении уровня лечения оценка определяется отношением. ECMO при дыхательной недостаточности — 4 балла. Изменения PaO₂/FiO₂ или SpO₂/FiO₂ в пределах 1 часа (например, после санации дыхательных путей) не учитываются.</p>
         </section>
         <section className="sofa-section"><h3>2. Гемостаз</h3><NumberField label="Тромбоциты" unit="×10⁹/л" value={values.platelets} onChange={v=>update('platelets',v)} min={0} max={1000}/></section>
         <section className="sofa-section"><h3>3. Печень</h3><NumberField label="Общий билирубин" unit="мкмоль/л" value={values.bilirubin} onChange={v=>update('bilirubin',v)} min={0} max={2000} step="0.1"/></section>
@@ -156,7 +156,7 @@ export default function SOFA2Calculator() {
           {hasVasoactiveMedication&&<label className="sofa-check"><input type="checkbox" checked={values.vasoactiveDurationConfirmed} onChange={e=>update('vasoactiveDurationConfirmed',e.target.checked)}/> Подтверждаю: непрерывная внутривенная инфузия вазоактивных препаратов длилась не менее 1 часа</label>}
           <label className="sofa-check"><input type="checkbox" checked={values.cardiovascularEcmo} onChange={e=>update('cardiovascularEcmo',e.target.checked)}/> ECMO по сердечно-сосудистым показаниям (любой тип; учитывается в обоих компонентах)</label>
           <label className="sofa-check"><input type="checkbox" checked={values.mechanicalSupport} onChange={e=>update('mechanicalSupport',e.target.checked)}/> Другая механическая поддержка кровообращения (ВАБК / VAD / microaxial pump)</label>
-          <p className="field-hint">Суммируются дозы норэпинефрина и эпинефрина в пересчёте на основание. Для дофамина применяются отдельные пороги только при его использовании как единственного вазопрессора. VA-ECMO по сердечно-сосудистым показаниям даёт 4 балла и дыхательной, и сердечно-сосудистой системам. VV-ECMO учитывается в дыхательной системе.</p>
+          <p className="field-hint">Суммируются дозы норэпинефрина и эпинефрина в пересчёте на основание. Для дофамина применяются отдельные пороги только при его использовании как единственного вазопрессора. ECMO любого типа по сердечно-сосудистым показаниям даёт 4 балла обоим компонентам; ECMO по дыхательной недостаточности — 4 балла дыхательному компоненту.</p>
         </section>
         <section className="sofa-section"><h3>5. Головной мозг</h3>
           <label className="calc-field"><span>GCS до седации / текущая GCS</span><select value={values.gcs} onChange={e=>update('gcs',e.target.value)}><option value="">Не выбрано</option>{Array.from({length:13},(_,i)=>15-i).map(v=><option key={v} value={String(v)}>{v}</option>)}</select></label>
