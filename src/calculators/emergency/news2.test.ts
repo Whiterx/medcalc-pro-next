@@ -107,3 +107,58 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.suggestedResponse).toMatch(/60 минут/)
   })
 })
+
+
+describe('NEWS2 incomplete-data handling per RCP additional guidance', () => {
+  it('calculates a partial score and never labels an incomplete zero as routine low risk', () => {
+    const result = calculateNEWS2({ ...normal, temperature: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.score).toBe(0)
+    expect(result.isIncomplete).toBe(true)
+    expect(result.riskLevel).toBe('incomplete')
+    expect(result.missingParameters).toContain('Температура')
+    expect(result.monitoringFrequency).not.toContain('12 часов')
+  })
+
+  it('preserves a single red-score trigger when another measurement is missing', () => {
+    const result = calculateNEWS2({ ...normal, respiratoryRate: 8, temperature: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.score).toBe(3)
+    expect(result.hasSingleRedScore).toBe(true)
+    expect(result.monitoringFrequency).toContain('1 раза в час')
+    expect(result.riskLevel).toBe('incomplete')
+  })
+
+  it('does not fabricate SpO2 points when the saturation scale is not selected', () => {
+    const result = calculateNEWS2({ ...normal, spo2Scale: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.criteria.find((item) => item.key === 'spo2')?.points).toBeNull()
+    expect(result.missingParameters).toContain('Сатурация SpO₂')
+  })
+
+  it('can score Scale 1 SpO2 even if oxygen status is missing, while marking the oxygen criterion incomplete', () => {
+    const result = calculateNEWS2({ ...normal, supplementalOxygen: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.criteria.find((item) => item.key === 'spo2')?.points).toBe(0)
+    expect(result.criteria.find((item) => item.key === 'oxygen')?.points).toBeNull()
+    expect(result.isIncomplete).toBe(true)
+  })
+
+  it('does not score Scale 2 SpO2 if oxygen-versus-air status is unknown', () => {
+    const result = calculateNEWS2({ ...normal, spo2Scale: 2, supplementalOxygen: null, missingDataReason: 'equipment-unavailable' })
+    expect(result.criteria.find((item) => item.key === 'spo2')?.points).toBeNull()
+    expect(result.criteria.find((item) => item.key === 'oxygen')?.points).toBeNull()
+  })
+
+  it('requires immediate response when a physiological measure cannot be obtained despite equipment', () => {
+    const result = calculateNEWS2({ ...normal, temperature: null, missingDataReason: 'unobtainable-despite-equipment' })
+    expect(result.requiresImmediateResponse).toBe(true)
+    expect(result.suggestedResponse).toContain('Немедленно')
+  })
+
+  it('does not fabricate a zero score when no parameters are available', () => {
+    const result = calculateNEWS2({
+      respiratoryRate:null,spo2:null,spo2Scale:null,supplementalOxygen:null,
+      systolicBP:null,pulse:null,temperature:null,consciousness:null,
+      missingDataReason:'equipment-unavailable',
+    })
+    expect(result.score).toBeNull()
+    expect(result.riskLevel).toBe('incomplete')
+  })
+})

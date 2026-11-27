@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowLeft, BookOpen, RotateCcw, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { calculateNEWS2, type NEWS2Input, type NEWS2Result } from './news2'
+import { calculateNEWS2, type NEWS2Input, type NEWS2Result, type NEWS2MissingDataReason } from './news2'
 import { NEWS2_REFERENCE } from './news2.reference'
 
 const initialValues = {
   respiratoryRate: '', spo2: '', spo2Scale: '' as '' | '1' | '2',
   supplementalOxygen: '' as '' | 'no' | 'yes', systolicBP: '', pulse: '',
   temperature: '', consciousness: '' as '' | NEWS2Input['consciousness'],
+  scale2Confirmed: false, missingDataReason: '' as '' | NEWS2MissingDataReason,
 }
 
 function NumberField({ label, unit, value, onChange, min, max, step = '1' }: {
@@ -15,7 +16,7 @@ function NumberField({ label, unit, value, onChange, min, max, step = '1' }: {
   min: number; max: number; step?: string
 }) {
   return <label className="calc-field"><span>{label} <small>{unit}</small></span>
-    <input type="number" inputMode="decimal" min={min} max={max} step={step} placeholder={`Введите значение`} value={value} onChange={(event) => onChange(event.target.value)} required />
+    <input type="number" inputMode="decimal" min={min} max={max} step={step} placeholder={`Введите значение`} value={value} onChange={(event) => onChange(event.target.value)} />
   </label>
 }
 
@@ -30,6 +31,16 @@ export default function NEWS2Calculator() {
     setError('')
   }
 
+  function updateScale(value: '' | '1' | '2') {
+    setValues((current) => ({ ...current, spo2Scale: value, scale2Confirmed: value === '2' ? current.scale2Confirmed : false }))
+    setResult(null)
+    setError('')
+  }
+
+  const hasMissing = values.respiratoryRate === '' || values.spo2 === '' || values.spo2Scale === '' ||
+    (values.spo2Scale === '2' && values.supplementalOxygen === '') || values.supplementalOxygen === '' ||
+    values.systolicBP === '' || values.pulse === '' || values.temperature === '' || values.consciousness === ''
+
   function reset() {
     setValues(initialValues)
     setResult(null)
@@ -38,35 +49,44 @@ export default function NEWS2Calculator() {
 
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (Object.values(values).some((value) => value.trim() === '')) {
-      setError('Заполните все числовые поля и выберите значения для шкалы SpO₂, кислородной поддержки и уровня сознания.')
+    if (hasMissing && values.missingDataReason === '') {
+      setError('Есть отсутствующие показатели. Укажите причину: оборудование/данные недоступны или показатель не удалось получить несмотря на использование оборудования.')
       setResult(null)
       return
     }
-    const numeric = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse, values.temperature].map(Number)
-    const integerFields = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse].map(Number)
-    const temperature = Number(values.temperature)
+    if (values.spo2Scale === '2' && !values.scale2Confirmed) {
+      setError('Для Scale 2 требуется подтверждение показаний и решения компетентного специалиста.')
+      setResult(null)
+      return
+    }
+    const raw = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse, values.temperature]
+    const present = raw.filter((value) => value.trim() !== '')
+    const numeric = present.map(Number)
+    const integerValues = [values.respiratoryRate, values.spo2, values.systolicBP, values.pulse].filter((value) => value.trim() !== '').map(Number)
+    const temperature = values.temperature === '' ? null : Number(values.temperature)
+    const invalidRange =
+      (values.respiratoryRate !== '' && (Number(values.respiratoryRate) < 0 || Number(values.respiratoryRate) > 100)) ||
+      (values.spo2 !== '' && (Number(values.spo2) < 0 || Number(values.spo2) > 100)) ||
+      (values.systolicBP !== '' && (Number(values.systolicBP) < 0 || Number(values.systolicBP) > 300)) ||
+      (values.pulse !== '' && (Number(values.pulse) < 0 || Number(values.pulse) > 300)) ||
+      (temperature !== null && (temperature < 25 || temperature > 45))
     if (numeric.some((value) => !Number.isFinite(value)) ||
-      integerFields.some((value) => !Number.isInteger(value)) ||
-      !Number.isInteger(temperature * 10) ||
-      Number(values.respiratoryRate) < 0 || Number(values.respiratoryRate) > 100 ||
-      Number(values.spo2) < 0 || Number(values.spo2) > 100 ||
-      Number(values.systolicBP) < 0 || Number(values.systolicBP) > 300 ||
-      Number(values.pulse) < 0 || Number(values.pulse) > 300 ||
-      temperature < 25 || temperature > 45) {
-      setError('Проверьте значения: ЧДД, SpO₂, систолическое АД и пульс должны быть целыми числами; температура — с точностью до 0,1 °C в диапазоне 25–45 °C.')
+      integerValues.some((value) => !Number.isInteger(value)) ||
+      (temperature !== null && !Number.isInteger(temperature * 10)) || invalidRange) {
+      setError('Проверьте введённые значения: ЧДД, SpO₂, систолическое АД и пульс должны быть целыми числами; температура — с точностью до 0,1 °C в диапазоне 25–45 °C.')
       setResult(null)
       return
     }
     const input: NEWS2Input = {
-      respiratoryRate: Number(values.respiratoryRate),
-      spo2: Number(values.spo2),
-      spo2Scale: values.spo2Scale === '2' ? 2 : 1,
-      supplementalOxygen: values.supplementalOxygen === 'yes',
-      systolicBP: Number(values.systolicBP),
-      pulse: Number(values.pulse),
-      temperature: Number(values.temperature),
-      consciousness: values.consciousness as NEWS2Input['consciousness'],
+      respiratoryRate: values.respiratoryRate === '' ? null : Number(values.respiratoryRate),
+      spo2: values.spo2 === '' ? null : Number(values.spo2),
+      spo2Scale: values.spo2Scale === '' ? null : values.spo2Scale === '2' ? 2 : 1,
+      supplementalOxygen: values.supplementalOxygen === '' ? null : values.supplementalOxygen === 'yes',
+      systolicBP: values.systolicBP === '' ? null : Number(values.systolicBP),
+      pulse: values.pulse === '' ? null : Number(values.pulse),
+      temperature: values.temperature === '' ? null : Number(values.temperature),
+      consciousness: values.consciousness === '' ? null : values.consciousness as NEWS2Input['consciousness'],
+      missingDataReason: values.missingDataReason === '' ? null : values.missingDataReason,
     }
     setResult(calculateNEWS2(input))
     setError('')
@@ -102,28 +122,29 @@ export default function NEWS2Calculator() {
             <div className="panel-heading"><div><span className="panel-kicker">ОЦЕНКА ОКСИГЕНАЦИИ</span><h2>Кислородная поддержка</h2></div></div>
             <div className="field-grid">
               <label className="calc-field"><span>Шкала SpO₂</span>
-                <select required value={values.spo2Scale} onChange={(e) => update('spo2Scale', e.target.value as '1' | '2')}>
+                <select value={values.spo2Scale} onChange={(e) => updateScale(e.target.value as '' | '1' | '2')}>
                   <option value="">Выберите шкалу</option>
                   <option value="1">Шкала 1 — стандартная</option>
                   <option value="2">Шкала 2 — целевая SpO₂ 88–92%</option>
                 </select>
               </label>
               <label className="calc-field"><span>Дополнительный кислород</span>
-                <select required value={values.supplementalOxygen} onChange={(e) => update('supplementalOxygen', e.target.value as 'no' | 'yes')}>
+                <select value={values.supplementalOxygen} onChange={(e) => update('supplementalOxygen', e.target.value as 'no' | 'yes')}>
                   <option value="">Укажите вариант</option>
                   <option value="no">Нет — дыхание воздухом</option>
                   <option value="yes">Да — получает кислород</option>
                 </select>
               </label>
             </div>
-            <p className="field-hint">Все параметры и варианты кислородной поддержки необходимо указать вручную — калькулятор не подставляет значения пациента автоматически.</p>
-            {values.spo2Scale === '2' && <p className="clinical-warning"><ShieldAlert size={14} /> Шкалу 2 применять только при подтверждённой анализом газов крови гиперкапнической дыхательной недостаточности и назначенной целевой SpO₂ 88–92%; решение принимает компетентный специалист и документирует его. Само наличие ХОБЛ не является достаточным основанием.</p>}
+            <p className="field-hint">Все параметры вводятся вручную. Если показатель недоступен, оставьте поле пустым: NEWS2 будет рассчитан как неполный по доступным данным согласно дополнительному руководству RCP.</p>
+            {values.spo2Scale === '2' && <><p className="clinical-warning"><ShieldAlert size={14} /> Шкалу 2 применять только при подтверждённой анализом газов крови гиперкапнической дыхательной недостаточности и назначенной целевой SpO₂ 88–92%; решение принимает компетентный специалист и документирует его. Само наличие ХОБЛ не является достаточным основанием.</p><label className="sofa-check"><input type="checkbox" checked={values.scale2Confirmed} onChange={(e) => update('scale2Confirmed', e.target.checked)} /> Подтверждаю: гиперкапническая дыхательная недостаточность подтверждена газовым анализом, целевой диапазон 88–92% назначен, выбор Scale 2 сделан компетентным специалистом и документирован.</label></>}
+            {hasMissing && <label className="calc-field"><span>Причина отсутствия одного или нескольких показателей</span><select required value={values.missingDataReason} onChange={(e) => update('missingDataReason', e.target.value as '' | NEWS2MissingDataReason)}><option value="">Выберите причину</option><option value="equipment-unavailable">Нет оборудования / данные недоступны</option><option value="unobtainable-despite-equipment">Не удалось получить показатель несмотря на использование оборудования</option></select></label>}
           </div>
 
           <div className="news2-section">
             <div className="panel-heading"><div><span className="panel-kicker">НЕВРОЛОГИЧЕСКИЙ СТАТУС</span><h2>Сознание (ACVPU)</h2></div><span className="points-label">0 или 3 балла</span></div>
             <label className="calc-field"><span>Уровень сознания</span>
-              <select required value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
+              <select value={values.consciousness} onChange={(e) => update('consciousness', e.target.value as NEWS2Input['consciousness'])}>
                 <option value="">Выберите состояние</option>
                 <option value="alert">A — бодрствует / обычное состояние (0)</option>
                 <option value="new-confusion">Новое спутанное сознание / делирий / острое изменение ментального статуса, включая GCS &lt;15 (3)</option>
@@ -132,7 +153,7 @@ export default function NEWS2Calculator() {
                 <option value="unresponsive">U — не реагирует (3)</option>
               </select>
             </label>
-            <p className="field-hint">Учитывается новое спутанное состояние, делирий или острое изменение ментального статуса, включая GCS &lt;15. Если неясно, является ли спутанность новой, RCP рекомендует считать её новой до уточнения. Подтверждённое стабильное хроническое состояние оценивается с учётом исходного уровня пациента.</p>
+            <p className="field-hint">Учитывается новое спутанное состояние, делирий или острое изменение ментального статуса, включая GCS &lt;15. Если неясно, является ли спутанность новой, RCP рекомендует считать её новой до уточнения; можно спросить пациента, родственников или персонал, стал ли он более спутанным, чем обычно. Подтверждённое стабильное состояние оценивается с учётом исходного уровня пациента.</p>
           </div>
 
           {error && <p className="form-error" role="alert">{error}</p>}
@@ -164,21 +185,22 @@ export default function NEWS2Calculator() {
       </div>
 
       {result && <section className="result-panel" aria-live="polite">
-        <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.riskLevel === 'high' ? 'risk-high' : result.riskLevel === 'medium' || result.hasSingleRedScore ? 'risk-intermediate' : 'risk-low'}`}>{result.riskLabel}</span></div>
-        <div className="score-display"><strong>{result.score}</strong><span>баллов NEWS2</span></div>
-        <div className="risk-meter"><span style={{ width: `${Math.min(result.score, 20) / 20 * 100}%` }} /></div>
-        <div className={`care-context ${result.riskLevel === 'high' || result.hasSingleRedScore ? 'qsofa-positive' : ''}`}>
+        <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.riskLevel === 'high' ? 'risk-high' : result.riskLevel === 'medium' || result.riskLevel === 'incomplete' || result.hasSingleRedScore ? 'risk-intermediate' : 'risk-low'}`}>{result.riskLabel}</span></div>
+        <div className="score-display"><strong>{result.score === null ? '—' : result.score}</strong><span>баллов NEWS2</span></div>
+        <div className="risk-meter"><span style={{ width: `${Math.min(result.score ?? 0, 20) / 20 * 100}%` }} /></div>
+        <div className={`care-context ${result.riskLevel === 'high' || result.riskLevel === 'incomplete' || result.hasSingleRedScore ? 'qsofa-positive' : ''}`}>
           <b>{result.hasSingleRedScore ? 'Есть критическое отклонение по одному параметру (3 балла)' : result.riskLabel}</b>
           <p>{result.interpretation}</p>
           <p><b>Частота мониторинга (ориентир RCP):</b> {result.monitoringFrequency}</p>
           <p><b>Предлагаемое реагирование:</b> {result.suggestedResponse}</p>
         </div>
+        {result.isIncomplete && <p className="clinical-warning"><ShieldAlert size={14} /> Неполный NEWS2. Не оценены: {result.missingParameters.join(', ')}. Сумма отражает только доступные параметры и не может использоваться для снижения уровня наблюдения. {result.requiresImmediateResponse ? 'RCP рекомендует немедленное реагирование, если показатель невозможно получить несмотря на использование оборудования.' : 'Повторите измерения и сопоставьте частичный балл с клиническим состоянием.'}</p>}
         <h3>Разбор начисленных баллов</h3>
         <div className="criteria-list">
           {result.criteria.map((item) => <div className="criterion-row" key={item.key}>
-            <span className={item.points > 0 ? 'criterion-point active' : 'criterion-point'}>{item.points ? `+${item.points}` : '0'}</span>
+            <span className={item.points !== null && item.points > 0 ? 'criterion-point active' : 'criterion-point'}>{item.points === null ? '—' : item.points ? `+${item.points}` : '0'}</span>
             <span><b>{item.label}</b><small>{item.value} · {item.explanation}</small></span>
-            <span className="criterion-status">{item.points} б.</span>
+            <span className="criterion-status">{item.points === null ? 'не оценено' : `${item.points} б.`}</span>
           </div>)}
         </div>
         <p className="clinical-warning"><ShieldAlert size={14} /> NEWS2 — инструмент раннего выявления ухудшения, а не диагноз. Частота мониторинга и реагирование приведены как ориентиры RCP для стационарного контекста. Пороговые действия при сумме ≥5 или ≥7 относятся к новому для пациента результату, если заранее не установлен индивидуальный порог эскалации. Сопоставляйте результат с исходным состоянием и индивидуальным планом. Локальный протокол и клиническая оценка имеют приоритет. Для общественных/амбулаторных условий RCP не устанавливает универсальные пороги действий. Клиническое беспокойство должно иметь приоритет над числом баллов.</p>
@@ -189,7 +211,7 @@ export default function NEWS2Calculator() {
         <a href={NEWS2_REFERENCE.url} target="_blank" rel="noreferrer">Открыть материалы RCP ↗</a>
         <small>{NEWS2_REFERENCE.notes.join(' ')}</small>
       </section>
-      <p className="calculator-disclaimer">Образовательный инструмент для взрослых пациентов. Не заменяет локальные протоколы наблюдения, клиническое решение или экстренную помощь.</p>
+      <p className="calculator-disclaimer">Для взрослых от 16 лет. Не применять у детей младше 16 лет и беременных; при травме спинного мозга, особенно тетраплегии или высокой параплегии, NEWS2 может быть ненадёжной — использовать с осторожностью. Русский перевод не утверждён Royal College of Physicians; перед клиническим использованием сверяйтесь с англоязычной версией. NEWS2 не заменяет локальные протоколы, клиническое решение или экстренную помощь.</p>
     </main>
   )
 }
