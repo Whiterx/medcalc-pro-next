@@ -90,7 +90,7 @@ export default function FourTsCalculator() {
               <option value="">Выберите категорию</option>
               <option value="2">2 — чётко на 5–10-й день или ≤1 дня при экспозиции в последние 30 дней</option>
               <option value="1">1 — неясно на 5–10-й день, после 10-го дня или ≤1 дня при экспозиции 30–100 дней назад</option>
-              <option value="0">0 — <4 дней без недавней экспозиции гепарина</option>
+              <option value="0">0 — &lt;4 дней без недавней экспозиции гепарина</option>
             </select>
           </label>
 
