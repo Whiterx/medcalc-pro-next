@@ -33,7 +33,8 @@ describe('calculateHEART', () => {
 
   it('applies age thresholds at 45 and 65 years', () => {
     expect(calc({ ageYears: 44 }).components[2].points).toBe(0)
-    expect(calc({ ageYears: 45 }).components[2].points).toBe(1)
+    expect(calc({ ageYears: 45 }).components[2].points).toBe(0)
+    expect(calc({ ageYears: 46 }).components[2].points).toBe(1)
     expect(calc({ ageYears: 64 }).components[2].points).toBe(1)
     expect(calc({ ageYears: 65 }).components[2].points).toBe(2)
   })
@@ -50,8 +51,14 @@ describe('calculateHEART', () => {
   it('applies troponin multiples of the assay upper reference limit', () => {
     expect(calc({ troponinMultipleOfULN: 1 }).components[4].points).toBe(0)
     expect(calc({ troponinMultipleOfULN: 1.01 }).components[4].points).toBe(1)
-    expect(calc({ troponinMultipleOfULN: 3 }).components[4].points).toBe(1)
+    expect(calc({ troponinMultipleOfULN: 2.99 }).components[4].points).toBe(1)
+    expect(calc({ troponinMultipleOfULN: 3 }).components[4].points).toBe(2)
     expect(calc({ troponinMultipleOfULN: 3.01 }).components[4].points).toBe(2)
+  })
+
+  it('awards 2 risk-factor points for known atherosclerotic disease regardless of the count', () => {
+    expect(calc({ knownAtheroscleroticDisease: true, coronaryRiskFactorCount: 0 }).components[3].points).toBe(2)
+    expect(calc({ knownAtheroscleroticDisease: true, coronaryRiskFactorCount: 6 }).components[3].points).toBe(2)
   })
 
   it('reaches the maximum score of 10', () => {
@@ -83,7 +90,8 @@ describe('calculateHEART', () => {
     expect(() => calc({ coronaryRiskFactorCount: 7 })).toThrow()
     expect(() => calc({ coronaryRiskFactorCount: 1.5 })).toThrow()
     expect(() => calc({ troponinMultipleOfULN: -0.1 })).toThrow()
-    expect(() => calc({ troponinMultipleOfULN: 100.1 })).toThrow()
+    expect(calc({ troponinMultipleOfULN: 101 }).components[4].points).toBe(2)
+    expect(() => calc({ troponinMultipleOfULN: Number.POSITIVE_INFINITY })).toThrow()
     expect(() => getHEARTRiskCategory(11)).toThrow()
   })
 })

@@ -26,7 +26,7 @@ export default function HEARTCalculator() {
 
   function handleCalculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if ([values.historyScore, values.ecgScore, values.ageYears, values.coronaryRiskFactorCount, values.troponinMultipleOfULN].some((value) => value === '')) {
+    if ([values.historyScore, values.ecgScore, values.ageYears, values.troponinMultipleOfULN].some((value) => value === '') || (!values.knownAtheroscleroticDisease && values.coronaryRiskFactorCount === '')) {
       setError('Заполните все пять компонентов HEART и укажите тропонин относительно ВГН.')
       setResult(null)
       return
@@ -36,7 +36,7 @@ export default function HEARTCalculator() {
         historyScore: Number(values.historyScore),
         ecgScore: Number(values.ecgScore),
         ageYears: Number(values.ageYears),
-        coronaryRiskFactorCount: Number(values.coronaryRiskFactorCount),
+        coronaryRiskFactorCount: values.coronaryRiskFactorCount === '' ? 0 : Number(values.coronaryRiskFactorCount),
         knownAtheroscleroticDisease: values.knownAtheroscleroticDisease,
         troponinMultipleOfULN: Number(values.troponinMultipleOfULN),
       }))
@@ -100,19 +100,19 @@ export default function HEARTCalculator() {
 
           <div className="field-grid">
             <label className="calc-field">
-              <span>A — Age <small>лет; &lt;45 = 0, 45–64 = 1, ≥65 = 2</small></span>
+              <span>A — Age <small>лет; ≤45 = 0, 46–64 = 1, ≥65 = 2</small></span>
               <input type="number" min="18" max="120" step="1" inputMode="numeric" placeholder="Введите возраст" value={values.ageYears} onChange={(event) => updateField('ageYears', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>Традиционные факторы риска ИБС <small>количество, 0–6</small></span>
-              <input type="number" min="0" max="6" step="1" inputMode="numeric" placeholder="Введите количество" value={values.coronaryRiskFactorCount} onChange={(event) => updateField('coronaryRiskFactorCount', event.target.value)} />
+              <input type="number" min="0" max="6" step="1" inputMode="numeric" placeholder={values.knownAtheroscleroticDisease ? 'Не требуется при известном атеросклерозе' : 'Введите количество'} value={values.coronaryRiskFactorCount} onChange={(event) => updateField('coronaryRiskFactorCount', event.target.value)} />
             </label>
           </div>
           <label className="check-field">
             <input type="checkbox" checked={values.knownAtheroscleroticDisease} onChange={(event) => updateField('knownAtheroscleroticDisease', event.target.checked)} />
             <span>Известное атеросклеротическое заболевание (например, ИБС, перенесённый ИМ, реваскуляризация, инсульт или заболевание периферических артерий) — компонент R = 2</span>
           </label>
-          <p className="field-hint">Традиционные факторы: артериальная гипертензия, дислипидемия, сахарный диабет, ожирение, курение и семейный анамнез преждевременной ИБС. При ≥3 факторах или известном атеросклеротическом заболевании компонент R = 2.</p>
+          <p className="field-hint">Традиционные факторы: артериальная гипертензия, дислипидемия, сахарный диабет, ожирение, курение и семейный анамнез преждевременной ИБС. При ≥3 факторах или известном атеросклеротическом заболевании компонент R = 2. Если известное атеросклеротическое заболевание отмечено выше, количество факторов риска можно не заполнять.</p>
 
           <div className="panel-heading panel-subheading">
             <div><span className="panel-kicker">T — TROPONIN</span><h2>Кардиальный тропонин</h2></div>
@@ -120,9 +120,9 @@ export default function HEARTCalculator() {
           </div>
           <label className="calc-field field-full">
             <span>Результат тропонина относительно ВГН <small>кратность верхней границы нормы (ВГН) данного анализа</small></span>
-            <input type="number" min="0" max="100" step="0.1" inputMode="decimal" placeholder="Например, 1.4" value={values.troponinMultipleOfULN} onChange={(event) => updateField('troponinMultipleOfULN', event.target.value)} />
+            <input type="number" min="0" step="any" inputMode="decimal" placeholder="Например, 1.4" value={values.troponinMultipleOfULN} onChange={(event) => updateField('troponinMultipleOfULN', event.target.value)} />
           </label>
-          <p className="field-hint">≤1× ВГН = 0; &gt;1× и ≤3× ВГН = 1; &gt;3× ВГН = 2. Используйте assay-specific верхнюю границу нормы лаборатории, для hs-cTn — 99-й перцентиль конкретного анализа.</p>
+          <p className="field-hint">≤1× ВГН = 0; &gt;1× и &lt;3× ВГН = 1; ≥3× ВГН = 2. Используйте assay-specific верхнюю границу нормы лаборатории, для hs-cTn — 99-й перцентиль конкретного анализа.</p>
           {error && <p className="form-error" role="alert">{error}</p>}
 
           <div className="calculator-actions">
@@ -156,7 +156,7 @@ export default function HEARTCalculator() {
           <div className="result-breakdown">
             {result.components.map((component) => <p key={component.key}>{component.label}: <b>{component.value}</b> <span>— {component.points} балл(а)</span></p>)}
           </div>
-          <p className="clinical-warning">HEART Score не равен HEART Pathway. Не принимайте решение о выписке только по одному баллу: учитывайте динамику симптомов, повторные ЭКГ и серийные тропонины по локальному протоколу. Показатели MACE взяты из конкретной исследовательской когорты и не являются индивидуальным прогнозом.</p>
+          <p className="clinical-warning">HEART Score не равен HEART Pathway. Не принимайте решение о выписке только по одному баллу: учитывайте динамику симптомов, повторные ЭКГ и серийные тропонины по локальному протоколу. Для пациентов с установленным ОКСбпST российские КР рекомендуют GRACE; HEART не заменяет GRACE и не определяет инвазивную стратегию. Показатели MACE взяты из конкретной исследовательской когорты и не являются индивидуальным прогнозом.</p>
         </section>
       )}
 

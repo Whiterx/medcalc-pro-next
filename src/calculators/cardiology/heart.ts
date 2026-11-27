@@ -44,15 +44,15 @@ export function calculateHEART(input: HEARTInput): HEARTResult {
   if (!Number.isInteger(input.coronaryRiskFactorCount) || input.coronaryRiskFactorCount < 0 || input.coronaryRiskFactorCount > 6) {
     throw new Error('Количество традиционных факторов риска ИБС должно быть целым числом от 0 до 6.')
   }
-  if (!Number.isFinite(input.troponinMultipleOfULN) || input.troponinMultipleOfULN < 0 || input.troponinMultipleOfULN > 100) {
+  if (!Number.isFinite(input.troponinMultipleOfULN) || input.troponinMultipleOfULN < 0) {
     throw new Error('Тропонин относительно верхней границы нормы должен быть в диапазоне 0–100.')
   }
 
-  const agePoints = input.ageYears < 45 ? 0 : input.ageYears < 65 ? 1 : 2
+  const agePoints = input.ageYears <= 45 ? 0 : input.ageYears < 65 ? 1 : 2
   const riskFactorPoints = input.knownAtheroscleroticDisease || input.coronaryRiskFactorCount >= 3
     ? 2 : input.coronaryRiskFactorCount >= 1 ? 1 : 0
   const troponinPoints = input.troponinMultipleOfULN <= 1 ? 0
-    : input.troponinMultipleOfULN <= 3 ? 1 : 2
+    : input.troponinMultipleOfULN < 3 ? 1 : 2
 
   const components: HEARTComponent[] = [
     { key: 'history', label: 'Анамнез', value: input.historyScore === 2 ? 'Сильно подозрительный' : input.historyScore === 1 ? 'Умеренно подозрительный' : 'Слабо подозрительный', points: input.historyScore },
