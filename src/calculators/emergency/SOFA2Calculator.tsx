@@ -26,6 +26,10 @@ export default function SOFA2Calculator() {
     setValues(current=>({...current,[key]:value,...((key==='norepinephrineDose'||key==='epinephrineDose'||key==='dopamineDose')?{vasoactiveDurationConfirmed:false}:{})})); setResult(null); setError('')
   }
   function reset(){setValues(initial);setResult(null);setError('')}
+  function updateRRTStatus(value:string){
+    setValues(current=>({...current,rrtStatus:value,...(value==='unavailableOrDelayed'?{}:{potassium:'',ph:'',bicarbonate:''})}));
+    setResult(null);setError('')
+  }
   function updateVasoactiveFlag(key:'norepinephrineEnabled'|'epinephrineEnabled'|'dopamineEnabled'|'otherVasoactive',checked:boolean){
     setValues(current=>{
       const next={...current,[key]:checked}
@@ -51,7 +55,7 @@ export default function SOFA2Calculator() {
       setResult(null);return
     }
     if(hasVasoactiveMedication&&values.vasoactiveAvailability!=='available'){
-      setError('Нельзя одновременно указать получение вазоактивных препаратов и их недоступность/ограничение целями лечения.');setResult(null);return
+      setError('При введении вазоактивных препаратов укажите доступность терапии как «Доступна». Нельзя одновременно указывать введение препаратов и их недоступность/ограничение целями лечения.');setResult(null);return
     }
     if(hasVasoactiveMedication&&!values.vasoactiveDurationConfirmed){
       setError('Подтвердите, что вазоактивные препараты вводились не менее 1 часа, как предусмотрено методикой SOFA-2.');setResult(null);return
@@ -142,7 +146,7 @@ export default function SOFA2Calculator() {
         <section className="sofa-section"><h3>3. Печень</h3><NumberField label="Общий билирубин" unit="мкмоль/л" value={values.bilirubin} onChange={v=>update('bilirubin',v)} min={0} max={2000} step="0.1"/></section>
         <section className="sofa-section"><h3>4. Сердечно-сосудистая система</h3>
           <NumberField label="Среднее АД (MAP)" unit={hasCardiovascularSupport?'мм рт. ст. · не требуется при поддержке':'мм рт. ст. · обязательно без поддержки'} value={values.map} onChange={v=>update('map',v)} min={1} max={250}/>
-          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select required value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="">Не выбрано</option><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
+          <label className="calc-field"><span>Доступность вазоактивной терапии, если препараты не вводятся</span><select required={!hasVasoactiveMedication&&!values.mechanicalSupport&&!values.vaEcmo} value={values.vasoactiveAvailability} onChange={e=>update('vasoactiveAvailability',e.target.value)}><option value="">Не выбрано</option><option value="available">Доступна</option><option value="unavailable">Недоступна (ресурсное ограничение)</option><option value="ceiling">Ограничена целями лечения</option></select></label>
           <div className="field-grid"><label className="sofa-check"><input type="checkbox" checked={values.norepinephrineEnabled} onChange={e=>updateVasoactiveFlag('norepinephrineEnabled',e.target.checked)}/> Норэпинефрин</label><label className="sofa-check"><input type="checkbox" checked={values.epinephrineEnabled} onChange={e=>updateVasoactiveFlag('epinephrineEnabled',e.target.checked)}/> Эпинефрин</label></div>
           {values.norepinephrineEnabled&&<NumberField label="Доза норэпинефрина (в пересчёте на основание)" unit="мкг/кг/мин" value={values.norepinephrineDose} onChange={v=>update('norepinephrineDose',v)} min={0.01} step="any"/>}
           {values.epinephrineEnabled&&<NumberField label="Доза эпинефрина" unit="мкг/кг/мин" value={values.epinephrineDose} onChange={v=>update('epinephrineDose',v)} min={0.01} step="any"/>}
@@ -165,7 +169,7 @@ export default function SOFA2Calculator() {
           <NumberField label="Креатинин" unit="мкмоль/л" value={values.creatinine} onChange={v=>update('creatinine',v)} min={1} max={3000} step="0.1"/>
           <div className="field-grid"><NumberField label="Диурез" unit="мл/кг/ч" value={values.urineRate} onChange={v=>update('urineRate',v)} min={0} max={20} step="0.01"/>
             <label className="calc-field"><span>Длительность олигурии / анурии</span><select value={values.urineDuration} onChange={e=>update('urineDuration',e.target.value)}><option value="">Не выбрано</option><option value="6-12">&gt;6–12 часов</option><option value="12+">≥12 часов</option><option value="24+">≥24 часов</option><option value="anuria12">Анурия ≥12 часов</option></select></label></div>
-          <label className="calc-field"><span>Статус заместительной почечной терапии (RRT)</span><select required value={values.rrtStatus} onChange={e=>update('rrtStatus',e.target.value)}><option value="">Не выбрано</option><option value="none">Не проводится</option><option value="receiving">Проводится сейчас или хроническая RRT</option><option value="intermittentOffDay">Интермиттирующая RRT: день без процедуры, курс продолжается</option><option value="nonrenalOnly">Проводится исключительно по непочечным показаниям</option><option value="unavailableOrDelayed">Не проводится из-за недоступности, отсрочки или ограничения лечения</option></select></label>
+          <label className="calc-field"><span>Статус заместительной почечной терапии (RRT)</span><select required value={values.rrtStatus} onChange={e=>updateRRTStatus(e.target.value)}><option value="">Не выбрано</option><option value="none">Не проводится</option><option value="receiving">Проводится сейчас или хроническая RRT</option><option value="intermittentOffDay">Интермиттирующая RRT: день без процедуры, курс продолжается</option><option value="nonrenalOnly">Проводится исключительно по непочечным показаниям</option><option value="unavailableOrDelayed">Не проводится из-за недоступности, отсрочки или ограничения лечения</option></select></label>
           {values.rrtStatus==='unavailableOrDelayed'&&<div className="field-grid"><NumberField label="Калий" unit="ммоль/л" value={values.potassium} onChange={v=>update('potassium',v)} min={0} max={20} step="0.1"/><NumberField label="pH" unit="" value={values.ph} onChange={v=>update('ph',v)} min={6} max={8} step="0.01"/><NumberField label="Бикарбонат" unit="ммоль/л" value={values.bicarbonate} onChange={v=>update('bicarbonate',v)} min={0} max={100} step="0.1"/></div>}
           <p className="field-hint">RRT учитывается при почечных показаниях; исключительно непочечная RRT не даёт 4 балла. Если RRT не проводится из-за недоступности, отсрочки или ограничения лечения, 4 балла возможны при креатинине &gt;110 мкмоль/л или диурезе &lt;0,3 мл/кг/ч более 6 часов, плюс калий ≥6,0 ммоль/л либо одновременно pH ≤7,20 и HCO₃⁻ ≤12 ммоль/л. В день без интермиттирующей процедуры 4 балла сохраняются, пока курс RRT не прекращён.</p>
         </section>
