@@ -63,8 +63,8 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.score).toBe(0)
     expect(result.riskLevel).toBe('routine')
     expect(result.monitoringFrequency).toContain('12 часов')
+    expect(result.suggestedResponse).toContain('должна оценить пациента')
     expect(result.suggestedResponse).toContain('Продолжать рутинный мониторинг NEWS')
-    expect(result.suggestedResponse).not.toContain('должна оценить пациента')
   })
 
   it('uses the 1–4 low aggregate band and 4–6 hourly monitoring interval', () => {
@@ -72,6 +72,7 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.score).toBe(1)
     expect(result.riskLevel).toBe('low')
     expect(result.monitoringFrequency).toContain('4–6 часов')
+    expect(result.suggestedResponse).toContain('сообщить медицинской команде')
   })
 
   it('flags a single parameter score of three and requires at least hourly monitoring even below five', () => {
