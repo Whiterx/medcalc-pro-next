@@ -32,7 +32,7 @@ export default function PFRatioCalculator() {
       return
     }
     if (pao2 < 1 || pao2 > 800 || fio2 < 0.21 || fio2 > 1) {
-      setError('Допустимые диапазоны: PaO₂ 1–800 мм рт. ст.; FiO₂ 0,21–1,00.')
+      setError('Допустимые значения: PaO₂ ≥1 мм рт. ст.; FiO₂ 0,21–1,00.')
       return
     }
 
@@ -69,11 +69,11 @@ export default function PFRatioCalculator() {
           <div className="field-grid">
             <label className="calc-field">
               <span>PaO₂ <small>мм рт. ст.</small></span>
-              <input type="number" min="1" max="800" step="0.1" inputMode="decimal" placeholder="Например, 80" value={values.pao2} onChange={(event) => updateField('pao2', event.target.value)} />
+              <input type="number" min="1" step="any" inputMode="decimal" placeholder="Например, 80" value={values.pao2} onChange={(event) => updateField('pao2', event.target.value)} />
             </label>
             <label className="calc-field">
               <span>FiO₂ <small>доля от 1,0</small></span>
-              <input type="number" min="0.21" max="1" step="0.01" inputMode="decimal" placeholder="Например, 0.40" value={values.fio2} onChange={(event) => updateField('fio2', event.target.value)} />
+              <input type="number" min="0.21" max="1" step="any" inputMode="decimal" placeholder="Например, 0.40" value={values.fio2} onChange={(event) => updateField('fio2', event.target.value)} />
             </label>
           </div>
 
@@ -108,13 +108,14 @@ export default function PFRatioCalculator() {
           <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag risk-${result.category === 'expected' ? 'low' : result.category === 'reduced' ? 'low' : result.category === 'mild' ? 'moderate' : 'high'}`}>{result.categoryLabel}</span></div>
           <div className="score-display"><strong>{result.ratio.toFixed(1)}</strong><span>мм рт. ст.</span></div>
           <p className="mortality-estimate">{result.interpretation}</p>
-          <p className="clinical-warning">Важно: индекс P/F сам по себе не диагностирует ОРДС и не является самостоятельным основанием для выбора кислородотерапии, НИВЛ, интубации или других лечебных вмешательств.</p>
+          <p className="clinical-warning">Важно: индекс P/F сам по себе не диагностирует ОРДС и не является самостоятельным основанием для выбора кислородотерапии, НИВЛ, интубации или других лечебных вмешательств. Классификация зависит от типа респираторной поддержки и остальных критериев; этот калькулятор не собирает их.</p>
+          {result.ratio === 100 && <p className="clinical-warning">Граничное значение: в российских рекомендациях ФАР 2025 основная таблица глобального определения использует для тяжёлой степени &lt;100, а приложение с критериями Berlin — ≤100. Сверьте применяемое определение и клинический контекст.</p>}
         </section>
       )}
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{PF_RATIO_REFERENCE.title}</h2><p>{PF_RATIO_REFERENCE.guideline} · {PF_RATIO_REFERENCE.section}</p></div>
-        <a href={PF_RATIO_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
+        <a href={PF_RATIO_REFERENCE.url} target="_blank" rel="noreferrer">Глобальное определение ОРДС 2023 ↗</a><a href={PF_RATIO_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР ФАР РФ 2025 ↗</a>
         <small>Публикации: {PF_RATIO_REFERENCE.published}. Проверено: {PF_RATIO_REFERENCE.accessed}. {PF_RATIO_REFERENCE.notes[2]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельного выбора лечебной тактики.</p>
