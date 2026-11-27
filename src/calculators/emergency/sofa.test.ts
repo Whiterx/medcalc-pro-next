@@ -73,6 +73,9 @@ describe('SOFA renal thresholds', () => {
   it('uses the highest score from creatinine and urine output', () => {
     expect(scoreRenal(110, 100)).toBe(4)
   })
+  it('does not score the renal component as normal when both inputs are missing', () => {
+    expect(scoreRenal(null, null)).toBeNull()
+  })
 })
 
 describe('calculateSOFA', () => {
@@ -92,6 +95,12 @@ describe('calculateSOFA', () => {
   })
   it('does not report a total when GCS is not testable', () => {
     const result = calculateSOFA({ ...normal, gcs: null })
+    expect(result.total).toBeNull()
+    expect(result.hasUntestableComponent).toBe(true)
+  })
+  it('does not report a total or zero renal points when both renal inputs are missing', () => {
+    const result = calculateSOFA({ ...normal, creatinine: null, urineOutput: null })
+    expect(result.components.find((component) => component.key === 'renal')?.points).toBeNull()
     expect(result.total).toBeNull()
     expect(result.hasUntestableComponent).toBe(true)
   })
