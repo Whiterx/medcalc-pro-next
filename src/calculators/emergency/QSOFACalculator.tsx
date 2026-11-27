@@ -186,7 +186,7 @@ export default function QSOFACalculator() {
               <li><b>M</b> — изменение сознания, GCS &lt;15</li>
             </ul>
             <p>Каждый выполненный критерий добавляет 1 балл. Максимум — 3 балла.</p>
-            <p>КР Минздрава РФ «Сепсис (у взрослых)» 2024 используют qSOFA для первичного скрининга вне ОРИТ и вне стационара; при ≥2 баллах и наличии очага инфекции требуется дальнейшая оценка органной дисфункции. qSOFA не устанавливает диагноз сепсиса. Для госпитализированных остро заболевших взрослых SSC 2026 рекомендует NEWS/NEWS2, MEWS или SIRS вместо qSOFA как единственного инструмента скрининга. Учитывайте клинический контекст и локальный алгоритм.</p>
+            <p>КР Минздрава РФ «Сепсис (у взрослых)» 2024 используют qSOFA для первичного скрининга вне ОРИТ и вне стационара; при ≥2 баллах и наличии очага инфекции требуется дальнейшая оценка органной дисфункции. qSOFA не устанавливает диагноз сепсиса. В ОРИТ для оценки органной дисфункции используется SOFA. Для госпитализированных остро заболевших взрослых SSC 2026 рекомендует NEWS/NEWS2, MEWS или SIRS вместо qSOFA как единственного инструмента скрининга. Учитывайте клинический контекст и локальный алгоритм.</p>
           </div>
           <div className="threshold-panel">
             <h3>Как трактовать результат</h3>
@@ -209,12 +209,12 @@ export default function QSOFACalculator() {
           <div className="criteria-list">
             {result.criteria.map((criterion) => <div className="criterion-row" key={criterion.key}><span className={criterion.met ? 'criterion-point active' : 'criterion-point'}>{criterion.points ? '+1' : '0'}</span><span><b>{criterion.label}</b><small>{criterion.explanation}</small></span><span className="criterion-status">{criterion.met ? 'Критерий есть' : 'Нет'}</span></div>)}
           </div>
-          <p className="clinical-warning"><ShieldAlert size={14} /> qSOFA не устанавливает диагноз сепсиса, а отрицательный результат не исключает его. КР Минздрава РФ 2024 включают qSOFA в первичный скрининг вне ОРИТ/стационара; при ≥2 баллах и очаге инфекции требуется дальнейшая оценка. Для госпитализированных остро заболевших взрослых SSC 2026 рекомендует NEWS/NEWS2, MEWS или SIRS вместо qSOFA как единственного скринингового инструмента.</p>
+          <p className="clinical-warning"><ShieldAlert size={14} /> qSOFA не устанавливает диагноз сепсиса, а отрицательный результат не исключает его. КР Минздрава РФ 2024 включают qSOFA в первичный скрининг вне ОРИТ/стационара; при ≥2 баллах и очаге инфекции требуется дальнейшая оценка. В ОРИТ для оценки органной дисфункции используется SOFA. Для госпитализированных остро заболевших взрослых SSC 2026 рекомендует NEWS/NEWS2, MEWS или SIRS вместо qSOFA как единственного скринингового инструмента.</p>
         </section>
       )}
 
       <section className="reference-panel">
-        <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{QSOFA_REFERENCE.title}</h2><p>{QSOFA_REFERENCE.definition} · {QSOFA_REFERENCE.guideline}</p></div>
+        <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{QSOFA_REFERENCE.title}</h2><p>{QSOFA_REFERENCE.definition} · {QSOFA_REFERENCE.russianGuideline} · {QSOFA_REFERENCE.guideline}</p></div>
         <a href={QSOFA_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">Открыть КР Минздрава РФ 2024 ↗</a><a href={QSOFA_REFERENCE.url} target="_blank" rel="noreferrer">Открыть SSC 2026 ↗</a>
         <small>{QSOFA_REFERENCE.originalSource}. Проверено: {QSOFA_REFERENCE.accessed}. {QSOFA_REFERENCE.notes[0]}</small>
       </section>
