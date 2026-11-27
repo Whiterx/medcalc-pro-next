@@ -61,7 +61,7 @@ export default function KDIGOAKICalculator() {
       </section>
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
-          <div className="panel-heading"><div><span className="panel-kicker">КРИТЕРИЙ 1</span><h2>Креатинин сыворотки</h2></div><span className="points-label">0–3</span></div>
+          <div className="panel-heading"><div><span className="panel-kicker">КРИТЕРИЙ 1</span><h2>Креатинин сыворотки</h2></div><span className="points-label">1–3</span></div>
           <div className="form-row">
             <label className="calc-field"><span>Исходный креатинин</span><input type="number" min="0.01" step="any" value={values.creatinineBaseline} onChange={(event) => updateField('creatinineBaseline', event.target.value)} placeholder="Исходное значение" /></label>
             <label className="calc-field"><span>Текущий креатинин</span><input type="number" min="0.01" step="any" value={values.creatinineCurrent} onChange={(event) => updateField('creatinineCurrent', event.target.value)} placeholder="Текущее значение" /></label>
@@ -72,13 +72,13 @@ export default function KDIGOAKICalculator() {
           </div>
           <p className="field-hint">Для применения критерия 1,5× интервал между исходным и текущим измерениями должен быть ≤7 суток; прирост ≥0,3 мг/дл (≥26,5 мкмоль/л) учитывается только при интервале ≤48 часов. Не подставляйте расчётный исходный креатинин.</p>
           <div className="news2-section">
-            <div className="panel-heading panel-subheading"><div><span className="panel-kicker">КРИТЕРИЙ 2</span><h2>Диурез</h2></div><span className="points-label">0–3</span></div>
+            <div className="panel-heading panel-subheading"><div><span className="panel-kicker">КРИТЕРИЙ 2</span><h2>Диурез</h2></div><span className="points-label">1–3</span></div>
             <div className="form-row">
               <label className="calc-field"><span>Масса тела, кг</span><input type="number" min="0.5" max="500" step="any" value={values.bodyWeightKg} onChange={(event) => updateField('bodyWeightKg', event.target.value)} placeholder="Масса тела" /></label>
               <label className="calc-field"><span>Объём мочи за период, мл</span><input type="number" min="0" max="50000" step="any" value={values.urineVolumeMl} onChange={(event) => updateField('urineVolumeMl', event.target.value)} placeholder="Объём мочи" /></label>
             </div>
             <label className="calc-field field-full"><span>Длительность периода, часов</span><input type="number" min="1" max="168" step="any" value={values.urineIntervalHours} onChange={(event) => updateField('urineIntervalHours', event.target.value)} placeholder="Длительность наблюдения" /></label>
-            <p className="field-hint">Заполните все три поля вместе. Калькулятор рассчитает средний диурез в мл/кг/ч. Для анурии укажите объём мочи 0 мл.</p>
+            <p className="field-hint">Заполните все три поля вместе. Калькулятор рассчитает средний диурез в мл/кг/ч за непрерывный период. Используйте полные почасовые измерения; не объединяйте разрозненные интервалы. Для анурии укажите объём мочи 0 мл.</p>
           </div>
           <div className="news2-section">
             <label className="form-check">

@@ -33,7 +33,7 @@ describe('calculateKDIGOAKI', () => {
   it('applies the 4 mg/dL stage-3 threshold only after an AKI creatinine definition is met', () => {
     expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 3.7, creatinineCurrent: 4, creatinineUnit: 'mg/dL', creatinineIntervalHours: 48 }).creatinineStage).toBe(3)
     expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 3.99, creatinineCurrent: 4, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(0)
-    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 4, creatinineCurrent: 4.3, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(1)
+    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 4, creatinineCurrent: 4.3, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(3)
   })
 
   it('uses the highest stage when multiple criteria are present', () => {

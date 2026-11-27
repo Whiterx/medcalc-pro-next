@@ -79,8 +79,8 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     const meetsAKICreatinineDefinition = creatinineRatio >= 1.5 || absoluteRiseCriterion
     const reachedStage3Threshold = meetsAKICreatinineDefinition && interval <= 168 && (
       unit === 'mg/dL'
-        ? baseline < 4 && current >= 4
-        : baseline < 353.6 && current >= 353.6
+        ? current >= 4
+        : current >= 353.6
     )
 
     if (creatinineRatio >= 3 || reachedStage3Threshold) creatinineStage = 3
