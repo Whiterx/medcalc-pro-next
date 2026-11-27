@@ -97,7 +97,7 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.score).toBe(8)
     expect(result.riskLevel).toBe('high')
     expect(result.monitoringFrequency).toContain('30 минут')
-    expect(result.suggestedResponse).toMatch(/экстренную оценку/i)
+    expect(result.suggestedResponse).toMatch(/экстренной оценки/i)
   })
 
   it('preserves the emergency critical-care and airway response when an unmeasurable parameter accompanies a partial score of 7 or more', () => {
