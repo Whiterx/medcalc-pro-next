@@ -55,9 +55,18 @@ describe('calculateVasoactiveRate', () => {
     expect(() => calculateVasoactiveRate({ drug: 'norepinephrine', dose: 0.1, concentration: 80 })).toThrow()
   })
 
-  it('rejects invalid dose and concentration', () => {
+  it('accepts exact technical upper bounds without treating them as clinical recommendations', () => {
+    const result = calculateVasoactiveRate({ drug: 'norepinephrine', dose: 1000, weightKg: 500, concentration: 100000 })
+    expect(result.infusionRateMlH).toBeCloseTo(300, 8)
+  })
+
+  it('rejects values outside technical bounds and non-finite values', () => {
     expect(() => calculateVasoactiveRate({ drug: 'norepinephrine', dose: 0, weightKg: 70, concentration: 80 })).toThrow()
     expect(() => calculateVasoactiveRate({ drug: 'vasopressin', dose: 0.03, concentration: 0 })).toThrow()
     expect(() => calculateVasoactiveRate({ drug: 'dobutamine', dose: 1, weightKg: 501, concentration: 100 })).toThrow()
+    expect(() => calculateVasoactiveRate({ drug: 'norepinephrine', dose: 1000.1, weightKg: 70, concentration: 80 })).toThrow()
+    expect(() => calculateVasoactiveRate({ drug: 'norepinephrine', dose: 1, weightKg: 70, concentration: 100000.1 })).toThrow()
+    expect(() => calculateVasoactiveRate({ drug: 'epinephrine', dose: Number.NaN, concentration: 10 })).toThrow()
+    expect(() => calculateVasoactiveRate({ drug: 'vasopressin', dose: 1, concentration: Number.POSITIVE_INFINITY })).toThrow()
   })
 })
