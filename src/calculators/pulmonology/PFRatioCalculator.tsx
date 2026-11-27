@@ -116,7 +116,7 @@ export default function PFRatioCalculator() {
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{PF_RATIO_REFERENCE.title}</h2><p>{PF_RATIO_REFERENCE.guideline} · {PF_RATIO_REFERENCE.section}</p></div>
         <a href={PF_RATIO_REFERENCE.url} target="_blank" rel="noreferrer">Глобальное определение ОРДС 2023 ↗</a><a href={PF_RATIO_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР ФАР РФ 2025 ↗</a>
-        <small>Публикации: {PF_RATIO_REFERENCE.published}. Проверено: {PF_RATIO_REFERENCE.accessed}. {PF_RATIO_REFERENCE.notes[2]}</small>
+        <small>Публикации: {PF_RATIO_REFERENCE.published}. Проверено: {PF_RATIO_REFERENCE.accessed}. {PF_RATIO_REFERENCE.notes[5]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельного выбора лечебной тактики.</p>
     </main>
