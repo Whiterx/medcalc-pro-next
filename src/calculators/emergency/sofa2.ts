@@ -21,7 +21,7 @@ export interface SOFA2Input {
   deliriumMedication: boolean;
   creatinine: number | null;
   urineOutputMlKgH: number | null;
-  urineOutputDuration: 'none' | '6-12' | '12+' | '24+' | 'anuria12';
+  urineOutputDuration: 'none' | '6' | '6-12' | '12+' | '24+' | 'anuria12';
   rrtStatus: 'none' | 'receiving' | 'intermittentOffDay' | 'nonrenalOnly' | 'unavailableOrDelayed';
   potassium: number | null;
   ph: number | null;
@@ -120,7 +120,7 @@ export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutput
     if (input.urineOutputDuration === 'anuria12' && input.urineOutputMlKgH === 0) score=Math.max(score,3);
     else if (input.urineOutputDuration === '24+' && input.urineOutputMlKgH < 0.3) score=Math.max(score,3);
     else if ((input.urineOutputDuration === '12+' || input.urineOutputDuration === '24+') && input.urineOutputMlKgH < 0.5) score=Math.max(score,2);
-    else if (input.urineOutputDuration === '6-12' && input.urineOutputMlKgH < 0.5) score=Math.max(score,1);
+    else if ((input.urineOutputDuration === '6' || input.urineOutputDuration === '6-12') && input.urineOutputMlKgH < 0.5) score=Math.max(score,1);
   }
   return score;
 }

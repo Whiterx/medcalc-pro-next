@@ -98,6 +98,7 @@ describe('SOFA-2 kidney',()=>{
   cr.forEach(([v,s])=>it(`creatinine ${v} => ${s}`,()=>expect(scoreSOFA2Kidney({...base,creatinine:v})).toBe(s)))
   it('does not treat absent creatinine and urine output as normal',()=>expect(scoreSOFA2Kidney(base)).toBeNull())
   it('scores urine output by threshold and duration',()=>{
+    expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6-12'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'6-12'})).toBe(0)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'12+'})).toBe(2)
@@ -117,6 +118,7 @@ describe('SOFA-2 kidney',()=>{
     expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:7.2,bicarbonate:12})).toBe(4)
     expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:5.9,ph:7.21,bicarbonate:12})).toBe(1)
     expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.29,urineOutputDuration:'6-12',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(4)
+    expect(scoreSOFA2Kidney({...base,creatinine:100,urineOutputMlKgH:0.29,urineOutputDuration:'6',rrtStatus:'unavailableOrDelayed',potassium:6})).toBe(1)
   })
   it('returns NT if RRT criteria may be met but required biochemical data are incomplete',()=>{
     expect(scoreSOFA2Kidney({...base,creatinine:150,rrtStatus:'unavailableOrDelayed',potassium:null,ph:null,bicarbonate:null})).toBeNull()
