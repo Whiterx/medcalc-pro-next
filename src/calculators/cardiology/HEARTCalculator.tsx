@@ -162,8 +162,8 @@ export default function HEARTCalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{HEART_REFERENCE.title}</h2><p>{HEART_REFERENCE.guideline} · {HEART_REFERENCE.section}</p></div>
-        <a href={HEART_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Проверено: {HEART_REFERENCE.accessed}. {HEART_REFERENCE.notes[4]}</small>
+        <a href={HEART_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Оригинальная публикация 2008 ↗</a><a href={HEART_REFERENCE.url} target="_blank" rel="noreferrer">Проспективная валидация 2013 ↗</a><a href={HEART_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a>
+        <small>Проверено: {HEART_REFERENCE.accessed}. {HEART_REFERENCE.notes[4]} {HEART_REFERENCE.notes[6]} {HEART_REFERENCE.notes[7]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку, повторные ЭКГ и серийные измерения тропонина.</p>
     </main>

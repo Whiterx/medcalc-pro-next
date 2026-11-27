@@ -4,6 +4,7 @@ export const HEART_REFERENCE = {
   section: 'History, ECG, Age, Risk factors and Troponin',
   published: '2008; prospective validation 2013',
   url: 'https://pubmed.ncbi.nlm.nih.gov/23465250/',
+  originalUrl: 'https://pubmed.ncbi.nlm.nih.gov/18665203/',
   russianGuideline: 'КР Минздрава РФ «Острый коронарный синдром без подъёма сегмента ST ЭКГ», 2024, ID 154_4.',
   russianGuidelineUrl: 'https://rsmu.ru/fileadmin/templates/DOC/Faculties/LF/anestez_reanimatol_i_intens_terapii/NS_v_praktike_vracha_PZ/KR154_4_OKS_bez_podema_ST.pdf',
   accessed: '2026-11-27',
