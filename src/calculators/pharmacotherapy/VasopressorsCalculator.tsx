@@ -117,7 +117,7 @@ export default function VasopressorsCalculator() {
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{VASOPRESSORS_REFERENCE.title}</h2><p>{VASOPRESSORS_REFERENCE.guideline}</p></div>
         <a href={VASOPRESSORS_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">Открыть клинические рекомендации Минздрава РФ ↗</a>
-        <small>{VASOPRESSORS_REFERENCE.supportingGuideline} · <a href={VASOPRESSORS_REFERENCE.supportingUrl} target="_blank" rel="noreferrer">Инструкция FDA для допамина ↗</a> Проверено: {VASOPRESSORS_REFERENCE.accessed}.</small>
+        <small>{VASOPRESSORS_REFERENCE.supportingGuideline} · <a href={VASOPRESSORS_REFERENCE.supportingUrl} target="_blank" rel="noreferrer">Открыть рекомендации SSC 2026 ↗</a> Проверено: {VASOPRESSORS_REFERENCE.accessed}.</small>
       </section>
       <p className="calculator-disclaimer">Калькулятор пересчёта скорости инфузии у взрослых. Не заменяет независимую двойную проверку и локальный протокол.</p>
     </main>
