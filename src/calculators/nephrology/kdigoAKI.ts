@@ -76,7 +76,8 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     creatinineRise = current - baseline
     creatinineRiseUnit = unit
     const absoluteRiseCriterion = interval <= 48 && (unit === 'mg/dL' ? creatinineRise >= 0.3 : creatinineRise >= 26.5)
-    const reachedStage3Threshold = interval <= 168 && (
+    const meetsAKICreatinineDefinition = creatinineRatio >= 1.5 || absoluteRiseCriterion
+    const reachedStage3Threshold = meetsAKICreatinineDefinition && interval <= 168 && (
       unit === 'mg/dL'
         ? baseline < 4 && current >= 4
         : baseline < 353.6 && current >= 353.6
@@ -88,7 +89,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     else creatinineStage = 0
 
     details.push(
-      `Креатинин: ${baseline} → ${current} ${unit}; ×${creatinineRatio.toFixed(2)} от исходного; прирост ${creatinineRise.toFixed(2)} ${unit}; интервал ${interval} ч — стадия ${creatinineStage} по критерию креатинина.`
+      `Креатинин: ${baseline} → ${current} ${unit}; ×${creatinineRatio.toFixed(2)} от исходного; прирост ${creatinineRise.toFixed(2)} ${unit}; интервал ${interval} ч — ${creatinineStage === 0 ? 'критерии ОПП по креатинину не выполнены' : `стадия ${creatinineStage} по критерию креатинина`}.`
     )
   }
 
@@ -113,7 +114,7 @@ export function calculateKDIGOAKI(input: KDIGOAKIInput): KDIGOAKIResult {
     else urineOutputStage = 0
 
     details.push(
-      `Диурез: ${volume} мл за ${duration} ч при массе ${weight} кг = ${urineOutputRate.toFixed(3)} мл/кг/ч; стадия ${urineOutputStage} по критерию диуреза.`
+      `Диурез: ${volume} мл за ${duration} ч при массе ${weight} кг = ${urineOutputRate.toFixed(3)} мл/кг/ч; ${urineOutputStage === 0 ? 'критерии ОПП по диурезу не выполнены' : `стадия ${urineOutputStage} по критерию диуреза`}.`
     )
   }
 

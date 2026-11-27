@@ -3,7 +3,7 @@ export const VANCOMYCIN_REFERENCE = {
   guideline: 'ASHP/PIDS/SIDP/IDSA Revised Consensus Guideline for Therapeutic Monitoring of Vancomycin for Serious MRSA Infections. Am J Health-Syst Pharm. 2020;77(11):835–864.',
   guidelineUrl: 'https://www.idsociety.org/practice-guideline/vancomycin/',
   publicationUrl: 'https://doi.org/10.1093/ajhp/zxaa036',
-  accessed: '2026-11-26',
+  accessed: '2026-11-27',
   notes: [
     'Расчёт нагрузочной и поддерживающей дозы отключён: без явного клинического сценария и популяции один весовой алгоритм не может быть безопасно применён ко всем взрослым.',
     'Руководство рассматривает нагрузочную дозу 20–35 мг/кг фактической массы (максимум 3000 мг) для отдельных критически больных взрослых с серьёзной MRSA-инфекцией; для взрослых с ожирением при серьёзной инфекции может рассматриваться 20–25 мг/кг (максимум 3000 мг). Эти контексты нельзя сводить к одному универсальному диапазону.',

@@ -46,7 +46,7 @@ export default function KDIGOAKICalculator() {
     }
   }
 
-  const stageLabel = (stage: number | null) => stage === null ? 'Не оценивалось' : `Стадия ${stage}`
+  const stageLabel = (stage: number | null) => stage === null ? 'Не оценивалось' : stage === 0 ? 'Критерии ОПП не выявлены' : `Стадия ${stage}`
 
   return (
     <main className="app-shell calculator-shell">
@@ -57,7 +57,7 @@ export default function KDIGOAKICalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> СТАДИРОВАНИЕ ОСТРОГО ПОВРЕЖДЕНИЯ ПОЧЕК</div>
         <h1>KDIGO — ОПП</h1>
-        <p>Стадирование по динамике креатинина, диурезу и началу заместительной почечной терапии.</p>
+        <p>Стадирование ОПП у взрослых по динамике креатинина, диурезу и началу заместительной почечной терапии. Итоговая стадия определяется по наиболее тяжёлому из доступных критериев.</p>
       </section>
       <div className="calculator-layout">
         <form className="calculator-panel" onSubmit={handleCalculate}>
@@ -70,7 +70,7 @@ export default function KDIGOAKICalculator() {
             <label className="calc-field"><span>Единицы измерения</span><select value={values.creatinineUnit} onChange={(event) => updateField('creatinineUnit', event.target.value as CreatinineUnit)}><option value="µmol/L">мкмоль/л</option><option value="mg/dL">мг/дл</option></select></label>
             <label className="calc-field"><span>Интервал между анализами, ч</span><input type="number" min="1" max="168" step="1" value={values.creatinineIntervalHours} onChange={(event) => updateField('creatinineIntervalHours', event.target.value)} placeholder="1–168 часов" /></label>
           </div>
-          <p className="field-hint">Исходное значение должно относиться к текущему эпизоду и быть получено не более 7 дней назад. Прирост ≥0,3 мг/дл учитывается только при интервале ≤48 часов.</p>
+          <p className="field-hint">Для применения критерия 1,5× интервал между исходным и текущим измерениями должен быть ≤7 суток; прирост ≥0,3 мг/дл (≥26,5 мкмоль/л) учитывается только при интервале ≤48 часов. Не подставляйте расчётный исходный креатинин.</p>
           <div className="news2-section">
             <div className="panel-heading panel-subheading"><div><span className="panel-kicker">КРИТЕРИЙ 2</span><h2>Диурез</h2></div><span className="points-label">0–3</span></div>
             <div className="form-row">
@@ -102,11 +102,11 @@ export default function KDIGOAKICalculator() {
       {result && (
         <section className="result-panel" aria-live="polite">
           <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ СТАДИРОВАНИЯ</span><span className="risk-tag risk-moderate">KDIGO 2012</span></div>
-          <div className="score-display"><strong>{result.overallStage}</strong><span>итоговая стадия ОПП</span></div>
+          <div className="score-display"><strong>{result.overallStage === 0 ? '—' : result.overallStage}</strong><span>{result.overallStage === 0 ? 'критерии ОПП по введённым данным не выявлены' : 'итоговая стадия ОПП'}</span></div>
           <div className="result-summary"><b>{result.interpretation}</b></div>
           <div className="criteria-list">
-            <div className="criterion-row"><span className="criterion-point">{result.creatinineStage ?? '—'}</span><span><b>Критерий креатинина</b><small>{stageLabel(result.creatinineStage)}</small></span></div>
-            <div className="criterion-row"><span className="criterion-point">{result.urineOutputStage ?? '—'}</span><span><b>Критерий диуреза</b><small>{stageLabel(result.urineOutputStage)}{result.urineOutputRate !== null ? ` · ${result.urineOutputRate.toFixed(3)} мл/кг/ч` : ''}</small></span></div>
+            <div className="criterion-row"><span className="criterion-point">{result.creatinineStage === null || result.creatinineStage === 0 ? '—' : result.creatinineStage}</span><span><b>Критерий креатинина</b><small>{stageLabel(result.creatinineStage)}</small></span></div>
+            <div className="criterion-row"><span className="criterion-point">{result.urineOutputStage === null || result.urineOutputStage === 0 ? '—' : result.urineOutputStage}</span><span><b>Критерий диуреза</b><small>{stageLabel(result.urineOutputStage)}{result.urineOutputRate !== null ? ` · ${result.urineOutputRate.toFixed(3)} мл/кг/ч` : ''}</small></span></div>
             <div className="criterion-row"><span className="criterion-point">{result.renalReplacementTherapyStarted ? 'Да' : 'Нет'}</span><span><b>Начало ЗПТ</b><small>{result.renalReplacementTherapyStarted ? 'Критерий стадии 3' : 'Не отмечено'}</small></span></div>
           </div>
           {result.details.map((detail) => <p className="field-hint" key={detail}>{detail}</p>)}
@@ -118,7 +118,7 @@ export default function KDIGOAKICalculator() {
         <a href={KDIGO_AKI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">Открыть руководство KDIGO ↗</a>
         <small>{KDIGO_AKI_REFERENCE.currentUpdate} · <a href={KDIGO_AKI_REFERENCE.currentUpdateUrl} target="_blank" rel="noreferrer">Статус обновления KDIGO ↗</a> Проверено: {KDIGO_AKI_REFERENCE.accessed}.</small>
       </section>
-      <p className="calculator-disclaimer">Образовательный инструмент стадирования ОПП у взрослых по KDIGO 2012. Не заменяет клиническую оценку и решение о лечении.</p>
+      <p className="calculator-disclaimer">Стадирование по KDIGO 2012 у взрослых. Нулевой результат означает, что по введённым данным критерии не выявлены, а не официальную «стадию 0». Отсутствие критериев по неполным данным не исключает ОПП. Не заменяет клиническую оценку и решение о лечении.</p>
     </main>
   )
 }

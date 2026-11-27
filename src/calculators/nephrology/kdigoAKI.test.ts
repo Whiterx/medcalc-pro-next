@@ -30,9 +30,10 @@ describe('calculateKDIGOAKI', () => {
     expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 100, creatinineCurrent: 300, creatinineIntervalHours: 168 }).creatinineStage).toBe(3)
   })
 
-  it('stages a rise to 4 mg/dL only when the baseline was below 4 mg/dL', () => {
-    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 3.5, creatinineCurrent: 4, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(3)
-    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 4, creatinineCurrent: 4.2, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(0)
+  it('applies the 4 mg/dL stage-3 threshold only after an AKI creatinine definition is met', () => {
+    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 3.7, creatinineCurrent: 4, creatinineUnit: 'mg/dL', creatinineIntervalHours: 48 }).creatinineStage).toBe(3)
+    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 3.99, creatinineCurrent: 4, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(0)
+    expect(calculateKDIGOAKI({ ...noData, creatinineBaseline: 4, creatinineCurrent: 4.3, creatinineUnit: 'mg/dL', creatinineIntervalHours: 24 }).creatinineStage).toBe(1)
   })
 
   it('uses the highest stage when multiple criteria are present', () => {
@@ -61,6 +62,14 @@ describe('calculateKDIGOAKI', () => {
     const result = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 400, urineIntervalHours: 24 })
     expect(result.urineOutputRate).toBeCloseTo(0.238, 3)
     expect(result.urineOutputStage).toBe(3)
+  })
+
+  it('does not cross strict urine-output thresholds at exactly 0.5 or 0.3 mL/kg/h', () => {
+    const exactHalf = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 210, urineIntervalHours: 6 })
+    expect(exactHalf.urineOutputStage).toBe(0)
+    const exactPointThree = calculateKDIGOAKI({ ...noData, bodyWeightKg: 70, urineVolumeMl: 504, urineIntervalHours: 24 })
+    expect(exactPointThree.urineOutputRate).toBeCloseTo(0.3, 10)
+    expect(exactPointThree.urineOutputStage).toBe(2)
   })
 
   it('stages anuria for at least 12 hours as stage 3', () => {
