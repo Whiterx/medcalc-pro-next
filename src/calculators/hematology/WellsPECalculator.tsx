@@ -53,7 +53,7 @@ export default function WellsPECalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> КЛИНИЧЕСКАЯ ВЕРОЯТНОСТЬ ТЭЛА</div>
         <h1>Wells Score — ТЭЛА</h1>
-        <p>Двухуровневая шкала для оценки клинической вероятности тромбоэмболии лёгочной артерии у взрослых при уже возникшем подозрении на ТЭЛА.</p>
+        <p>Двухуровневая шкала для оценки клинической вероятности тромбоэмболии лёгочной артерии у небеременных взрослых при уже возникшем подозрении на ТЭЛА.</p>
       </section>
 
       <div className="calculator-layout">
@@ -114,9 +114,9 @@ export default function WellsPECalculator() {
             <p>Шкала оценивает предтестовую клиническую вероятность у взрослых, у которых уже заподозрена ТЭЛА. Она применяется как часть диагностического алгоритма вместе с D-димером и визуализацией, а не вместо них.</p>
           </div>
           <div className="threshold-panel">
-            <h3>Двухуровневая модель NICE</h3>
-            <p>≤4 баллов: <b>ТЭЛА маловероятна</b> — D-димер</p>
-            <p>&gt;4 баллов: <b>ТЭЛА вероятна</b> — немедленная визуализация, обычно КТЛА</p>
+            <h3>Двухуровневая модель Wells</h3>
+            <p>≤4 баллов: <b>ТЭЛА маловероятна</b></p>
+            <p>&gt;4 баллов: <b>ТЭЛА вероятна</b></p><p>Двухуровневая категория не равна трёхуровневой высокой вероятности. Следующий тест определяется полной клинической вероятностью по КР РФ 2025.</p>
             <p>Максимум: <b>12,5 балла</b></p>
           </div>
         </aside>
@@ -126,19 +126,19 @@ export default function WellsPECalculator() {
         <section className="result-panel" aria-live="polite">
           <div className="result-topline"><span className="panel-kicker">РЕЗУЛЬТАТ РАСЧЁТА</span><span className={`risk-tag ${result.category === 'unlikely' ? 'risk-low' : 'risk-high'}`}>{result.categoryLabel}</span></div>
           <div className="score-display"><strong>{result.score}</strong><span>балла из 12,5</span></div>
-          <p className="result-summary">{result.category === 'likely' ? 'Сумма строго больше 4 баллов.' : 'Сумма 4 балла или меньше.'} {result.categoryLabel} по двухуровневой модели NICE.</p>
+          <p className="result-summary">{result.category === 'likely' ? 'Сумма строго больше 4 баллов.' : 'Сумма 4 балла или меньше.'} {result.categoryLabel} по оригинальной двухуровневой модели Wells.</p>
           <div className="result-breakdown">
             {result.components.map((component) => <p key={component.key}>{component.label}: <b>{component.present ? 'Да' : 'Нет'}</b> <span>— {component.present ? `+${component.points} балл(а)` : '0 баллов'}</span></p>)}
           </div>
-          <div className="threshold-panel"><h3>Следующий этап диагностического алгоритма</h3><p>{result.pathway}</p></div>
-          <p className="clinical-warning">Wells не подтверждает и не исключает ТЭЛА самостоятельно. Не используйте результат изолированно и не задерживайте неотложную помощь при гемодинамической нестабильности или высокой клинической настороженности. Следуйте локальному протоколу и клиническому суждению.</p>
+          <div className="threshold-panel"><h3>Диагностический контекст по КР РФ 2025</h3><p>{result.pathway}</p></div>
+          <p className="clinical-warning">Wells не подтверждает и не исключает ТЭЛА самостоятельно. Шкалы Wells/Geneva не валидированы при беременности и в послеродовом периоде: в этих ситуациях нужен отдельный диагностический алгоритм. Не задерживайте неотложную помощь при гемодинамической нестабильности или высокой клинической настороженности.</p>
         </section>
       )}
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{WELLS_PE_REFERENCE.title}</h2><p>{WELLS_PE_REFERENCE.guideline} · {WELLS_PE_REFERENCE.section}</p></div>
-        <a href={WELLS_PE_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Публикация: {WELLS_PE_REFERENCE.published}. Проверено: {WELLS_PE_REFERENCE.accessed}. {WELLS_PE_REFERENCE.notes[0]}</small>
+        <a href={WELLS_PE_REFERENCE.url} target="_blank" rel="noreferrer">КР Минздрава РФ 2025 ↗</a><a href={WELLS_PE_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Первоисточник Wells 2000 ↗</a><a href={WELLS_PE_REFERENCE.niceUrl} target="_blank" rel="noreferrer">Двухуровневая версия NICE ↗</a>
+        <small>Публикация: {WELLS_PE_REFERENCE.published}. Проверено: {WELLS_PE_REFERENCE.accessed}. {WELLS_PE_REFERENCE.notes[0]} {WELLS_PE_REFERENCE.notes[5]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельной диагностики или выбора лечения.</p>
     </main>

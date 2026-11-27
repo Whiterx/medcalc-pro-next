@@ -13,7 +13,7 @@ const base: WellsPEInput = {
 }
 const calc = (overrides: Partial<WellsPEInput>) => calculateWellsPE({ ...base, ...overrides })
 
-describe('calculateWellsPE — two-level Wells score', () => {
+describe('calculateWellsPE — original weighted two-level Wells score', () => {
   it('returns 0 and PE unlikely when no criteria are present', () => {
     const result = calc({})
     expect(result.score).toBe(0)
@@ -46,6 +46,13 @@ describe('calculateWellsPE — two-level Wells score', () => {
     expect(result.category).toBe('unlikely')
   })
 
+  it('does not automatically equate the two-level likely category with high clinical probability', () => {
+    const result = calc({ clinicalSignsOfDVT: true, heartRateOver100: true })
+    expect(result.score).toBe(4.5)
+    expect(result.category).toBe('likely')
+    expect(result.pathway).toContain('не тождественна высокой вероятности')
+  })
+
   it('classifies any score above 4 as PE likely', () => {
     const result = calc({ clinicalSignsOfDVT: true, heartRateOver100: true })
     expect(result.score).toBe(4.5)
@@ -58,6 +65,11 @@ describe('calculateWellsPE — two-level Wells score', () => {
       previousDVTOrPE: true,
     })
     expect(result.score).toBe(3)
+  })
+
+  it('does not recommend interim therapeutic anticoagulation from the score alone', () => {
+    const result = calc({ clinicalSignsOfDVT: true, pulmonaryEmbolismMoreLikelyThanAlternative: true })
+    expect(result.pathway).not.toContain('временной лечебной антикоагуляции')
   })
 
   it('requires confirmation that every criterion was assessed', () => {
