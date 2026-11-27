@@ -84,6 +84,19 @@ describe('calculateGRACE — original GRACE in-hospital mortality score', () => 
     expect(getGRACERiskCategory(141)).toBe('high')
   })
 
+  it('rejects missing input and invalid binary predictors', () => {
+    expect(() => calculateGRACE(null as unknown as GRACEInput)).toThrow()
+    expect(() => calc({ cardiacArrestAtAdmission: 'yes' as never })).toThrow()
+    expect(() => calc({ stSegmentDeviation: 1 as never })).toThrow()
+    expect(() => calc({ elevatedCardiacBiomarkers: undefined as never })).toThrow()
+  })
+
+  it('rejects invalid total scores in the category helper', () => {
+    expect(() => getGRACERiskCategory(-1)).toThrow()
+    expect(() => getGRACERiskCategory(1.5)).toThrow()
+    expect(() => getGRACERiskCategory(373)).toThrow()
+  })
+
   it('rejects impossible or non-integer demographic and vital inputs', () => {
     expect(() => calc({ ageYears: 17 })).toThrow()
     expect(() => calc({ ageYears: 121 })).toThrow()
@@ -92,6 +105,7 @@ describe('calculateGRACE — original GRACE in-hospital mortality score', () => 
     expect(() => calc({ heartRate: 50.5 })).toThrow()
     expect(() => calc({ systolicBP: 0 })).toThrow()
     expect(() => calc({ systolicBP: 200.5 })).toThrow()
+    expect(() => calc({ creatinineUmolL: 0 })).toThrow()
     expect(() => calc({ creatinineUmolL: -1 })).toThrow()
     expect(() => calc({ creatinineUmolL: 2000.1 })).toThrow()
   })

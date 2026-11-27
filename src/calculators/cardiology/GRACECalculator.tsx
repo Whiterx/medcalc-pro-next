@@ -92,7 +92,7 @@ export default function GRACECalculator() {
             </label>
             <label className="calc-field">
               <span>Креатинин <small>мкмоль/л</small></span>
-              <input type="number" min="0" max="2000" step="0.1" inputMode="decimal" placeholder="Введите креатинин" value={values.creatinineUmolL} onChange={(event) => updateField('creatinineUmolL', event.target.value)} />
+              <input type="number" min="0.1" max="2000" step="0.1" inputMode="decimal" placeholder="Введите креатинин" value={values.creatinineUmolL} onChange={(event) => updateField('creatinineUmolL', event.target.value)} />
             </label>
           </div>
 
@@ -164,8 +164,8 @@ export default function GRACECalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{GRACE_REFERENCE.title}</h2><p>{GRACE_REFERENCE.guideline} · {GRACE_REFERENCE.section}</p></div>
-        <a href={GRACE_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Публикация: {GRACE_REFERENCE.published}. Проверено: {GRACE_REFERENCE.accessed}. {GRACE_REFERENCE.notes[4]}</small>
+        <a href={GRACE_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a><a href={GRACE_REFERENCE.url} target="_blank" rel="noreferrer">Исходная публикация GRACE ↗</a>
+        <small>Публикация: {GRACE_REFERENCE.published}. Проверено: {GRACE_REFERENCE.accessed}. {GRACE_REFERENCE.notes[7]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельного выбора тактики лечения.</p>
     </main>

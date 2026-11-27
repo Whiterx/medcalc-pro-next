@@ -29,11 +29,12 @@ export interface GRACEResult {
 }
 
 export function getGRACERiskCategory(score: number): GRACERiskCategory {
-  if (!Number.isFinite(score) || score < 0) throw new Error('Балльная сумма GRACE должна быть неотрицательным числом.')
+  if (!Number.isInteger(score) || score < 0 || score > 372) throw new Error('Балльная сумма GRACE должна быть целым числом от 0 до 372.')
   return score <= 108 ? 'low' : score <= 140 ? 'intermediate' : 'high'
 }
 
 export function calculateGRACE(input: GRACEInput): GRACEResult {
+  if (!input || typeof input !== 'object') throw new Error('Введите все обязательные параметры GRACE.')
   if (!Number.isInteger(input.ageYears) || input.ageYears < 18 || input.ageYears > 120) {
     throw new Error('Возраст должен быть целым числом от 18 до 120 лет.')
   }
@@ -43,11 +44,14 @@ export function calculateGRACE(input: GRACEInput): GRACEResult {
   if (!Number.isInteger(input.systolicBP) || input.systolicBP < 1 || input.systolicBP > 300) {
     throw new Error('Систолическое АД должно быть целым числом от 1 до 300 мм рт. ст.')
   }
-  if (!Number.isFinite(input.creatinineUmolL) || input.creatinineUmolL < 0 || input.creatinineUmolL > 2000) {
-    throw new Error('Креатинин должен быть в диапазоне 0–2000 мкмоль/л.')
+  if (!Number.isFinite(input.creatinineUmolL) || input.creatinineUmolL <= 0 || input.creatinineUmolL > 2000) {
+    throw new Error('Креатинин должен быть больше 0 и не более 2000 мкмоль/л.')
   }
   if (![1, 2, 3, 4].includes(input.killipClass)) {
     throw new Error('Выберите класс Killip I–IV.')
+  }
+  if (typeof input.cardiacArrestAtAdmission !== 'boolean' || typeof input.stSegmentDeviation !== 'boolean' || typeof input.elevatedCardiacBiomarkers !== 'boolean') {
+    throw new Error('Проверьте все три дополнительных бинарных предиктора GRACE.')
   }
 
   const agePoints = input.ageYears <= 30 ? 0 : input.ageYears <= 39 ? 8 : input.ageYears <= 49 ? 25
