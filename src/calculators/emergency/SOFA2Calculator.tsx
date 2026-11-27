@@ -12,7 +12,7 @@ const initial = {
   creatinine:'', urineRate:'', urineDuration:'', rrt:false,
 }
 type Values=typeof initial
-function NumberField({label,unit,value,onChange,min,max,step='1'}:{label:string;unit:string;value:string;onChange:(v:string)=>void;min:number;max?:number;step?:string}) {
+function NumberField({label,unit,value,onChange,min,max,step='any'}:{label:string;unit:string;value:string;onChange:(v:string)=>void;min:number;max?:number;step?:string}) {
   return <label className="calc-field"><span>{label} <small>{unit}</small></span><input type="number" inputMode="decimal" min={min} max={max} step={step} placeholder="Введите значение" value={value} onChange={e=>onChange(e.target.value)} /></label>
 }
 export default function SOFA2Calculator() {
@@ -22,7 +22,7 @@ export default function SOFA2Calculator() {
   const hasVasoactiveMedication=values.norepinephrineEnabled||values.epinephrineEnabled||values.otherVasoactive
   const hasCardiovascularSupport=hasVasoactiveMedication||values.mechanicalSupport
   function update<K extends keyof Values>(key:K,value:Values[K]) {
-    setValues(current=>({...current,[key]:value})); setResult(null); setError('')
+    setValues(current=>({...current,[key]:value,...((key==='norepinephrineDose'||key==='epinephrineDose')?{vasoactiveDurationConfirmed:false}:{})})); setResult(null); setError('')
   }
   function reset(){setValues(initial);setResult(null);setError('')}
   function updateVasoactiveFlag(key:'norepinephrineEnabled'|'epinephrineEnabled'|'otherVasoactive',checked:boolean){
@@ -59,9 +59,7 @@ export default function SOFA2Calculator() {
     if(numeric.some(v=>v.trim()===''||!Number.isFinite(Number(v)))){
       setError('Проверьте числовые поля и дозы выбранных препаратов.');setResult(null);return
     }
-    const integerValues=[values.fio2,values.platelets,...(values.map!==''?[values.map]:[]),...(values.pao2!==''?[values.pao2]:[]),...(values.spo2!==''?[values.spo2]:[])]
-    if(integerValues.some(v=>!Number.isInteger(Number(v)))||
-      (values.fio2!==''&&(Number(values.fio2)<21||Number(values.fio2)>100))||
+    if((values.fio2!==''&&(Number(values.fio2)<21||Number(values.fio2)>100))||
       (values.pao2!==''&&(Number(values.pao2)<1||Number(values.pao2)>800))||
       (values.spo2!==''&&(Number(values.spo2)<1||Number(values.spo2)>100))||
       Number(values.platelets)<0||Number(values.platelets)>1000||
@@ -99,7 +97,7 @@ export default function SOFA2Calculator() {
       spo2:values.spo2===''?null:Number(values.spo2),
       respiratorySupport:values.respiratorySupport as SOFA2Input['respiratorySupport'],
       ecmoForRespiratoryFailure:values.ecmo==='yes',platelets:Number(values.platelets),
-      bilirubin:Number(values.bilirubin),map:values.map===''?0:Number(values.map),
+      bilirubin:Number(values.bilirubin),map:values.map===''?null:Number(values.map),
       norepinephrineDose:values.norepinephrineEnabled?Number(values.norepinephrineDose):0,
       epinephrineDose:values.epinephrineEnabled?Number(values.epinephrineDose):0,
       otherVasoactiveOrInotrope:values.otherVasoactive,mechanicalCirculatorySupport:values.mechanicalSupport,

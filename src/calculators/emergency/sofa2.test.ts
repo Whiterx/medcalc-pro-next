@@ -49,8 +49,10 @@ describe('SOFA-2 cardiovascular',()=>{
     expect(scoreSOFA2Cardiovascular({...base,norepinephrineDose:0.15,epinephrineDose:0.1,otherVasoactiveOrInotrope:true})).toBe(4)
   })
   it('mechanical circulatory support scores 4',()=>expect(scoreSOFA2Cardiovascular({...base,mechanicalCirculatorySupport:true})).toBe(4))
-  it('uses MAP only when no vasoactive support is used',()=>{
+  it('uses MAP only when no vasoactive support is used and treats missing MAP as untestable',()=>{
     expect(scoreSOFA2Cardiovascular({...base,map:69})).toBe(1)
+    expect(scoreSOFA2Cardiovascular({...base,map:null})).toBeNull()
+    expect(scoreSOFA2Cardiovascular({...base,map:null,norepinephrineDose:0.1})).toBe(2)
   })
 })
 describe('SOFA-2 brain',()=>{
@@ -70,6 +72,9 @@ describe('SOFA-2 kidney',()=>{
   const base={creatinine:null,urineOutputMlKgH:null,urineOutputDuration:'none' as const,receivingRRT:false}
   const cr:[number,number][]=[[110,0],[111,1],[170,1],[171,2],[300,2],[301,3]]
   cr.forEach(([v,s])=>it(`creatinine ${v} => ${s}`,()=>expect(scoreSOFA2Kidney({...base,creatinine:v})).toBe(s)))
+  it('does not treat absent creatinine and urine output as normal',()=>{
+    expect(scoreSOFA2Kidney(base)).toBeNull()
+  })
   it('scores oliguria by duration and anuria separately, including strict cutoffs',()=>{
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.4,urineOutputDuration:'6-12'})).toBe(1)
     expect(scoreSOFA2Kidney({...base,urineOutputMlKgH:0.5,urineOutputDuration:'6-12'})).toBe(0)
@@ -84,6 +89,8 @@ describe('calculateSOFA2',()=>{
   const normal:SOFA2Input={pao2:100,fio2:30,spo2:null,respiratorySupport:'none',ecmoForRespiratoryFailure:false,platelets:200,bilirubin:10,map:80,norepinephrineDose:0,epinephrineDose:0,otherVasoactiveOrInotrope:false,mechanicalCirculatorySupport:false,gcs:15,motorScore:null,preSedationGcsUnknown:false,deliriumMedication:false,creatinine:80,urineOutputMlKgH:null,urineOutputDuration:'none',receivingRRT:false}
   it('returns 0 for normal parameters',()=>expect(calculateSOFA2(normal).total).toBe(0))
   it('returns null total if a component cannot be assessed',()=>expect(calculateSOFA2({...normal,gcs:null}).total).toBeNull())
+  it('returns null total when MAP is missing without cardiovascular support',()=>expect(calculateSOFA2({...normal,map:null}).total).toBeNull())
+  it('returns null total when both kidney inputs are missing',()=>expect(calculateSOFA2({...normal,creatinine:null,urineOutputMlKgH:null}).total).toBeNull())
   it('sums six maximum components to 24',()=>{
     const severe={...normal,pao2:50,fio2:100,respiratorySupport:'advanced' as const,platelets:20,bilirubin:300,map:60,norepinephrineDose:0.5,gcs:3,creatinine:400,receivingRRT:true}
     expect(calculateSOFA2(severe).total).toBe(24)

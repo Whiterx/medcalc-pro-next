@@ -7,7 +7,7 @@ export interface SOFA2Input {
   ecmoForRespiratoryFailure: boolean;
   platelets: number;
   bilirubin: number;
-  map: number;
+  map: number | null;
   norepinephrineDose: number;
   epinephrineDose: number;
   otherVasoactiveOrInotrope: boolean;
@@ -65,13 +65,14 @@ export function scoreSOFA2Liver(bilirubin:number):number {
   if (bilirubin > 20.6) return 1;
   return 0;
 }
-export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'norepinephrineDose'|'epinephrineDose'|'otherVasoactiveOrInotrope'|'mechanicalCirculatorySupport'>):number {
+export function scoreSOFA2Cardiovascular(input:Pick<SOFA2Input,'map'|'norepinephrineDose'|'epinephrineDose'|'otherVasoactiveOrInotrope'|'mechanicalCirculatorySupport'>):number|null {
   const catecholamineSum=input.norepinephrineDose+input.epinephrineDose;
   if (input.mechanicalCirculatorySupport) return 4;
   if (catecholamineSum > 0.4) return 4;
   if (catecholamineSum > 0.2) return input.otherVasoactiveOrInotrope ? 4 : 3;
   if (catecholamineSum > 0) return input.otherVasoactiveOrInotrope ? 3 : 2;
   if (input.otherVasoactiveOrInotrope) return 2;
+  if (input.map === null) return null;
   return input.map < 70 ? 1 : 0;
 }
 export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSedationGcsUnknown'|'deliriumMedication'>):number|null {
@@ -82,8 +83,9 @@ export function scoreSOFA2Brain(input:Pick<SOFA2Input,'gcs'|'motorScore'|'preSed
     : (observed === 6 ? 0 : observed === 5 ? 1 : observed === 4 ? 2 : observed === 3 ? 3 : 4);
   return input.deliriumMedication ? Math.max(score,1) : score;
 }
-export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'receivingRRT'>):number {
+export function scoreSOFA2Kidney(input:Pick<SOFA2Input,'creatinine'|'urineOutputMlKgH'|'urineOutputDuration'|'receivingRRT'>):number|null {
   if (input.receivingRRT) return 4;
+  if (input.creatinine === null && input.urineOutputMlKgH === null) return null;
   let score=0;
   if (input.creatinine !== null) score=Math.max(score,
     input.creatinine > 300 ? 3 : input.creatinine > 170 ? 2 : input.creatinine > 110 ? 1 : 0);
@@ -105,7 +107,7 @@ export function calculateSOFA2(input:SOFA2Input):SOFA2Result {
   const components:SOFA2Component[]=[
     {key:'brain',label:'Головной мозг',points:brain,detail:input.gcs!==null?`GCS: ${input.gcs}`:input.motorScore!==null?`Лучшая двигательная реакция: ${input.motorScore}`:input.preSedationGcsUnknown?'GCS до седации неизвестна; по правилу SOFA-2 — 0':'Невозможно оценить GCS и двигательную реакцию'},
     {key:'respiratory',label:'Дыхательная система',points:respiratory.points,detail:input.ecmoForRespiratoryFailure?'ECMO при дыхательной недостаточности':respiratory.ratio===null?'Недостаточно данных для расчёта отношения':`${respiratory.type}: ${respiratory.ratio.toFixed(1)}`},
-    {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:`MAP ${input.map} мм рт. ст.; сумма норэпинефрина и эпинефрина ${(input.norepinephrineDose+input.epinephrineDose).toFixed(3)} мкг/кг/мин`},
+    {key:'cardiovascular',label:'Сердечно-сосудистая система',points:cardiovascular,detail:`MAP ${input.map === null ? 'не указан' : `${input.map} мм рт. ст.`}; сумма норэпинефрина и эпинефрина ${(input.norepinephrineDose+input.epinephrineDose).toFixed(3)} мкг/кг/мин`},
     {key:'liver',label:'Печень',points:liver,detail:`Общий билирубин: ${input.bilirubin} мкмоль/л`},
     {key:'kidney',label:'Почки',points:kidney,detail:input.receivingRRT?'Проводится заместительная почечная терапия':[input.creatinine!==null?`креатинин ${input.creatinine} мкмоль/л`:'',input.urineOutputMlKgH!==null?`диурез ${input.urineOutputMlKgH} мл/кг/ч, период ${input.urineOutputDuration}`:''].filter(Boolean).join('; ')},
     {key:'hemostasis',label:'Гемостаз',points:hemostasis,detail:`Тромбоциты: ${input.platelets} ×10⁹/л`},
