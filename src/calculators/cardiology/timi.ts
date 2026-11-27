@@ -27,6 +27,9 @@ export interface TIMIResult {
 }
 
 export function calculateTIMI(input: TIMIInput): TIMIResult {
+  if (!input || typeof input !== 'object') throw new Error('Введите все факторы TIMI.')
+  const booleanFields: (keyof TIMIInput)[] = ['priorCoronaryStenosisAtLeast50', 'stDeviationAtLeast05mm', 'aspirinUseLast7d', 'elevatedCardiacBiomarkers', 'assessmentConfirmed']
+  if (booleanFields.some((key) => typeof input[key] !== 'boolean')) throw new Error('Проверьте бинарные признаки и подтверждение полноты оценки.')
   if (!input.assessmentConfirmed) {
     throw new Error('Подтвердите, что все семь факторов TIMI оценены и неотмеченные признаки действительно отсутствуют.')
   }

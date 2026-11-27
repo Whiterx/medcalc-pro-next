@@ -159,8 +159,8 @@ export default function TIMICalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{TIMI_REFERENCE.title}</h2><p>{TIMI_REFERENCE.guideline} · {TIMI_REFERENCE.section}</p></div>
-        <a href={TIMI_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Публикация: {TIMI_REFERENCE.published}. Проверено: {TIMI_REFERENCE.accessed}. {TIMI_REFERENCE.notes[4]}</small>
+        <a href={TIMI_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a><a href={TIMI_REFERENCE.url} target="_blank" rel="noreferrer">Исходная публикация Antman 2000 ↗</a>
+        <small>Публикация: {TIMI_REFERENCE.published}. Проверено: {TIMI_REFERENCE.accessed}. {TIMI_REFERENCE.notes[7]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и не предназначен для самостоятельного выбора тактики лечения.</p>
     </main>

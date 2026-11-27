@@ -84,6 +84,35 @@ describe('calculateTIMI — UA/NSTEMI', () => {
     }
   })
 
+  it('rejects missing input and invalid boolean fields', () => {
+    expect(() => calculateTIMI(null as unknown as TIMIInput)).toThrow()
+    expect(() => calc({ priorCoronaryStenosisAtLeast50: 'yes' as never })).toThrow()
+    expect(() => calc({ stDeviationAtLeast05mm: 1 as never })).toThrow()
+    expect(() => calc({ aspirinUseLast7d: undefined as never })).toThrow()
+    expect(() => calc({ elevatedCardiacBiomarkers: 'no' as never })).toThrow()
+    expect(() => calc({ assessmentConfirmed: 1 as never })).toThrow()
+  })
+
+  it('classifies the three common risk groups at exact score boundaries', () => {
+    const scores = [
+      { score: 2, category: 'low' },
+      { score: 3, category: 'intermediate' },
+      { score: 4, category: 'intermediate' },
+      { score: 5, category: 'high' },
+    ] as const
+    for (const item of scores) {
+      const result = calc({
+        ageYears: item.score >= 1 ? 65 : 64,
+        coronaryRiskFactorCount: item.score >= 2 ? 3 : 0,
+        priorCoronaryStenosisAtLeast50: item.score >= 3,
+        stDeviationAtLeast05mm: item.score >= 4,
+        anginalEpisodesLast24h: item.score >= 5 ? 2 : 0,
+      })
+      expect(result.score).toBe(item.score)
+      expect(result.riskCategory).toBe(item.category)
+    }
+  })
+
   it('requires explicit confirmation that all factors have been assessed', () => {
     expect(() => calc({ assessmentConfirmed: false })).toThrow()
   })
