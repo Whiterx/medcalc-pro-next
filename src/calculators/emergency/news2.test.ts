@@ -100,6 +100,16 @@ describe('NEWS2 aggregate and response triggers', () => {
     expect(result.suggestedResponse).toMatch(/экстренную оценку/i)
   })
 
+  it('preserves the emergency critical-care and airway response when an unmeasurable parameter accompanies a partial score of 7 or more', () => {
+    const result = calculateNEWS2({ ...normal, respiratoryRate: 25, systolicBP: 90, supplementalOxygen: true, pulse: null, missingDataReason: 'unobtainable-despite-equipment' })
+    expect(result.score).toBe(8)
+    expect(result.requiresImmediateResponse).toBe(true)
+    expect(result.monitoringFrequency).toContain('Непрерывный мониторинг')
+    expect(result.suggestedResponse).toContain('компетенциями интенсивной терапии')
+    expect(result.suggestedResponse).toContain('проходимости дыхательных путей')
+    expect(result.suggestedResponse).toContain('Немедленно')
+  })
+
   it('does not downgrade the aggregate response when a single red parameter is also present', () => {
     const result = calculateNEWS2({ ...normal, respiratoryRate: 25, supplementalOxygen: true })
     expect(result.score).toBe(5)
