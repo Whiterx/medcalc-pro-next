@@ -10,7 +10,7 @@ const base: FourTsInput = {
 }
 const calc = (overrides: Partial<FourTsInput>) => calculateFourTs({ ...base, ...overrides })
 
-describe('calculateFourTs — ASH 4Ts score', () => {
+describe('calculateFourTs — Russian CPG 2025 / Lo 2006 4Ts score', () => {
   it('returns low probability at 0 points', () => {
     const result = calc({})
     expect(result.score).toBe(0)
@@ -37,6 +37,21 @@ describe('calculateFourTs — ASH 4Ts score', () => {
     const eight = calc({ thrombocytopenia: 2, timing: 2, thrombosisOrSequelae: 2, otherCauses: 2 })
     expect(eight.score).toBe(8)
     expect(eight.category).toBe('high')
+  })
+
+  it('uses the Russian CPG 2025 / Lo 2006 timing windows', () => {
+    const two = calc({ timing: 2 })
+    const one = calc({ timing: 1 })
+    const zero = calc({ timing: 0 })
+    expect(two.components[1].interpretation).toContain('5–10-й день')
+    expect(one.components[1].interpretation).toContain('после 10-го дня')
+    expect(zero.components[1].interpretation).toContain('<4 дней')
+  })
+
+  it('uses the Russian CPG diagnostic pathway rather than ASH-specific labels', () => {
+    expect(calc({}).pathway).toContain('КР РФ 2025')
+    expect(calc({ thrombocytopenia: 2, timing: 2 }).pathway).toContain('КР РФ 2025')
+    expect(calc({ thrombocytopenia: 2, timing: 2, thrombosisOrSequelae: 2 }).pathway).toContain('КР РФ 2025')
   })
 
   it('returns four scoring component explanations', () => {

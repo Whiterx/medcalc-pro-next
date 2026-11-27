@@ -61,7 +61,7 @@ export default function FourTsCalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> ПРЕДТЕСТОВАЯ ВЕРОЯТНОСТЬ ГИТ</div>
         <h1>4Ts Score</h1>
-        <p>Структурированная оценка клинической вероятности гепарин-индуцированной тромбоцитопении у пациента с подозрением на ГИТ. Четыре компонента, максимум 8 баллов.</p>
+        <p>Структурированная оценка клинической вероятности гепарин-индуцированной тромбоцитопении у пациента с подозрением на ГИТ II типа. Четыре компонента, максимум 8 баллов.</p>
       </section>
 
       <div className="calculator-layout">
@@ -88,9 +88,9 @@ export default function FourTsCalculator() {
             <span>Время начала снижения тромбоцитов относительно экспозиции гепарина</span>
             <select value={values.timing} onChange={(event) => updateField('timing', event.target.value)}>
               <option value="">Выберите категорию</option>
-              <option value="2">2 — чётко на 5–14-й день или ≤1 дня при экспозиции в последние 30 дней</option>
-              <option value="1">1 — неясно на 5–14-й день, после 14-го дня или ≤1 дня при экспозиции 30–100 дней назад</option>
-              <option value="0">0 — ≤4 дней без недавней экспозиции гепарина</option>
+              <option value="2">2 — чётко на 5–10-й день или ≤1 дня при экспозиции в последние 30 дней</option>
+              <option value="1">1 — неясно на 5–10-й день, после 10-го дня или ≤1 дня при экспозиции 30–100 дней назад</option>
+              <option value="0">0 — <4 дней без недавней экспозиции гепарина</option>
             </select>
           </label>
 
@@ -126,7 +126,7 @@ export default function FourTsCalculator() {
             <input type="checkbox" checked={values.assessmentConfirmed} onChange={(event) => updateField('assessmentConfirmed', event.target.checked)} />
             <span>Подтверждаю, что все четыре компонента оценены по полным и достоверным данным</span>
           </label>
-          <p className="field-hint">Для оценки важны динамика тромбоцитов относительно исходного уровня и точные даты введения гепарина. При неполных данных не подставляйте предположения: восстановите анамнез и повторите оценку.</p>
+          <p className="field-hint">Для оценки важны падение от максимального числа тромбоцитов после начала гепарина и точная дата начала падения; день первой экспозиции гепарина — день 0, оценивайте начало падения, а не достижение надира. При неполных данных не подставляйте предположения: восстановите анамнез и повторите оценку.</p>
           {error && <p className="form-error" role="alert">{error}</p>}
 
           <div className="calculator-actions">
@@ -160,15 +160,15 @@ export default function FourTsCalculator() {
           <div className="result-breakdown">
             {result.components.map((component) => <p key={component.key}>{component.label}: <b>{component.points} балла</b> — {component.interpretation}</p>)}
           </div>
-          <div className="threshold-panel"><h3>Диагностический маршрут по ASH</h3><p>{result.pathway}</p></div>
+          <div className="threshold-panel"><h3>Диагностический маршрут по КР РФ 2025</h3><p>{result.pathway}</p></div>
           <p className="clinical-warning">Не начинайте и не отменяйте антикоагулянт только на основании этого калькулятора. При клиническом подозрении на ГИТ требуется срочная оценка лечащей командой, лабораторная диагностика и выбор альтернативной антикоагуляции с учётом риска кровотечения и показаний.</p>
         </section>
       )}
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{FOUR_TS_REFERENCE.title}</h2><p>{FOUR_TS_REFERENCE.guideline} · {FOUR_TS_REFERENCE.section}</p></div>
-        <a href={FOUR_TS_REFERENCE.url} target="_blank" rel="noreferrer">Открыть источник ↗</a>
-        <small>Публикация: {FOUR_TS_REFERENCE.published}. Проверено: {FOUR_TS_REFERENCE.accessed}. {FOUR_TS_REFERENCE.notes[0]}</small>
+        <a href={FOUR_TS_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2025 ↗</a><a href={FOUR_TS_REFERENCE.originalUrl} target="_blank" rel="noreferrer">Первоисточник 4Ts 2006 ↗</a><a href={FOUR_TS_REFERENCE.ashUrl} target="_blank" rel="noreferrer">ASH 2018 ↗</a>
+        <small>Публикация: {FOUR_TS_REFERENCE.published}. Проверено: {FOUR_TS_REFERENCE.accessed}. {FOUR_TS_REFERENCE.notes[0]} {FOUR_TS_REFERENCE.notes[7]}</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. Не заменяет клиническую оценку и лабораторное подтверждение ГИТ.</p>
     </main>

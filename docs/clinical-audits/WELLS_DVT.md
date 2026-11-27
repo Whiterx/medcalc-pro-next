@@ -3,7 +3,7 @@
 **Инструмент:** двухуровневая шкала Wells для ТГВ нижней конечности.  
 **Популяция:** взрослые пациенты с клиническим подозрением на ТГВ нижней конечности.  
 **Статус:** ПРОВЕРЕН — технический и источниковый аудит завершён; клиническая валидация врачами запланирована после релиза  
-**Российские КР:** «Тромбоз глубоких вен конечностей», 2025, ID 960; раздел 2.2.1, приложение Г1.  
+**Российские КР:** «Тромбоз глубоких вен конечностей», 2025, ID 960_1; раздел 2.2.1, приложение Г1.  
 **Первоисточник:** Wells PS et al. Evaluation of D-dimer in the diagnosis of suspected deep-vein thrombosis. N Engl J Med. 2003;349:1227–1235.
 
 ## 1. Критерии и баллы
@@ -69,7 +69,7 @@ CI #571: 50 файлов тестов / 629 тестов, TypeScript, production
 
 ## 7. Источники
 
-- КР Минздрава РФ «Тромбоз глубоких вен конечностей», 2025, ID 960: https://minzdrav.clinirec.ru/kr/tromboz-glubokih-ven-konechnostey/
+- КР Минздрава РФ «Тромбоз глубоких вен конечностей», 2025, ID 960_1: https://minzdrav.clinirec.ru/kr/tromboz-glubokih-ven-konechnostey/
 - Wells PS et al. N Engl J Med. 2003;349:1227–1235. https://pubmed.ncbi.nlm.nih.gov/12944529/
 - NICE NG158: https://www.nice.org.uk/guidance/NG158/chapter/recommendations
 
