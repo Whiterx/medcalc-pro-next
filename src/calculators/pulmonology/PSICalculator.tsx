@@ -129,10 +129,10 @@ export default function PSICalculator() {
           <h3 className="form-section-title">Сопутствующие заболевания и состояние</h3>
           <p className="field-hint">Отметьте только присутствующие признаки. Неотмеченный пункт означает отсутствие соответствующего фактора.</p>
           {check('neoplasticDisease', 'Онкологическое заболевание', '+30')}
-          {check('liverDisease', 'Заболевание печени', '+20')}
+          {check('liverDisease', 'Серьёзное хроническое заболевание печени', '+20')}
           {check('heartFailure', 'Хроническая сердечная недостаточность', '+10')}
           {check('cerebrovascularDisease', 'Цереброваскулярное заболевание', '+10')}
-          {check('renalDisease', 'Заболевание почек', '+10')}
+          {check('renalDisease', 'Серьёзное хроническое заболевание почек', '+10')}
           {check('alteredMentalStatus', 'Нарушение сознания', '+20')}
 
           <div className="field-hint">Если на первом этапе нет ни одного критерия риска, присваивается класс I. Для классов II–V потребуется заполнить пол и лабораторно-рентгенологические показатели ниже.</div>
@@ -190,7 +190,7 @@ export default function PSICalculator() {
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{PSI_REFERENCE.title}</h2><p>{PSI_REFERENCE.guideline}</p></div>
         <a href={PSI_REFERENCE.russianGuidelineUrl} target="_blank" rel="noreferrer">КР Минздрава РФ 2024 ↗</a><a href={PSI_REFERENCE.url} target="_blank" rel="noreferrer">Исходная публикация Fine 1997 ↗</a>
-        <small>{PSI_REFERENCE.notes[6]} <a href={PSI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">ATS/IDSA 2019 ↗</a> Проверено: {PSI_REFERENCE.accessed}.</small>
+        <small>{PSI_REFERENCE.notes[6]} {PSI_REFERENCE.notes[7]} <a href={PSI_REFERENCE.guidelineUrl} target="_blank" rel="noreferrer">ATS/IDSA 2019 ↗</a> Проверено: {PSI_REFERENCE.accessed}.</small>
       </section>
       <p className="calculator-disclaimer">Образовательный инструмент. PSI предназначен для взрослых с внебольничной пневмонией; не используйте его изолированно для решения о выписке, госпитализации или переводе в ОРИТ.</p>
     </main>

@@ -51,6 +51,15 @@ describe('calculatePSI', () => {
     expect(calc({ age: 51, nursingHome: true }).score).toBe(61)
   })
 
+  it('preserves the original Fine inclusive boundaries where the Russian CPG table prints strict signs', () => {
+    expect(calc({ respiratoryRate: 30 }).score).toBe(70)
+    expect(calc({ temperatureC: 40 }).score).toBe(65)
+    expect(calc({ heartRate: 125 }).score).toBe(60)
+    expect(calc({ age: 51, bunUreaMmol: 11 }).score).toBe(71)
+    expect(calc({ age: 51, glucoseMmol: 14 }).score).toBe(61)
+    expect(calc({ age: 70 }).riskClass).toBe('II')
+  })
+
   it('scores laboratory and radiology thresholds on exact boundaries', () => {
     expect(calc({ age: 51, arterialPH: 7.35 }).score).toBe(51)
     expect(calc({ age: 51, arterialPH: 7.34 }).score).toBe(81)
