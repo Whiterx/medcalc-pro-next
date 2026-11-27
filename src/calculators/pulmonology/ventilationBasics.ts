@@ -16,6 +16,7 @@ export type VentilationBasicsResult = {
   measuredTidalVolumeMl: number | null
   measuredMlKg: number | null
   measuredRange: 'below' | 'within' | 'above' | null
+  measuredArdsRange: 'below' | 'within' | 'above' | null
 }
 
 export function calculatePBW(heightCm: number, formulaSex: PBWFormulaSex): number {
@@ -26,7 +27,7 @@ export function calculatePBW(heightCm: number, formulaSex: PBWFormulaSex): numbe
     throw new Error('Выберите вариант формулы PBW.')
   }
 
-  // Metric form used in ATS/ARDS guidance; PBW is not actual body weight.
+  // Metric PBW equations are explicitly stated in the Russian FARS ARDS recommendations (2025).
   return (formulaSex === 'male' ? 50 : 45.5) + 0.91 * (heightCm - 152.4)
 }
 
@@ -39,7 +40,15 @@ export function classifyTidalVolumePerKg(value: number): 'below' | 'within' | 'a
   return 'within'
 }
 
+export function classifyARDSVolumePerKg(value: number): 'below' | 'within' | 'above' {
+  if (!Number.isFinite(value) || value <= 0) throw new Error('Дыхательный объём должен быть положительным числом.')
+  if (value < 6) return 'below'
+  if (value > 8) return 'above'
+  return 'within'
+}
+
 export function calculateVentilationBasics(input: VentilationBasicsInput): VentilationBasicsResult {
+  if (!input || typeof input !== 'object') throw new Error('Укажите рост и вариант формулы PBW.')
   const pbwKg = calculatePBW(input.heightCm, input.formulaSex)
   if (input.tidalVolumeMl !== null &&
       (!Number.isInteger(input.tidalVolumeMl) || input.tidalVolumeMl < 50 || input.tidalVolumeMl > 2000)) {
@@ -57,5 +66,6 @@ export function calculateVentilationBasics(input: VentilationBasicsInput): Venti
     measuredTidalVolumeMl: input.tidalVolumeMl,
     measuredMlKg,
     measuredRange: measuredMlKg === null ? null : classifyTidalVolumePerKg(measuredMlKg),
+    measuredArdsRange: measuredMlKg === null ? null : classifyARDSVolumePerKg(measuredMlKg),
   }
 }

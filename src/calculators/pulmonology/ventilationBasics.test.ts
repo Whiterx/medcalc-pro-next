@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { calculatePBW, calculateVentilationBasics, classifyTidalVolumePerKg } from './ventilationBasics'
+import { calculatePBW, calculateVentilationBasics, classifyARDSVolumePerKg, classifyTidalVolumePerKg } from './ventilationBasics'
 
 describe('Predicted body weight', () => {
   it('uses the male and female metric formulas', () => {
@@ -25,6 +25,7 @@ describe('Tidal volume calculation', () => {
     expect(result.tidalVolume8Ml).toBe(528)
     expect(result.measuredMlKg).toBeNull()
     expect(result.measuredRange).toBeNull()
+    expect(result.measuredArdsRange).toBeNull()
   })
 
   it('classifies the inclusive 4–8 mL/kg range correctly', () => {
@@ -35,13 +36,23 @@ describe('Tidal volume calculation', () => {
     expect(classifyTidalVolumePerKg(8.01)).toBe('above')
   })
 
+  it('classifies the Russian FARS 2025 intubated ARDS range of 6–8 mL/kg PBW', () => {
+    expect(classifyARDSVolumePerKg(5.99)).toBe('below')
+    expect(classifyARDSVolumePerKg(6)).toBe('within')
+    expect(classifyARDSVolumePerKg(8)).toBe('within')
+    expect(classifyARDSVolumePerKg(8.01)).toBe('above')
+    expect(() => classifyARDSVolumePerKg(Number.NaN)).toThrow()
+  })
+
   it('evaluates a measured tidal volume relative to PBW', () => {
     const result = calculateVentilationBasics({ heightCm: 170, formulaSex: 'male', tidalVolumeMl: 396 })
     expect(result.measuredMlKg).toBeCloseTo(6, 2)
     expect(result.measuredRange).toBe('within')
+    expect(result.measuredArdsRange).toBe('within')
   })
 
   it('rejects non-integer or implausible measured tidal volume', () => {
+    expect(() => calculateVentilationBasics(null as never)).toThrow()
     expect(() => calculateVentilationBasics({ heightCm: 170, formulaSex: 'male', tidalVolumeMl: 0 })).toThrow()
     expect(() => calculateVentilationBasics({ heightCm: 170, formulaSex: 'male', tidalVolumeMl: 100.5 })).toThrow()
     expect(() => calculateVentilationBasics({ heightCm: 170, formulaSex: 'male', tidalVolumeMl: 2001 })).toThrow()

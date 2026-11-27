@@ -52,10 +52,16 @@ export default function VentilationBasicsCalculator() {
   }
 
   const rangeText = result?.measuredRange === 'below'
-    ? 'Ниже ориентира 4–8 мл/кг PBW'
+    ? 'Ниже диапазона AARC 2024: 4–8 мл/кг PBW'
     : result?.measuredRange === 'above'
-      ? 'Выше ориентира 4–8 мл/кг PBW'
-      : 'В пределах ориентира 4–8 мл/кг PBW'
+      ? 'Выше диапазона AARC 2024: 4–8 мл/кг PBW'
+      : 'В диапазоне AARC 2024: 4–8 мл/кг PBW'
+
+  const ardsRangeText = result?.measuredArdsRange === 'below'
+    ? 'При интубированном ОРДС: ниже диапазона 6–8 мл/кг ДМТ, указанного в рекомендациях ФАР РФ 2025.'
+    : result?.measuredArdsRange === 'above'
+      ? 'При интубированном ОРДС: выше диапазона 6–8 мл/кг ДМТ, указанного в рекомендациях ФАР РФ 2025.'
+      : 'При интубированном ОРДС: в диапазоне 6–8 мл/кг ДМТ, указанном в рекомендациях ФАР РФ 2025.'
 
   return (
     <main className="app-shell calculator-shell">
@@ -116,8 +122,8 @@ export default function VentilationBasicsCalculator() {
           </div>
           <div className="threshold-panel">
             <h3>Клинический контекст</h3>
-            <p><b>4–8 мл/кг PBW</b> — рекомендуемый диапазон оценки дыхательного объёма в руководстве AARC 2024.</p>
-            <p><b>6 мл/кг PBW</b> — исходная точка стратегии низкого дыхательного объёма при ОРДС; далее параметры индивидуализируют.</p>
+            <p><b>4–8 мл/кг PBW</b> — диапазон оценки и документирования Vₜ по AARC 2024 для пациентов на механической вентиляции.</p>
+            <p><b>6–8 мл/кг ДМТ</b> — рекомендация ФАР РФ 2025 для интубированных пациентов с ОРДС; ДО более 8 мл/кг ДМТ связан с увеличением осложнений и летальности.</p>
           </div>
         </aside>
       </div>
@@ -136,7 +142,7 @@ export default function VentilationBasicsCalculator() {
             <>
               <h3>Проверка введённого дыхательного объёма</h3>
               <div className="score-display"><strong>{result.measuredMlKg.toFixed(1)}</strong><span>мл/кг PBW · {result.measuredTidalVolumeMl} мл</span></div>
-              <p className="field-hint">{rangeText}</p>
+              <p className="field-hint">{rangeText}</p><p className="field-hint">{ardsRangeText}</p>
             </>
           )}
           <p className="clinical-warning"><ShieldAlert size={14} /> Это расчётные ориентиры, а не готовое назначение параметров ИВЛ. При ОРДС учитывайте давление плато (цель &lt;30 см вод. ст.), механику дыхания, газообмен, синхронизацию с аппаратом и клиническую ситуацию. Не изменяйте настройки ИВЛ только на основании этого калькулятора.</p>
@@ -145,7 +151,8 @@ export default function VentilationBasicsCalculator() {
 
       <section className="reference-panel">
         <div><span className="panel-kicker">ИСТОЧНИК И МЕТОДИКА</span><h2>{VENTILATION_BASICS_REFERENCE.title}</h2><p>{VENTILATION_BASICS_REFERENCE.primarySource}</p></div>
-        <a href={VENTILATION_BASICS_REFERENCE.primaryUrl} target="_blank" rel="noreferrer">Руководство ATS ↗</a>
+        <a href={VENTILATION_BASICS_REFERENCE.primaryUrl} target="_blank" rel="noreferrer">КР ФАР РФ 2025 ↗</a>
+        <a href={VENTILATION_BASICS_REFERENCE.atsUrl} target="_blank" rel="noreferrer">Руководство ATS/ESICM/SCCM 2017 ↗</a>
         <a href={VENTILATION_BASICS_REFERENCE.supportingUrl} target="_blank" rel="noreferrer">Руководство AARC 2024 ↗</a>
         <small>Проверено: {VENTILATION_BASICS_REFERENCE.accessed}. {VENTILATION_BASICS_REFERENCE.notes[0]} {VENTILATION_BASICS_REFERENCE.notes[4]}</small>
       </section>
