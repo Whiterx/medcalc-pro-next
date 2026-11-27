@@ -59,7 +59,7 @@ export function scoreCardiovascular(input: Pick<SOFAInput, 'map' | 'vasoactiveSt
   let score = input.map < 70 ? 1 : 0;
   if (input.vasoactiveStatus === 'receiving') {
     if (input.dopamineDose !== null) {
-      score = Math.max(score, input.dopamineDose <= 5 ? 2 : input.dopamineDose <= 15 ? 3 : 4);
+      score = Math.max(score, input.dopamineDose < 5 ? 2 : input.dopamineDose <= 15 ? 3 : 4);
     }
     if (input.dobutamine) score = Math.max(score, 2);
     if (input.epinephrineDose !== null) score = Math.max(score, input.epinephrineDose <= 0.1 ? 3 : 4);

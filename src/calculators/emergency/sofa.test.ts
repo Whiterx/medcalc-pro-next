@@ -36,7 +36,7 @@ describe('SOFA cardiovascular thresholds', () => {
     expect(scoreCardiovascular({ ...base, map: 69, vasoactiveStatus: 'none' })).toBe(1)
     expect(scoreCardiovascular({ ...base, map: 70, vasoactiveStatus: 'none' })).toBe(0)
   })
-  const dopamineCases: [number, number][] = [[5,2],[5.1,3],[15,3],[15.1,4]]
+  const dopamineCases: [number, number][] = [[4.9,2],[5,3],[5.1,3],[15,3],[15.1,4]]
   dopamineCases.forEach(([dose, expected]) => {
     it(`dopamine ${dose} mcg/kg/min => ${expected}`, () => {
       expect(scoreCardiovascular({ ...base, dopamineDose: dose })).toBe(expected)

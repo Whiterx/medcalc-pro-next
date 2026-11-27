@@ -7,7 +7,7 @@ import { SOFA_REFERENCE } from './sofa.reference'
 const initial = {
   pao2: '', fio2: '', respiratorySupport: '',
   platelets: '', bilirubin: '', map: '', vasoactiveStatus: '',
-  dopamineEnabled: false, dopamineDose: '', dobutamine: false,
+  dopamineEnabled: false, dopamineDose: '', dobutamine: false, vasoactiveAtLeastOneHour: false,
   epinephrineEnabled: false, epinephrineDose: '',
   norepinephrineEnabled: false, norepinephrineDose: '',
   gcs: '', creatinine: '', urineOutput: '', baseline: '',
@@ -43,7 +43,7 @@ export default function SOFACalculator() {
 
   function updateVasoactiveStatus(value: string) {
     setValues((current) => value === 'none'
-      ? { ...current, vasoactiveStatus: value, dopamineEnabled: false, dopamineDose: '', dobutamine: false, epinephrineEnabled: false, epinephrineDose: '', norepinephrineEnabled: false, norepinephrineDose: '' }
+      ? { ...current, vasoactiveStatus: value, dopamineEnabled: false, dopamineDose: '', dobutamine: false, vasoactiveAtLeastOneHour: false, epinephrineEnabled: false, epinephrineDose: '', norepinephrineEnabled: false, norepinephrineDose: '' }
       : { ...current, vasoactiveStatus: value })
     setResult(null)
     setError('')
@@ -106,6 +106,11 @@ export default function SOFACalculator() {
       setResult(null)
       return
     }
+    if (vasoactive && !values.vasoactiveAtLeastOneHour) {
+      setError('Для расчёта SOFA подтвердите, что выбранные адренергические/дофаминергические препараты вводились не менее 1 часа.')
+      setResult(null)
+      return
+    }
     const doses = [values.dopamineEnabled ? Number(values.dopamineDose) : null,
       values.epinephrineEnabled ? Number(values.epinephrineDose) : null,
       values.norepinephrineEnabled ? Number(values.norepinephrineDose) : null].filter((dose): dose is number => dose !== null)
@@ -142,7 +147,7 @@ export default function SOFACalculator() {
       <section className="calculator-heading">
         <div className="eyebrow"><span className="pulse-dot" /> ОЦЕНКА ОРГАННОЙ ДИСФУНКЦИИ</div>
         <h1>SOFA</h1>
-        <p>Оригинальная шкала Sequential Organ Failure Assessment для структурированной оценки шести систем органов у взрослых.</p>
+        <p>Оригинальная шкала Sequential Organ Failure Assessment для структурированной оценки шести систем органов у взрослых. Для каждого компонента используйте наихудшее значение за оцениваемые сутки.</p>
       </section>
 
       <div className="calculator-layout sofa-layout">
@@ -175,6 +180,7 @@ export default function SOFACalculator() {
             <label className="calc-field"><span>Вазопрессоры / инотропы</span><select required value={values.vasoactiveStatus} onChange={(e) => updateVasoactiveStatus(e.target.value)}><option value="">Выберите</option><option value="none">Не получает</option><option value="receiving">Получает</option></select></label>
             {values.vasoactiveStatus === 'receiving' && <div className="sofa-drugs">
               <p className="field-hint">Отметьте все применяемые препараты; дозы — мкг/кг/мин. Для исходной SOFA учитывается введение не менее 1 часа.</p>
+              <label className="sofa-check"><input type="checkbox" checked={values.vasoactiveAtLeastOneHour} onChange={(e) => update('vasoactiveAtLeastOneHour', e.target.checked)} /> Выбранные препараты вводились не менее 1 часа</label>
               <label className="sofa-check"><input type="checkbox" checked={values.dopamineEnabled} onChange={(e) => { const checked = e.target.checked; setValues((current) => ({ ...current, dopamineEnabled: checked, dopamineDose: checked ? current.dopamineDose : '' })); setResult(null); setError('') }} /> Дофамин</label>
               {values.dopamineEnabled && <NumberField label="Доза дофамина" unit="мкг/кг/мин" value={values.dopamineDose} onChange={(v) => update('dopamineDose', v)} min={0.1} step="0.1" />}
               <label className="sofa-check"><input type="checkbox" checked={values.dobutamine} onChange={(e) => { setValues((current) => ({ ...current, dobutamine: e.target.checked })); setResult(null); setError('') }} /> Добутамин (любая доза)</label>
@@ -213,7 +219,7 @@ export default function SOFACalculator() {
 
         <aside className="calculator-aside">
           <div className="info-panel"><div className="info-icon"><BookOpen size={18} /></div><h3>Шесть систем органов</h3><ul><li>Дыхательная</li><li>Коагуляция</li><li>Печень</li><li>Сердечно-сосудистая</li><li>Центральная нервная система</li><li>Почки</li></ul><p>Каждая система оценивается от 0 до 4 баллов. Общий диапазон — 0–24.</p></div>
-          <div className="threshold-panel"><h3>Важные ограничения</h3><p>Оригинальная SOFA предназначена для последовательного описания органной дисфункции, обычно с оценкой худших значений за сутки.</p><p>ΔSOFA ≥2 при подозреваемой инфекции используется в Sepsis-3 как операциональный критерий органной дисфункции, но не является самостоятельным диагнозом сепсиса.</p><p>Это SOFA-1, не SOFA-2. Не смешивайте версии.</p></div>
+          <div className="threshold-panel"><h3>Важные ограничения</h3><p>Оригинальная SOFA предназначена для последовательного описания органной дисфункции. Для каждого компонента регистрируют наихудшее значение за сутки; показатели не обязаны быть получены в один момент времени.</p><p>ΔSOFA ≥2 при подозреваемой инфекции используется в Sepsis-3 как операциональный критерий органной дисфункции, но не является самостоятельным диагнозом сепсиса.</p><p>Это SOFA-1, не SOFA-2. Не смешивайте версии.</p></div>
         </aside>
       </div>
 
